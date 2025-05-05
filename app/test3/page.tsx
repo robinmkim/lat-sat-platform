@@ -27,13 +27,30 @@ export default function Test() {
 
         <div className="flex flex-grow items-stretch">
           {/* Left side */}
-          <div className="w-1/2 flex justify-center p-5">
-            <span>
-              In recommending Bao Phi's collection <i>Song I Sing</i>, a
-              librarian noted that pieces by the spoken-word poet don't lose
-              their ____ nature when printed: the language has the same pleasant
-              musical quality on the page as it does when performed by Phi.
-            </span>
+          <div className="w-1/2 flex flex-col justify-center p-5">
+            <p className="mb-2">
+              While researching a topic, a student has taken the following
+              notes:
+            </p>
+            <ul className="list-disc pl-6 space-y-1">
+              <li>
+                Maika’i Tubbs is a Native Hawaiian sculptor and installation
+                artist.
+              </li>
+              <li>
+                His work has been shown in the United States, Canada, Japan, and
+                Germany, among other places.
+              </li>
+              <li>Many of his sculptures feature discarded objects.</li>
+              <li>
+                His work <em>Erasure</em> (2008) includes discarded
+                audiocassette tapes and magnets.
+              </li>
+              <li>
+                His work <em>Home Grown</em> (2009) includes discarded pushpins,
+                plastic plates and forks, and wood.
+              </li>
+            </ul>
           </div>
 
           {/* Vertical divider */}

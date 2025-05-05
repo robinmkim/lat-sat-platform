@@ -25,22 +25,9 @@ export default function Test() {
 
         {/* Main content */}
 
-        <div className="flex flex-grow items-stretch">
-          {/* Left side */}
-          <div className="w-1/2 flex justify-center p-5">
-            <span>
-              In recommending Bao Phi's collection <i>Song I Sing</i>, a
-              librarian noted that pieces by the spoken-word poet don't lose
-              their ____ nature when printed: the language has the same pleasant
-              musical quality on the page as it does when performed by Phi.
-            </span>
-          </div>
-
-          {/* Vertical divider */}
-          <div className="w-1.5 bg-gray-400"></div>
-
+        <div className="flex flex-grow justify-center">
           {/* Right side */}
-          <div className="w-1/2 flex flex-col p-5">
+          <div className="flex flex-col p-5">
             {/* Question Info */}
             <div className="flex border-b-2 border-dashed">
               <div className="w-8 bg-black text-white py-1 text-center">1</div>

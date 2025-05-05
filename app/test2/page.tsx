@@ -27,7 +27,15 @@ export default function Test() {
 
         <div className="flex flex-grow items-stretch">
           {/* Left side */}
-          <div className="w-1/2 flex justify-center p-5">
+          <div className="w-1/2 flex flex-col justify-center p-5">
+            <span className="text-lg">Text 1</span>
+            <span>
+              In recommending Bao Phi's collection <i>Song I Sing</i>, a
+              librarian noted that pieces by the spoken-word poet don't lose
+              their ____ nature when printed: the language has the same pleasant
+              musical quality on the page as it does when performed by Phi.
+            </span>
+            <span className="text-lg">Text 2</span>
             <span>
               In recommending Bao Phi's collection <i>Song I Sing</i>, a
               librarian noted that pieces by the spoken-word poet don't lose
