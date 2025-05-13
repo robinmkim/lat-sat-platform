@@ -26,6 +26,7 @@ export default function Home() {
           <p className="text-gray-600 text-base">
             You selected: <strong>{selected}</strong>
           </p>
+          <button className="border rounded-xl px-2 py-1">Start</button>
         </div>
       </div>
     </main>
