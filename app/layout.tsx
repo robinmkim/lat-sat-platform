@@ -27,9 +27,13 @@ export default function RootLayout({
     <MathJaxContext>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300`}
         >
-          {children}
+          <main className="flex items-center justify-center w-full h-screen">
+            <div className="flex flex-col items-center w-4/5 h-[80%] bg-white rounded-lg shadow-lg p-6">
+              {children}
+            </div>
+          </main>
         </body>
       </html>
     </MathJaxContext>

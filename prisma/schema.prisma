@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -12,4 +8,56 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+}
+
+model Test {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sections Section[]
+}
+
+model Section {
+  id        String      @id @default(uuid())
+  number    Int
+  type      SectionType
+  testId    String
+  test      Test        @relation(fields: [testId], references: [id])
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  questions Question[]
+
+  @@unique([testId, number])
+}
+
+enum SectionType {
+  READING_WRITING
+  MATH
+}
+
+model Question {
+  id        String  @id @default(uuid())
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id])
+
+  type             QuestionType
+  questionText     String
+  passage          String?
+  choices          Json?
+  answer           String
+  isMultipleChoice Boolean
+
+  tableData Json?
+  imageUrl  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum QuestionType {
+  READING_WRITING
+  MATH
 }

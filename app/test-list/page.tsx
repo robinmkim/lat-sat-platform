@@ -1,39 +1,69 @@
-import React from "react";
+"use client";
 
-export default function page() {
+import { useRouter } from "next/navigation";
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  PlusIcon,
+} from "@heroicons/react/16/solid";
+
+export default function TestListPage() {
+  const router = useRouter();
+
+  const tests = [
+    { id: 1, title: "test 1" },
+    { id: 2, title: "test 2" },
+    { id: 3, title: "test 3" },
+    { id: 4, title: "test 4" },
+  ];
+
+  const handleDelete = (id: number) => {
+    console.log("delete test", id);
+  };
+
+  const handleEdit = (id: number) => {
+    router.push(`/test-edit/${id}`);
+  };
+
+  const goToAddTest = () => {
+    router.push("/test-add");
+  };
+
   return (
-    <main className="p-6 bg-gray-100 min-h-screen flex flex-col gap-6">
-      <div className="bg-white p-6 rounded-lg shadow-md w-4/5 h-[650px] mx-auto">
-        <span>Test List</span>
-        <div className="flex border-2 border-gray-500 rounded-2xl px-2 py-1 mb-2 shadow-2xl justify-between items-center">
-          <span>test 1</span>
-          <div className="flex">
-            <div className="mr-1 border rounded-xl py-1 px-2">del</div>
-            <div className="border rounded-xl py-1 px-2">edit</div>
-          </div>
-        </div>
-        <div className="flex border-2 border-gray-500 rounded-2xl px-2 py-1 mb-2 shadow-2xl justify-between items-center">
-          <span>test 2</span>
-          <div className="flex">
-            <div className="mr-1 border rounded-xl py-1 px-2">del</div>
-            <div className="border rounded-xl py-1 px-2">edit</div>
-          </div>
-        </div>
-        <div className="flex border-2 border-gray-500 rounded-2xl px-2 py-1 mb-2 shadow-2xl justify-between items-center">
-          <span>test 3</span>
-          <div className="flex">
-            <div className="mr-1 border rounded-xl py-1 px-2">del</div>
-            <div className="border rounded-xl py-1 px-2">edit</div>
-          </div>
-        </div>
-        <div className="flex border-2 border-gray-500 rounded-2xl px-2 py-1 mb-2 shadow-2xl justify-between items-center">
-          <span>test 4</span>
-          <div className="flex">
-            <div className="mr-1 border rounded-xl py-1 px-2">del</div>
-            <div className="border rounded-xl py-1 px-2">edit</div>
-          </div>
-        </div>
+    <>
+      <div className="flex justify-between items-center w-full mb-4">
+        <span className="text-xl font-semibold">Test List</span>
+        <button
+          onClick={goToAddTest}
+          className="flex items-center gap-1 border border-gray-400 rounded-lg px-3 py-1 hover:bg-gray-100 transition"
+        >
+          <PlusIcon className="w-5 h-5" />
+          <span className="text-sm font-medium">Add</span>
+        </button>
       </div>
-    </main>
+
+      {tests.map((test) => (
+        <div
+          key={test.id}
+          className="flex justify-between items-center w-full border-2 border-gray-500 rounded-2xl shadow-2xl px-2 py-1 mb-2"
+        >
+          <span>{test.title}</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleDelete(test.id)}
+              className="w-6 h-6 text-red-500 hover:scale-110 transition-transform"
+            >
+              <TrashIcon />
+            </button>
+            <button
+              onClick={() => handleEdit(test.id)}
+              className="w-6 h-6 text-blue-500 hover:scale-110 transition-transform"
+            >
+              <PencilSquareIcon />
+            </button>
+          </div>
+        </div>
+      ))}
+    </>
   );
 }
