@@ -1,26 +1,48 @@
 "use server";
 
+import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
 export async function saveQuestion(formData: FormData) {
-  const raw = formData.get("payload");
+  const sectionId = formData.get("sectionId") as string;
+  const index = Number(formData.get("index"));
+  const payload = formData.get("payload") as string;
 
-  if (!raw) {
-    console.error("No payload received");
-    return;
-  }
+  const [question] = JSON.parse(payload);
 
-  const parsed = JSON.parse(raw as string);
-
-  console.log(parsed);
-
-  for (const question of parsed) {
-    console.log("문제 ID:", question.id);
-    console.log("문제 유형:", question.type);
-
-    if (question.type === "multiple") {
-      console.log("선택지들:", question.choices);
-      console.log("정답 인덱스:", question.correctAnswer);
-    } else if (question.type === "passage") {
-      console.log("지문:", question.passage);
-    }
-  }
+  await prisma.question.upsert({
+    where: {
+      sectionId_index: {
+        sectionId,
+        index,
+      },
+    },
+    update: {
+      questionText: question.question,
+      passage: question.passage,
+      choices: question.choices,
+      answer: question.answer,
+      isMultipleChoice: question.type === "MULTIPLE",
+      type: question.type, // ✅ 그대로 저장
+      tableData: question.tableData,
+      imageUrl: question.imageUrl,
+    },
+    create: {
+      id: question.id,
+      sectionId,
+      index,
+      questionText: question.question,
+      passage: question.passage,
+      choices: question.choices,
+      answer: question.answer,
+      isMultipleChoice: question.type === "MULTIPLE",
+      type: question.type, // ✅ 그대로 저장
+      tableData: question.tableData,
+      imageUrl: question.imageUrl,
+    },
+  });
+}
+export async function deleteTestById(testId: string) {
+  await prisma.test.delete({ where: { id: testId } });
+  revalidatePath("/test-list");
 }

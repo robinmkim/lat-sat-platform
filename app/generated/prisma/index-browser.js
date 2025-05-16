@@ -136,12 +136,13 @@ exports.Prisma.SectionScalarFieldEnum = {
 exports.Prisma.QuestionScalarFieldEnum = {
   id: 'id',
   sectionId: 'sectionId',
-  type: 'type',
+  index: 'index',
   questionText: 'questionText',
   passage: 'passage',
   choices: 'choices',
   answer: 'answer',
   isMultipleChoice: 'isMultipleChoice',
+  type: 'type',
   tableData: 'tableData',
   imageUrl: 'imageUrl',
   createdAt: 'createdAt',
@@ -155,6 +156,10 @@ exports.Prisma.SortOrder = {
 
 exports.Prisma.NullableJsonNullValueInput = {
   DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
@@ -179,8 +184,8 @@ exports.SectionType = exports.$Enums.SectionType = {
 };
 
 exports.QuestionType = exports.$Enums.QuestionType = {
-  READING_WRITING: 'READING_WRITING',
-  MATH: 'MATH'
+  MULTIPLE: 'MULTIPLE',
+  SHORT: 'SHORT'
 };
 
 exports.Prisma.ModelName = {

@@ -26,5 +26,5 @@ export async function createTestWithSections(formData: FormData) {
   }
 
   // 3. 첫 섹션으로 이동
-  redirect(`/test-edit/${test.id}/section/1`);
+  redirect(`/test-edit/${test.id}/section/1/question/1`);
 }

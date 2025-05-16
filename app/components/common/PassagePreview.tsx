@@ -4,16 +4,15 @@
 import { renderPassage } from "./renderPassage";
 
 interface Props {
-  passage: string;
+  passage?: string;
 }
 
 export default function PassagePreview({ passage }: Props) {
+  if (!passage) return null;
+
   return (
-    <div className="flex flex-col w-full bg-white border rounded shadow p-4 gap-3">
-      <h2 className="text-base font-semibold">미리보기</h2>
-      <div className="w-full whitespace-pre-wrap leading-relaxed break-words text-sm space-y-3">
-        {renderPassage(passage)}
-      </div>
+    <div className="bg-gray-100 p-3 rounded whitespace-pre-wrap">
+      {renderPassage(passage)}
     </div>
   );
 }

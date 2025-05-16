@@ -1,17 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 import QuestionRenderer from "../components/QuestionRenderer";
 
-export default function QuestionForm() {
-  const [questions, setQuestions] = useState([
-    {
-      id: "q1",
+export interface Question {
+  id: string;
+  index: number;
+  question: string;
+  passage?: string;
+  choices?: string[];
+  answer: string | number;
+  type: "MULTIPLE" | "SHORT";
+  tableData: string[][]; // ✅ 필수화
+  imageUrl?: string;
+}
+
+interface QuestionFormProps {
+  sectionNumber: number;
+  questionIndex: number;
+  initialQuestion?: Question | null; // ✅ 추가
+}
+
+export default function QuestionForm({
+  sectionNumber,
+  questionIndex,
+  initialQuestion,
+}: QuestionFormProps) {
+  const [questions, setQuestions] = useState<Question[]>([
+    initialQuestion ?? {
+      id: uuidv4(),
+      index: questionIndex,
       question: "",
       passage: "",
       choices: ["", "", "", ""],
-      correctAnswer: 0,
-      type: "multiple",
+      answer: "",
+      type: "MULTIPLE", // 기본값
+      tableData: [[""]],
+      imageUrl: "",
     },
   ]);
 
@@ -20,12 +46,13 @@ export default function QuestionForm() {
       prev.map((q) => (q.id === id ? { ...q, ...newPartial } : q))
     );
   };
-
+  console.log(questions);
   return (
     <div className="space-y-4">
       {questions.map((q) => (
         <QuestionRenderer
           key={q.id}
+          sectionNumber={sectionNumber} // ✅ 전달
           {...q}
           onUpdate={(partial) => updateQuestion(q.id, partial)}
         />

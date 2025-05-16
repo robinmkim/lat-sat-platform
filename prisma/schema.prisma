@@ -43,21 +43,22 @@ model Question {
   sectionId String
   section   Section @relation(fields: [sectionId], references: [id])
 
-  type             QuestionType
+  index            Int // ✅ 문제 순서 (1~27)
   questionText     String
   passage          String?
   choices          Json?
-  answer           String
+  answer           Json
   isMultipleChoice Boolean
+  type             QuestionType
+  tableData        Json?
+  imageUrl         String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
-  tableData Json?
-  imageUrl  String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@unique([sectionId, index]) // ✅ 같은 섹션 내 index는 고유
 }
 
 enum QuestionType {
-  READING_WRITING
-  MATH
+  MULTIPLE
+  SHORT
 }
