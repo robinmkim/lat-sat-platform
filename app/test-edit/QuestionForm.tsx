@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Question as PrismaQuestion } from "@/app/generated/prisma";
 import QuestionRenderer from "../components/QuestionRenderer";
+import { normalizeAnswer } from "./utils/question";
 
 export interface Question {
   id: string;
@@ -19,7 +21,7 @@ export interface Question {
 interface QuestionFormProps {
   sectionNumber: number;
   questionIndex: number;
-  initialQuestion?: Question | null; // ✅ 추가
+  initialQuestion?: PrismaQuestion | null;
 }
 
 export default function QuestionForm({
@@ -27,19 +29,35 @@ export default function QuestionForm({
   questionIndex,
   initialQuestion,
 }: QuestionFormProps) {
-  const [questions, setQuestions] = useState<Question[]>([
-    initialQuestion ?? {
-      id: uuidv4(),
-      index: questionIndex,
-      question: "",
-      passage: "",
-      choices: ["", "", "", ""],
-      answer: "",
-      type: "MULTIPLE", // 기본값
-      tableData: [[""]],
-      imageUrl: "",
-    },
-  ]);
+  const normalizedQuestion: Question = initialQuestion
+    ? {
+        id: initialQuestion.id,
+        index: initialQuestion.index,
+        question: initialQuestion.questionText ?? "",
+        passage: initialQuestion.passage ?? "",
+        choices: Array.isArray(initialQuestion.choices)
+          ? (initialQuestion.choices as string[])
+          : ["", "", "", ""],
+        answer: normalizeAnswer(initialQuestion.answer, initialQuestion.type), // ✅ 여기가 핵심
+        type: initialQuestion.type ?? "MULTIPLE",
+        tableData: Array.isArray(initialQuestion.tableData)
+          ? (initialQuestion.tableData as string[][])
+          : [[""]],
+        imageUrl: initialQuestion.imageUrl ?? "",
+      }
+    : {
+        id: uuidv4(),
+        index: questionIndex,
+        question: "",
+        passage: "",
+        choices: ["", "", "", ""],
+        answer: "",
+        type: "MULTIPLE",
+        tableData: [[""]],
+        imageUrl: "",
+      };
+
+  const [questions, setQuestions] = useState<Question[]>([normalizedQuestion]);
 
   const updateQuestion = (id: string, newPartial: Partial<Question>) => {
     setQuestions((prev) =>

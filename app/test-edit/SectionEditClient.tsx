@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import QuestionForm from "@/app/test-edit/QuestionForm";
 import { saveQuestion } from "@/app/test-edit/actions";
+import { useFormState } from "react-dom";
 
 interface SectionEditClientProps {
   testId: string;
@@ -10,6 +11,10 @@ interface SectionEditClientProps {
   sectionNumber: number;
   questionIndex: number;
   initialQuestion: any | null;
+}
+interface SaveResult {
+  error?: string;
+  success?: boolean;
 }
 
 export default function SectionEditClient({
@@ -20,17 +25,20 @@ export default function SectionEditClient({
   initialQuestion,
 }: SectionEditClientProps) {
   const router = useRouter();
+  const [formState, formAction] = useFormState<SaveResult, FormData>(
+    saveQuestion,
+    { error: undefined, success: false }
+  );
 
   const handleNavigation = (targetSection: number, targetQuestion: number) => {
     router.push(
       `/test-edit/${testId}/section/${targetSection}/question/${targetQuestion}`
     );
   };
-  console.log(sectionId, questionIndex);
   return (
     <form
       id="question-form"
-      action={saveQuestion}
+      action={formAction}
       className="w-full max-w-4xl flex flex-col gap-4"
     >
       <h1 className="text-2xl font-semibold">문제 입력</h1>
@@ -43,6 +51,10 @@ export default function SectionEditClient({
         questionIndex={questionIndex}
         initialQuestion={initialQuestion}
       />
+
+      {formState.error && (
+        <p className="text-red-500 font-medium">{formState.error}</p>
+      )}
 
       <div className="flex justify-between gap-2 mt-4">
         {questionIndex > 1 ? (

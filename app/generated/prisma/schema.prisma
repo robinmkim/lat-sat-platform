@@ -24,7 +24,7 @@ model Section {
   number    Int
   type      SectionType
   testId    String
-  test      Test        @relation(fields: [testId], references: [id])
+  test      Test        @relation(fields: [testId], references: [id], onDelete: Cascade) // ✅ 추가
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -33,17 +33,12 @@ model Section {
   @@unique([testId, number])
 }
 
-enum SectionType {
-  READING_WRITING
-  MATH
-}
-
 model Question {
   id        String  @id @default(uuid())
   sectionId String
-  section   Section @relation(fields: [sectionId], references: [id])
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade) // ✅ 추가
 
-  index            Int // ✅ 문제 순서 (1~27)
+  index            Int
   questionText     String
   passage          String?
   choices          Json?
@@ -55,7 +50,12 @@ model Question {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
-  @@unique([sectionId, index]) // ✅ 같은 섹션 내 index는 고유
+  @@unique([sectionId, index])
+}
+
+enum SectionType {
+  READING_WRITING
+  MATH
 }
 
 enum QuestionType {
