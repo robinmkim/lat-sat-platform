@@ -7,18 +7,15 @@ type Choice = {
   text: string;
 };
 
-const choices: Choice[] = [
-  { id: "A", text: "scholarly" },
-  { id: "B", text: "melodic" },
-  { id: "C", text: "jarring" },
-  { id: "D", text: "personal" },
-];
+type MultipleChoiceProps = {
+  choices: Choice[];
+};
 
-export default function MultipleChoice() {
+export default function MultipleChoice({ choices }: MultipleChoiceProps) {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2 w-full">
       {choices.map((choice) => {
         const isSelected = selected === choice.id;
 
@@ -26,16 +23,12 @@ export default function MultipleChoice() {
           <div
             key={choice.id}
             onClick={() => setSelected(choice.id)}
-            className={`w-full flex items-center border rounded-md p-2 cursor-pointer transition-colors duration-200
-              ${
-                isSelected
-                  ? "bg-white ring-2 ring-blue-500"
-                  : "hover:bg-gray-100"
-              }
+            className={`flex items-center w-full bg-white border rounded-md p-2 cursor-pointer transition-colors duration-200
+              ${isSelected ? "ring-2 ring-blue-500" : "hover:bg-gray-100"}
             `}
           >
             <div
-              className={`inline-flex items-center justify-center border-2 rounded-full w-6 h-6 text-sm transition-colors duration-200
+              className={`flex items-center justify-center w-6 h-6 border-2 rounded-full text-sm
                 ${isSelected ? "border-blue-500 text-blue-600 font-bold" : ""}
               `}
             >

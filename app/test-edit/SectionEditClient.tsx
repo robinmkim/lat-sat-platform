@@ -39,7 +39,7 @@ export default function SectionEditClient({
     <form
       id="question-form"
       action={formAction}
-      className="w-full max-w-4xl flex flex-col gap-4"
+      className="w-full max-w-4xl flex flex-col gap-4 p-6"
     >
       <h1 className="text-2xl font-semibold">문제 입력</h1>
 
