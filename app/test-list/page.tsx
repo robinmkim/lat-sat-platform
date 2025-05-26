@@ -33,7 +33,7 @@ export default async function TestListPage() {
   });
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-4 p-6">
       <div className="flex justify-between items-center w-full mb-4">
         <span className="text-xl font-semibold">Test List</span>
         <Link

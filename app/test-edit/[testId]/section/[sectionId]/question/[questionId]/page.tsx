@@ -1,14 +1,19 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/prisma";
 import { getQuestion } from "@/lib/queries/getQuestion";
 import SectionEditClient from "@/app/test-edit/SectionEditClient";
 import { redirect } from "next/navigation";
 
-export default async function SectionEditPage(context: {
-  params: { testId: string; sectionId: string; questionId: string };
+export default async function SectionEditPage({
+  params,
+}: {
+  params: Promise<{ testId: string; sectionId: string; questionId: string }>;
 }) {
-  const testId = context.params.testId;
-  const sectionNumber = Number(context.params.sectionId);
-  const questionIndex = Number(context.params.questionId);
+  const { testId, sectionId, questionId } = await params;
+
+  const sectionNumber = Number(sectionId);
+  const questionIndex = Number(questionId);
 
   const section = await prisma.section.findUnique({
     where: {
@@ -22,7 +27,7 @@ export default async function SectionEditPage(context: {
   if (!section) redirect("/test-list");
 
   const question = await getQuestion(section.id, questionIndex);
-  console.log(question);
+
   return (
     <SectionEditClient
       testId={testId}

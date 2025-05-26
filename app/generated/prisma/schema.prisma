@@ -1,5 +1,3 @@
-// schema.prisma
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
@@ -24,7 +22,7 @@ model Section {
   number    Int
   type      SectionType
   testId    String
-  test      Test        @relation(fields: [testId], references: [id], onDelete: Cascade) // ✅ 추가
+  test      Test        @relation(fields: [testId], references: [id], onDelete: Cascade)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
 
@@ -36,19 +34,21 @@ model Section {
 model Question {
   id        String  @id @default(uuid())
   sectionId String
-  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade) // ✅ 추가
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
-  index            Int
-  questionText     String
-  passage          String?
-  choices          Json?
-  answer           Json
-  isMultipleChoice Boolean
-  type             QuestionType
-  tableData        Json?
-  imageUrl         String?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  index        Int
+  questionText String
+  passage      String?      @default("")
+  choices      Json? // ❌ @default 제거
+  answer       Json // ❌ @default 제거
+  type         QuestionType @default(MULTIPLE)
+  tableData    Json? // ❌ @default 제거
+  imageUrl     String?      @default("")
+  showTable    Boolean      @default(true)
+  showImage    Boolean      @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([sectionId, index])
 }
