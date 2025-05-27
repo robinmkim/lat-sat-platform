@@ -1,18 +1,14 @@
-// components/common/PassagePreview.tsx
 "use client";
 
+import { MathJax } from "better-react-mathjax";
 import { renderPassage } from "./renderPassage";
 
-interface Props {
-  passage?: string;
-}
-
-export default function PassagePreview({ passage }: Props) {
-  if (!passage) return null;
-
+export default function PassagePreview({ passage }: { passage: string }) {
   return (
-    <div className="bg-gray-100 p-3 rounded whitespace-pre-wrap">
-      {renderPassage(passage)}
+    <div className="p-4 bg-gray-50 rounded border border-gray-200">
+      <MathJax dynamic inline key={passage}>
+        {renderPassage(passage)}
+      </MathJax>
     </div>
   );
 }

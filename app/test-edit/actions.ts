@@ -29,6 +29,7 @@ export async function saveQuestion(
         imageUrl: question.imageUrl,
         showTable: question.showTable,
         showImage: question.showImage,
+        score: question.score ?? 1,
       };
 
       await prisma.question.upsert({

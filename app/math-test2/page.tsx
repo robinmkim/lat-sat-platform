@@ -1,5 +1,5 @@
 import MultipleChoice from "../components/MultipleChoice";
-import FractionInput from "../components/FractionInput"; // Add this line for the math input component
+import FractionInput from "../test-edit/components/FractionInput"; // Add this line for the math input component
 
 export default function Test() {
   return (

@@ -39,13 +39,15 @@ model Question {
   index        Int
   questionText String
   passage      String?      @default("")
-  choices      Json? // ❌ @default 제거
-  answer       Json // ❌ @default 제거
+  choices      Json?
+  answer       Json
   type         QuestionType @default(MULTIPLE)
-  tableData    Json? // ❌ @default 제거
+  tableTitle   String?
+  tableData    Json?
   imageUrl     String?      @default("")
-  showTable    Boolean      @default(true)
-  showImage    Boolean      @default(true)
+  showTable    Boolean      @default(false)
+  showImage    Boolean      @default(false)
+  score        Int          @default(1) // ✅ 새로 추가됨
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

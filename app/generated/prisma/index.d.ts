@@ -3343,10 +3343,12 @@ export namespace Prisma {
 
   export type QuestionAvgAggregateOutputType = {
     index: number | null
+    score: number | null
   }
 
   export type QuestionSumAggregateOutputType = {
     index: number | null
+    score: number | null
   }
 
   export type QuestionMinAggregateOutputType = {
@@ -3356,9 +3358,11 @@ export namespace Prisma {
     questionText: string | null
     passage: string | null
     type: $Enums.QuestionType | null
+    tableTitle: string | null
     imageUrl: string | null
     showTable: boolean | null
     showImage: boolean | null
+    score: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3370,9 +3374,11 @@ export namespace Prisma {
     questionText: string | null
     passage: string | null
     type: $Enums.QuestionType | null
+    tableTitle: string | null
     imageUrl: string | null
     showTable: boolean | null
     showImage: boolean | null
+    score: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3386,10 +3392,12 @@ export namespace Prisma {
     choices: number
     answer: number
     type: number
+    tableTitle: number
     tableData: number
     imageUrl: number
     showTable: number
     showImage: number
+    score: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -3398,10 +3406,12 @@ export namespace Prisma {
 
   export type QuestionAvgAggregateInputType = {
     index?: true
+    score?: true
   }
 
   export type QuestionSumAggregateInputType = {
     index?: true
+    score?: true
   }
 
   export type QuestionMinAggregateInputType = {
@@ -3411,9 +3421,11 @@ export namespace Prisma {
     questionText?: true
     passage?: true
     type?: true
+    tableTitle?: true
     imageUrl?: true
     showTable?: true
     showImage?: true
+    score?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3425,9 +3437,11 @@ export namespace Prisma {
     questionText?: true
     passage?: true
     type?: true
+    tableTitle?: true
     imageUrl?: true
     showTable?: true
     showImage?: true
+    score?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3441,10 +3455,12 @@ export namespace Prisma {
     choices?: true
     answer?: true
     type?: true
+    tableTitle?: true
     tableData?: true
     imageUrl?: true
     showTable?: true
     showImage?: true
+    score?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -3545,10 +3561,12 @@ export namespace Prisma {
     choices: JsonValue | null
     answer: JsonValue
     type: $Enums.QuestionType
+    tableTitle: string | null
     tableData: JsonValue | null
     imageUrl: string | null
     showTable: boolean
     showImage: boolean
+    score: number
     createdAt: Date
     updatedAt: Date
     _count: QuestionCountAggregateOutputType | null
@@ -3581,10 +3599,12 @@ export namespace Prisma {
     choices?: boolean
     answer?: boolean
     type?: boolean
+    tableTitle?: boolean
     tableData?: boolean
     imageUrl?: boolean
     showTable?: boolean
     showImage?: boolean
+    score?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     section?: boolean | SectionDefaultArgs<ExtArgs>
@@ -3599,10 +3619,12 @@ export namespace Prisma {
     choices?: boolean
     answer?: boolean
     type?: boolean
+    tableTitle?: boolean
     tableData?: boolean
     imageUrl?: boolean
     showTable?: boolean
     showImage?: boolean
+    score?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     section?: boolean | SectionDefaultArgs<ExtArgs>
@@ -3617,10 +3639,12 @@ export namespace Prisma {
     choices?: boolean
     answer?: boolean
     type?: boolean
+    tableTitle?: boolean
     tableData?: boolean
     imageUrl?: boolean
     showTable?: boolean
     showImage?: boolean
+    score?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     section?: boolean | SectionDefaultArgs<ExtArgs>
@@ -3635,15 +3659,17 @@ export namespace Prisma {
     choices?: boolean
     answer?: boolean
     type?: boolean
+    tableTitle?: boolean
     tableData?: boolean
     imageUrl?: boolean
     showTable?: boolean
     showImage?: boolean
+    score?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type QuestionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sectionId" | "index" | "questionText" | "passage" | "choices" | "answer" | "type" | "tableData" | "imageUrl" | "showTable" | "showImage" | "createdAt" | "updatedAt", ExtArgs["result"]["question"]>
+  export type QuestionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sectionId" | "index" | "questionText" | "passage" | "choices" | "answer" | "type" | "tableTitle" | "tableData" | "imageUrl" | "showTable" | "showImage" | "score" | "createdAt" | "updatedAt", ExtArgs["result"]["question"]>
   export type QuestionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     section?: boolean | SectionDefaultArgs<ExtArgs>
   }
@@ -3668,10 +3694,12 @@ export namespace Prisma {
       choices: Prisma.JsonValue | null
       answer: Prisma.JsonValue
       type: $Enums.QuestionType
+      tableTitle: string | null
       tableData: Prisma.JsonValue | null
       imageUrl: string | null
       showTable: boolean
       showImage: boolean
+      score: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["question"]>
@@ -4106,10 +4134,12 @@ export namespace Prisma {
     readonly choices: FieldRef<"Question", 'Json'>
     readonly answer: FieldRef<"Question", 'Json'>
     readonly type: FieldRef<"Question", 'QuestionType'>
+    readonly tableTitle: FieldRef<"Question", 'String'>
     readonly tableData: FieldRef<"Question", 'Json'>
     readonly imageUrl: FieldRef<"Question", 'String'>
     readonly showTable: FieldRef<"Question", 'Boolean'>
     readonly showImage: FieldRef<"Question", 'Boolean'>
+    readonly score: FieldRef<"Question", 'Int'>
     readonly createdAt: FieldRef<"Question", 'DateTime'>
     readonly updatedAt: FieldRef<"Question", 'DateTime'>
   }
@@ -4566,10 +4596,12 @@ export namespace Prisma {
     choices: 'choices',
     answer: 'answer',
     type: 'type',
+    tableTitle: 'tableTitle',
     tableData: 'tableData',
     imageUrl: 'imageUrl',
     showTable: 'showTable',
     showImage: 'showImage',
+    score: 'score',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -4824,10 +4856,12 @@ export namespace Prisma {
     choices?: JsonNullableFilter<"Question">
     answer?: JsonFilter<"Question">
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
+    tableTitle?: StringNullableFilter<"Question"> | string | null
     tableData?: JsonNullableFilter<"Question">
     imageUrl?: StringNullableFilter<"Question"> | string | null
     showTable?: BoolFilter<"Question"> | boolean
     showImage?: BoolFilter<"Question"> | boolean
+    score?: IntFilter<"Question"> | number
     createdAt?: DateTimeFilter<"Question"> | Date | string
     updatedAt?: DateTimeFilter<"Question"> | Date | string
     section?: XOR<SectionScalarRelationFilter, SectionWhereInput>
@@ -4842,10 +4876,12 @@ export namespace Prisma {
     choices?: SortOrderInput | SortOrder
     answer?: SortOrder
     type?: SortOrder
+    tableTitle?: SortOrderInput | SortOrder
     tableData?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
+    score?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     section?: SectionOrderByWithRelationInput
@@ -4864,10 +4900,12 @@ export namespace Prisma {
     choices?: JsonNullableFilter<"Question">
     answer?: JsonFilter<"Question">
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
+    tableTitle?: StringNullableFilter<"Question"> | string | null
     tableData?: JsonNullableFilter<"Question">
     imageUrl?: StringNullableFilter<"Question"> | string | null
     showTable?: BoolFilter<"Question"> | boolean
     showImage?: BoolFilter<"Question"> | boolean
+    score?: IntFilter<"Question"> | number
     createdAt?: DateTimeFilter<"Question"> | Date | string
     updatedAt?: DateTimeFilter<"Question"> | Date | string
     section?: XOR<SectionScalarRelationFilter, SectionWhereInput>
@@ -4882,10 +4920,12 @@ export namespace Prisma {
     choices?: SortOrderInput | SortOrder
     answer?: SortOrder
     type?: SortOrder
+    tableTitle?: SortOrderInput | SortOrder
     tableData?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
+    score?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: QuestionCountOrderByAggregateInput
@@ -4907,10 +4947,12 @@ export namespace Prisma {
     choices?: JsonNullableWithAggregatesFilter<"Question">
     answer?: JsonWithAggregatesFilter<"Question">
     type?: EnumQuestionTypeWithAggregatesFilter<"Question"> | $Enums.QuestionType
+    tableTitle?: StringNullableWithAggregatesFilter<"Question"> | string | null
     tableData?: JsonNullableWithAggregatesFilter<"Question">
     imageUrl?: StringNullableWithAggregatesFilter<"Question"> | string | null
     showTable?: BoolWithAggregatesFilter<"Question"> | boolean
     showImage?: BoolWithAggregatesFilter<"Question"> | boolean
+    score?: IntWithAggregatesFilter<"Question"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Question"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Question"> | Date | string
   }
@@ -5042,10 +5084,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer: JsonNullValueInput | InputJsonValue
     type?: $Enums.QuestionType
+    tableTitle?: string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     showTable?: boolean
     showImage?: boolean
+    score?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     section: SectionCreateNestedOneWithoutQuestionsInput
@@ -5060,10 +5104,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer: JsonNullValueInput | InputJsonValue
     type?: $Enums.QuestionType
+    tableTitle?: string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     showTable?: boolean
     showImage?: boolean
+    score?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -5076,10 +5122,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     section?: SectionUpdateOneRequiredWithoutQuestionsNestedInput
@@ -5094,10 +5142,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5111,10 +5161,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer: JsonNullValueInput | InputJsonValue
     type?: $Enums.QuestionType
+    tableTitle?: string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     showTable?: boolean
     showImage?: boolean
+    score?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -5127,10 +5179,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5144,10 +5198,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5424,16 +5480,19 @@ export namespace Prisma {
     choices?: SortOrder
     answer?: SortOrder
     type?: SortOrder
+    tableTitle?: SortOrder
     tableData?: SortOrder
     imageUrl?: SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
+    score?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type QuestionAvgOrderByAggregateInput = {
     index?: SortOrder
+    score?: SortOrder
   }
 
   export type QuestionMaxOrderByAggregateInput = {
@@ -5443,9 +5502,11 @@ export namespace Prisma {
     questionText?: SortOrder
     passage?: SortOrder
     type?: SortOrder
+    tableTitle?: SortOrder
     imageUrl?: SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
+    score?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5457,15 +5518,18 @@ export namespace Prisma {
     questionText?: SortOrder
     passage?: SortOrder
     type?: SortOrder
+    tableTitle?: SortOrder
     imageUrl?: SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
+    score?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type QuestionSumOrderByAggregateInput = {
     index?: SortOrder
+    score?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -5990,10 +6054,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer: JsonNullValueInput | InputJsonValue
     type?: $Enums.QuestionType
+    tableTitle?: string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     showTable?: boolean
     showImage?: boolean
+    score?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6006,10 +6072,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer: JsonNullValueInput | InputJsonValue
     type?: $Enums.QuestionType
+    tableTitle?: string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     showTable?: boolean
     showImage?: boolean
+    score?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6076,10 +6144,12 @@ export namespace Prisma {
     choices?: JsonNullableFilter<"Question">
     answer?: JsonFilter<"Question">
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
+    tableTitle?: StringNullableFilter<"Question"> | string | null
     tableData?: JsonNullableFilter<"Question">
     imageUrl?: StringNullableFilter<"Question"> | string | null
     showTable?: BoolFilter<"Question"> | boolean
     showImage?: BoolFilter<"Question"> | boolean
+    score?: IntFilter<"Question"> | number
     createdAt?: DateTimeFilter<"Question"> | Date | string
     updatedAt?: DateTimeFilter<"Question"> | Date | string
   }
@@ -6178,10 +6248,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer: JsonNullValueInput | InputJsonValue
     type?: $Enums.QuestionType
+    tableTitle?: string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: string | null
     showTable?: boolean
     showImage?: boolean
+    score?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6194,10 +6266,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6210,10 +6284,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6226,10 +6302,12 @@ export namespace Prisma {
     choices?: NullableJsonNullValueInput | InputJsonValue
     answer?: JsonNullValueInput | InputJsonValue
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
+    tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
     tableData?: NullableJsonNullValueInput | InputJsonValue
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
+    score?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

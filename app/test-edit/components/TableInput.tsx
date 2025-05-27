@@ -1,12 +1,19 @@
 "use client";
 
 interface TableInputProps {
+  title?: string;
   data: string[][];
   onChange: (updated: string[][]) => void;
+  onTitleChange?: (title: string) => void;
 }
 
-export default function TableInput({ data, onChange }: TableInputProps) {
-  if (!data || data.length === 0) return null; // ✅ 안전한 방어
+export default function TableInput({
+  title,
+  data,
+  onChange,
+  onTitleChange,
+}: TableInputProps) {
+  if (!data || data.length === 0) return null;
 
   const updateCell = (row: number, col: number, val: string) => {
     const updated = data.map((r, i) =>
@@ -27,6 +34,14 @@ export default function TableInput({ data, onChange }: TableInputProps) {
 
   return (
     <div className="flex flex-col gap-2">
+      <input
+        type="text"
+        value={title ?? ""}
+        onChange={(e) => onTitleChange?.(e.target.value)}
+        placeholder="표 제목을 입력하세요"
+        className="border px-3 py-2 rounded w-full font-medium"
+      />
+
       <table className="table-auto border-collapse border border-gray-300">
         <tbody>
           {data.map((row, rowIdx) => (

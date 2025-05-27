@@ -157,6 +157,15 @@ export default function SectionEditClient({
     }
   };
 
+  const handleSaveAndExit = async () => {
+    const formData = new FormData();
+    formData.append("sectionId", sectionId);
+    formData.append("index", String(questionIndex));
+    formData.append("payload", JSON.stringify(questions));
+    await saveQuestion(formData);
+    router.push("/test-list");
+  };
+
   if (!questions) return null;
 
   return (
@@ -165,7 +174,17 @@ export default function SectionEditClient({
       action={() => {}}
       className="flex flex-col w-full max-w-4xl h-[calc(100vh-4rem)] p-6"
     >
-      <h1 className="text-2xl font-semibold mb-2">문제 입력</h1>
+      <div className="flex justify-between">
+        <h1 className="text-2xl font-semibold mb-2">문제 입력</h1>
+        {/* ✅ 우측 상단 저장 후 종료 버튼 */}
+        <button
+          type="button"
+          onClick={handleSaveAndExit}
+          className=" top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+        >
+          저장 후 종료
+        </button>
+      </div>
 
       <input type="hidden" name="sectionId" value={sectionId} />
       <input type="hidden" name="index" value={questionIndex} />

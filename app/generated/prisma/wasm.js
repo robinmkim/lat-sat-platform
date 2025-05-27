@@ -142,10 +142,12 @@ exports.Prisma.QuestionScalarFieldEnum = {
   choices: 'choices',
   answer: 'answer',
   type: 'type',
+  tableTitle: 'tableTitle',
   tableData: 'tableData',
   imageUrl: 'imageUrl',
   showTable: 'showTable',
   showImage: 'showImage',
+  score: 'score',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

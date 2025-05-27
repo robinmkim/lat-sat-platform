@@ -1,4 +1,3 @@
-// components/common/renderPassage.tsx
 import React from "react";
 
 function renderInline(text: string) {
@@ -12,6 +11,16 @@ function renderInline(text: string) {
         <u key={idx} className="font-medium">
           {part.slice(2, -2)}
         </u>
+      );
+    }
+
+    // 수식이 포함된 경우 ($...$)
+    const latexMatch = part.match(/^\$(.*?)\$/);
+    if (latexMatch) {
+      return (
+        <span key={idx} className="text-blue-600 font-mono">
+          {"(" + latexMatch[1] + ")"}
+        </span>
       );
     }
 
