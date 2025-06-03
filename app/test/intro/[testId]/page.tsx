@@ -3,12 +3,12 @@ import { prisma } from "@/lib/prisma";
 import IntroFooter from "@/app/components/IntroFooter";
 import { getFirstSolveRoute } from "@/app/action";
 
-type Props = {
-  params: { testId: string };
-};
-
-export default async function TestIntroPage({ params }: Props) {
-  const testId = params.testId;
+export default async function TestIntroPage({
+  params,
+}: {
+  params: Promise<{ testId: string }>;
+}) {
+  const { testId } = await params;
 
   const test = await prisma.test.findUnique({
     where: { id: testId },
