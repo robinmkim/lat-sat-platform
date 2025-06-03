@@ -28,13 +28,14 @@ export default async function SectionEditPage({
 
   const question = await getQuestion(section.id, questionIndex);
 
+  // ✅ 질문이 없어도 그대로 내려보냄 (초기 입력 화면)
   return (
     <SectionEditClient
       testId={testId}
       sectionId={section.id}
       sectionNumber={sectionNumber}
       questionIndex={questionIndex}
-      initialQuestion={question}
+      initialQuestion={question ?? null}
     />
   );
 }

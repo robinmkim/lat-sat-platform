@@ -38,10 +38,10 @@ export default function TestListClient({ tests }: TestListClientProps) {
       {tests.map((test) => {
         const isDeleting = deletingId === test.id;
 
-        const editHref =
-          test.sectionId && test.questionId
-            ? `/test-edit/${test.id}/section/1/question/1`
-            : "#";
+        // const editHref =
+        //   test.sectionId && test.questionId
+        //     ? `/test-edit/${test.id}/section/1/question/1`
+        //     : "#";
 
         return (
           <div
@@ -64,7 +64,7 @@ export default function TestListClient({ tests }: TestListClientProps) {
                 )}
               </button>
               <Link
-                href={editHref}
+                href={`/test-edit/${test.id}/section/1/question/1`}
                 className="w-6 h-6 text-blue-500 hover:scale-110 transition-transform"
               >
                 <PencilSquareIcon />
