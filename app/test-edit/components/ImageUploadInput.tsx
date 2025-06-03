@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 interface ImageUploadInputProps {
   previewUrl?: string; // DB에서 불러온 imageUrl
@@ -52,7 +53,7 @@ export default function ImageUploadInput({
 
       {(localPreview || previewUrl) && (
         <div className="relative w-64">
-          <img
+          <Image
             src={localPreview ?? previewUrl!}
             alt="preview"
             className="w-64 h-auto rounded border"

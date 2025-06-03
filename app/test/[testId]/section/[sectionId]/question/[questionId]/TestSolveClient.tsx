@@ -11,6 +11,7 @@ import {
   renderPassage,
 } from "@/app/components/common/renderPassage";
 import ShortAnswerInstruction from "@/app/test-edit/components/ShortAnswerInstruction";
+import Image from "next/image";
 
 export type Choice = {
   id: string;
@@ -127,7 +128,7 @@ export default function TestSolveClient({
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
               {/* ✅ 이미지 먼저 출력 */}
               {question.imageUrl && (
-                <img
+                <Image
                   src={question.imageUrl}
                   alt="문제 이미지"
                   className="max-w-full max-h-64 border rounded object-contain"
