@@ -104,7 +104,12 @@ export default function TestHeader({
   const handleNextSection = async () => {
     const nextSectionNumber = sectionNumber + 1;
 
-    const route = await getNextQuestionRoute(testId, nextSectionNumber, 1);
+    const route = await getNextQuestionRoute(
+      testId,
+      nextSectionNumber,
+      1,
+      "next"
+    );
 
     if (!route) {
       alert("There are no more sections. Returning to home.");

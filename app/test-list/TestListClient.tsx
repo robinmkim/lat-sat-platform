@@ -25,6 +25,7 @@ export default function TestListClient({ tests }: TestListClientProps) {
         await deleteTestById(id);
         alert("삭제가 완료되었습니다.");
       } catch (e) {
+        console.log(e);
         alert("삭제 중 오류가 발생했습니다.");
       } finally {
         setDeletingId(null);

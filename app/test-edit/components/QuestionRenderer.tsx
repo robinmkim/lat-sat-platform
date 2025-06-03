@@ -30,8 +30,6 @@ interface QuestionRendererProps {
 
 export default function QuestionRenderer({
   sectionNumber,
-  id,
-  index,
   question,
   passage,
   choices = ["", "", "", ""],
