@@ -4,14 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "^44.3.0",
-    "@ckeditor/ckeditor5-react": "^9.5.0",
-    "@ckeditor/ckeditor5-upload": "^45.1.0",
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.7.0",
     "better-react-mathjax": "^2.3.0",
