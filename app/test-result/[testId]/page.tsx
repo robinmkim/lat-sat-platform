@@ -4,15 +4,15 @@ import { prisma } from "@/lib/prisma";
 import TestResultClient from "../TestResultClient";
 import { notFound } from "next/navigation";
 
-// ✅ 타입 import (경로는 실제 위치에 맞게 조정해주세요)
+// 타입은 필요에 따라 조정
 import type { Test, Section, Question } from "@/types/test";
 
-export default async function TestResultPage(
-  props: Promise<{ searchParams: { testId?: string } }>
-) {
-  const { searchParams } = await props;
-  const testId = searchParams.testId;
-  if (!testId) return notFound();
+export default async function TestResultPage({
+  params,
+}: {
+  params: { testId: string };
+}) {
+  const { testId } = params;
 
   const test = await prisma.test.findUnique({
     where: { id: testId },
@@ -26,7 +26,7 @@ export default async function TestResultPage(
 
   if (!test) return notFound();
 
-  // ✅ Prisma 결과를 명시 타입으로 정제
+  // ✅ Prisma 결과를 타입에 맞게 정제
   const sanitizedTest: Test = {
     id: test.id,
     sections: test.sections.map(
