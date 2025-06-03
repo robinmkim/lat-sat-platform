@@ -38,7 +38,8 @@ export default function TestFooter({
 
     // ✅ 4-27 → test-result 이동
     if (direction === "next" && isFinalQuestion) {
-      router.push(`/test-result?testId=${testId}`);
+      setIsLoading(true); // ✅ optional: 로딩 상태 표시
+      router.push(`/test-result/${testId}`);
       return;
     }
 
@@ -48,8 +49,6 @@ export default function TestFooter({
       targetIndex,
       direction
     );
-
-    console.log("Next Route:", route); // ✅ 추가
 
     if (!route) {
       if (direction === "prev") {

@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
-import TestResultClient from "./TestResultClient";
+import TestResultClient from "../TestResultClient";
 import { notFound } from "next/navigation";
 
 // ✅ 타입 import (경로는 실제 위치에 맞게 조정해주세요)
