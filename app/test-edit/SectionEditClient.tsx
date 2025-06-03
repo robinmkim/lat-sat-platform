@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import QuestionForm, { Question } from "@/app/test-edit/QuestionForm";
 import QuestionFooter from "./components/QuestionFooter";
@@ -23,10 +23,12 @@ export default function SectionEditClient({
   const router = useRouter();
   const [isDirty, setIsDirty] = useState(false);
   const [showAutoSaved, setShowAutoSaved] = useState(false);
-
   const generatedId = useMemo(() => uuidv4(), []);
   const cacheKey = `edit-${testId}-s${sectionNumber}-q${questionIndex}`;
-  const [questions, setQuestions] = useState<Question[] | undefined>();
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  // ✅ index별로 파일 보관
+  const uploadedMap = useRef<Map<number, File>>(new Map());
 
   useEffect(() => {
     const raw = localStorage.getItem(cacheKey);
@@ -50,9 +52,12 @@ export default function SectionEditClient({
             tableData: Array.isArray(cached.tableData)
               ? cached.tableData
               : [[""]],
+            tableTitle: cached.tableTitle ?? "",
             imageUrl: cached.imageUrl ?? "",
+            imageId: cached.imageId ?? "",
             showTable: cached.showTable ?? false,
             showImage: cached.showImage ?? false,
+            score: cached.score ?? 1,
           },
         ]);
         setIsDirty(true);
@@ -62,7 +67,6 @@ export default function SectionEditClient({
       }
     }
 
-    // fallback
     setQuestions([
       {
         id: initialQuestion?.id ?? generatedId,
@@ -80,25 +84,51 @@ export default function SectionEditClient({
         tableData: Array.isArray(initialQuestion?.tableData)
           ? initialQuestion.tableData
           : [[""]],
+        tableTitle: initialQuestion?.tableTitle ?? "",
         imageUrl: initialQuestion?.imageUrl ?? "",
+        imageId: initialQuestion?.imageId ?? "",
         showTable: initialQuestion?.showTable ?? false,
         showImage: initialQuestion?.showImage ?? false,
+        score: initialQuestion?.score ?? 1,
       },
     ]);
   }, [cacheKey, generatedId, initialQuestion, questionIndex]);
 
   useEffect(() => {
-    if (questions) {
+    if (questions.length > 0) {
       localStorage.setItem(cacheKey, JSON.stringify(questions[0]));
     }
   }, [questions, cacheKey]);
 
+  // ✅ 파일 업로드 함수
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch("/api/upload-image", {
+      method: "POST",
+      body: formData,
+    });
+    const result = await res.json();
+
+    if (!result.imageUrl || !result.imageId) {
+      alert("이미지 업로드 실패: " + (result.error || "알 수 없는 오류"));
+      return {};
+    }
+    return {
+      imageUrl: result.imageUrl,
+      imageId: result.imageId,
+    };
+  };
+
   const handleNavigate = async (targetSection: number, targetIndex: number) => {
-    if (!questions) return;
+    if (!questions.length) return;
 
-    localStorage.setItem(cacheKey, JSON.stringify(questions[0]));
+    const current = questions[0];
+    localStorage.setItem(cacheKey, JSON.stringify(current));
 
-    if (questionIndex === 27) {
+    // ✅ 마지막 문제일 때만 저장 처리
+    const isLastQuestionInSection = questionIndex === 27;
+    if (isLastQuestionInSection) {
       const sectionQuestions: Question[] = [];
 
       for (let i = 1; i <= 27; i++) {
@@ -106,7 +136,15 @@ export default function SectionEditClient({
         const raw = localStorage.getItem(key);
         if (raw) {
           try {
-            const parsed = JSON.parse(raw);
+            const parsed: Question = JSON.parse(raw);
+
+            if (uploadedMap.current.has(i)) {
+              const file = uploadedMap.current.get(i)!;
+              const { imageUrl, imageId } = await uploadImage(file);
+              parsed.imageUrl = imageUrl;
+              parsed.imageId = imageId;
+            }
+
             sectionQuestions.push(parsed);
           } catch (e) {
             console.warn(`문제 ${i}번 로딩 실패`, e);
@@ -124,71 +162,117 @@ export default function SectionEditClient({
           setShowAutoSaved(true);
           setTimeout(() => setShowAutoSaved(false), 3000);
         } else {
-          alert("저장 실패: " + (result?.error ?? "알 수 없는 오류"));
+          alert("자동 저장 실패: " + (result?.error ?? "알 수 없는 오류"));
         }
       }
     }
 
-    router.push(
-      `/test-edit/${testId}/section/${targetSection}/question/${targetIndex}`
-    );
+    // ✅ 마지막 섹션 넘김 방지
+    const isLastSection = sectionNumber === 4 && questionIndex === 27;
+    if (!isLastSection) {
+      router.push(
+        `/test-edit/${testId}/section/${targetSection}/question/${targetIndex}`
+      );
+    } else {
+      alert("마지막 문제입니다. 더 이상 이동할 수 없습니다.");
+    }
   };
 
   const handleSaveAndNext = async () => {
-    if (!questions) return;
+    if (!questions.length) return;
 
+    const current = questions[0];
+
+    // ✅ 현재 문제 업로드 대기 파일 처리
+    if (uploadedMap.current.has(questionIndex)) {
+      const file = uploadedMap.current.get(questionIndex)!;
+      const { imageUrl, imageId } = await uploadImage(file);
+      current.imageUrl = imageUrl;
+      current.imageId = imageId;
+    }
+
+    // ✅ 로컬 캐시 저장
+    localStorage.setItem(cacheKey, JSON.stringify(current));
+
+    // ✅ 서버 저장
     const formData = new FormData();
     formData.append("sectionId", sectionId);
     formData.append("index", String(questionIndex));
-    formData.append("payload", JSON.stringify(questions));
-
+    formData.append("payload", JSON.stringify([current]));
     const result = await saveQuestion(formData);
 
-    if (result?.success) {
-      const nextIndex = questionIndex < 27 ? questionIndex + 1 : 1;
-      const nextSection =
-        questionIndex < 27 ? sectionNumber : sectionNumber + 1;
+    if (!result?.success) {
+      alert("저장 실패: " + (result?.error ?? "알 수 없는 오류"));
+      return;
+    }
 
+    // ✅ 다음 위치 계산 (확실한 조건 추가)
+    const isLastQuestionInSection = questionIndex === 27;
+    const isLastSection = sectionNumber === 4;
+
+    const nextSection = isLastQuestionInSection
+      ? sectionNumber + 1
+      : sectionNumber;
+    const nextIndex = isLastQuestionInSection ? 1 : questionIndex + 1;
+
+    // ✅ 라우팅 조건 보장: 마지막 문제/섹션이 아닐 경우에만 이동
+    if (!isLastQuestionInSection || !isLastSection) {
       router.push(
         `/test-edit/${testId}/section/${nextSection}/question/${nextIndex}`
       );
     } else {
-      alert("저장 실패: " + (result?.error ?? "알 수 없는 오류"));
+      // 마지막 문제인 경우, test-list로 이동하거나 처리
+      alert("모든 문제가 저장되었습니다.");
+      router.push("/test-list");
     }
   };
 
   const handleSaveAndExit = async () => {
-    const formData = new FormData();
-    formData.append("sectionId", sectionId);
-    formData.append("index", String(questionIndex));
-    formData.append("payload", JSON.stringify(questions));
-    await saveQuestion(formData);
+    const allQuestions: Question[] = [];
+
+    for (let i = 1; i <= 27; i++) {
+      const key = `edit-${testId}-s${sectionNumber}-q${i}`;
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        try {
+          const parsed: Question = JSON.parse(raw);
+          if (uploadedMap.current.has(i)) {
+            const file = uploadedMap.current.get(i)!;
+            const { imageUrl, imageId } = await uploadImage(file);
+            parsed.imageUrl = imageUrl;
+            parsed.imageId = imageId;
+          }
+          allQuestions.push(parsed);
+        } catch (e) {
+          console.warn(`문제 ${i}번 파싱 실패`, e);
+        }
+      }
+    }
+
+    if (allQuestions.length > 0) {
+      const formData = new FormData();
+      formData.append("sectionId", sectionId);
+      formData.append("payload", JSON.stringify(allQuestions));
+      await saveQuestion(formData);
+    }
+
     router.push("/test-list");
   };
 
-  if (!questions) return null;
+  if (!questions.length) return null;
 
   return (
-    <form
-      id="question-form"
-      action={() => {}}
-      className="flex flex-col w-full max-w-4xl h-[calc(100vh-4rem)] p-6"
-    >
+    <form className="flex flex-col w-full max-w-4xl h-[calc(100vh-4rem)] p-6">
       <div className="flex justify-between">
         <h1 className="text-2xl font-semibold mb-2">문제 입력</h1>
-        {/* ✅ 우측 상단 저장 후 종료 버튼 */}
         <button
           type="button"
           onClick={handleSaveAndExit}
-          className=" top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+          className="top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
         >
           저장 후 종료
         </button>
       </div>
-
-      <input type="hidden" name="sectionId" value={sectionId} />
-      <input type="hidden" name="index" value={questionIndex} />
-      <input type="hidden" name="payload" value={JSON.stringify(questions)} />
 
       <div className="flex-grow overflow-auto">
         <QuestionForm
@@ -198,6 +282,9 @@ export default function SectionEditClient({
           setQuestions={setQuestions}
           onDirtyChange={setIsDirty}
           initialQuestion={initialQuestion}
+          onSelectImageFile={(index, file) =>
+            uploadedMap.current.set(index, file)
+          } // ✅ index별로 저장
         />
 
         {showAutoSaved && (

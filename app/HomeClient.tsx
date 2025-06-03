@@ -1,5 +1,6 @@
 "use client";
 
+/// <reference path="../../types/mathlive.d.ts" />
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -27,7 +28,7 @@ export default function HomeClient({ tests }: { tests: Test[] }) {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center">
+    <div className="relative w-full h-full flex flex-col items-center justify-center p-6">
       <Link href="/test-list">
         <Cog6ToothIcon className="absolute top-4 right-4 w-6 h-6 cursor-pointer hover:rotate-45 transition-transform text-gray-700" />
       </Link>

@@ -1,28 +1,30 @@
 "use client";
 
-import { useState } from "react";
-
-type Choice = {
+export type Choice = {
   id: string;
   text: string;
 };
 
 type MultipleChoiceProps = {
   choices: Choice[];
+  selectedIndex: number | null;
+  onAnswer: (index: number) => void;
 };
 
-export default function MultipleChoice({ choices }: MultipleChoiceProps) {
-  const [selected, setSelected] = useState<string | null>(null);
-
+export default function MultipleChoice({
+  choices,
+  selectedIndex,
+  onAnswer,
+}: MultipleChoiceProps) {
   return (
     <div className="flex flex-col gap-2 w-full">
-      {choices.map((choice) => {
-        const isSelected = selected === choice.id;
+      {choices.map((choice, idx) => {
+        const isSelected = selectedIndex === idx;
 
         return (
           <div
             key={choice.id}
-            onClick={() => setSelected(choice.id)}
+            onClick={() => onAnswer(idx)}
             className={`flex items-center w-full bg-white border rounded-md p-2 cursor-pointer transition-colors duration-200
               ${isSelected ? "ring-2 ring-blue-500" : "hover:bg-gray-100"}
             `}
@@ -32,7 +34,7 @@ export default function MultipleChoice({ choices }: MultipleChoiceProps) {
                 ${isSelected ? "border-blue-500 text-blue-600 font-bold" : ""}
               `}
             >
-              {choice.id}
+              {String.fromCharCode(65 + idx)} {/* A, B, C, D */}
             </div>
             <div className="pl-2">{choice.text}</div>
           </div>

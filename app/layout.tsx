@@ -2,11 +2,27 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { MathJaxContext } from "better-react-mathjax";
+import MathLiveFontInit from "./components/MathLiveFontInit";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
+
+const config = {
+  loader: { load: ["[tex]/ams"] },
+  tex: {
+    inlineMath: [
+      ["$", "$"],
+      ["\\(", "\\)"],
+    ],
+    displayMath: [
+      ["$$", "$$"],
+      ["\\[", "\\]"],
+    ],
+    packages: { "[+]": ["ams"] },
+  },
+};
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -24,13 +40,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <MathJaxContext>
+    <MathJaxContext config={config}>
       <html lang="en">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-300`}
         >
           <main className="flex items-center justify-center w-full h-screen">
             <div className="flex flex-col items-center w-4/5 min-h-[80%] bg-white rounded-lg shadow-lg">
+              <MathLiveFontInit /> {/* ✅ 여기 추가 */}
               {children}
             </div>
           </main>

@@ -29,32 +29,37 @@ export async function getFirstSolveRoute(testId: string): Promise<string> {
 export async function getNextQuestionRoute(
   testId: string,
   sectionNumber: number,
-  questionIndex: number
+  targetIndex: number,
+  direction: "next" | "prev"
 ): Promise<string | null> {
-  // 현재 섹션 조회
-  const section = await prisma.section.findFirst({
-    where: { testId, number: sectionNumber },
+  const section = await prisma.section.findUnique({
+    where: {
+      testId_number: {
+        testId,
+        number: sectionNumber,
+      },
+    },
+    include: {
+      questions: true,
+    },
   });
 
   if (!section) return null;
 
-  // 현재 섹션 내 다음 문제 시도
-  const targetQuestion = await prisma.question.findFirst({
-    where: {
-      sectionId: section.id,
-      index: questionIndex,
-    },
-  });
-
-  if (targetQuestion) {
-    return `/test/${testId}/section/${sectionNumber}/question/${targetQuestion.index}`;
+  const inSection = section.questions.some((q) => q.index === targetIndex);
+  if (inSection) {
+    return `/test/${testId}/section/${sectionNumber}/question/${targetIndex}`;
   }
 
-  // 다음 섹션 존재 여부 확인
-  const nextSection = await prisma.section.findFirst({
+  // next 섹션 또는 이전 섹션으로 넘어가야 하는 경우
+  const adjacentSection = await prisma.section.findFirst({
     where: {
       testId,
-      number: sectionNumber + 1,
+      number:
+        direction === "next" ? { gt: sectionNumber } : { lt: sectionNumber },
+    },
+    orderBy: {
+      number: direction === "next" ? "asc" : "desc",
     },
     include: {
       questions: {
@@ -64,10 +69,9 @@ export async function getNextQuestionRoute(
     },
   });
 
-  if (nextSection && nextSection.questions.length > 0) {
-    return `/test/${testId}/section/${nextSection.number}/question/1`;
+  if (adjacentSection && adjacentSection.questions.length > 0) {
+    return `/test/${testId}/section/${adjacentSection.number}/question/1`;
   }
 
-  // 다음 섹션이 없거나 문제 없음 → 종료
   return null;
 }

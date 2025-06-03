@@ -22,10 +22,15 @@ export async function saveQuestion(
         index: question.index,
         questionText: question.question,
         passage: question.passage,
-        choices: question.choices,
-        answer: question.answer,
+        choices: question.choices
+          ? JSON.stringify(question.choices)
+          : undefined, // ✅
+        answer: question.answer != null ? String(question.answer) : null,
         type: question.type,
-        tableData: question.tableData,
+        tableTitle: question.tableTitle,
+        tableData: question.tableData
+          ? JSON.stringify(question.tableData)
+          : undefined, // ✅
         imageUrl: question.imageUrl,
         showTable: question.showTable,
         showImage: question.showImage,

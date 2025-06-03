@@ -1,3 +1,4 @@
+import { useState } from "react";
 import PassageInput from "./PassageInput";
 import MultipleChoiceInput from "./MultipleChoiceInput";
 import QuestionInput from "./QuestionInput";
@@ -7,7 +8,6 @@ import TableInput from "./TableInput";
 import ImageUploadInput from "./ImageUploadInput";
 import ShortAnswerInput from "./ShortAnswerInput";
 import { Question } from "../QuestionForm";
-import { useState } from "react";
 
 interface QuestionRendererProps {
   sectionNumber: number;
@@ -25,6 +25,7 @@ interface QuestionRendererProps {
   showTable?: boolean;
   showImage?: boolean;
   onUpdate: (data: Partial<Question>) => void;
+  onSelectImageFile?: (file: File) => void; // ✅ 이미지 선택 콜백
 }
 
 export default function QuestionRenderer({
@@ -43,13 +44,14 @@ export default function QuestionRenderer({
   showTable = false,
   showImage = false,
   onUpdate,
+  onSelectImageFile,
 }: QuestionRendererProps) {
   const isReadingWriting = sectionNumber % 2 === 1;
   const [mathPreview, setMathPreview] = useState("");
 
   return (
     <div className="flex flex-col w-full bg-white p-4 gap-6">
-      {/* ✅ 테이블 입력 먼저 (READING/WRITING 전용) */}
+      {/* ✅ 테이블 입력 */}
       {isReadingWriting && showTable && tableData.length > 0 && (
         <TableInput
           title={tableTitle}
@@ -59,15 +61,19 @@ export default function QuestionRenderer({
         />
       )}
 
-      {/* ✅ 지문 입력 (READING/WRITING 전용) */}
+      {/* ✅ 지문 입력 */}
       {isReadingWriting && (
         <PassageInput
           value={passage ?? ""}
           onChange={(val) => onUpdate({ passage: val })}
         />
       )}
+      {/* ✅ 최종 미리보기 */}
+      <PassagePreview
+        passage={isReadingWriting ? passage ?? "" : question ?? ""}
+      />
 
-      {/* ✅ 질문 입력 도우미 (MATH: LaTeX 변환용, 저장 안 함) */}
+      {/* ✅ 수식 미리보기 (Math 전용) */}
       {!isReadingWriting && (
         <div className="bg-gray-50 border rounded p-3">
           <p className="text-sm font-medium text-gray-600 mb-2">
@@ -80,13 +86,13 @@ export default function QuestionRenderer({
         </div>
       )}
 
-      {/* ✅ 실제 질문 입력 (저장 대상) */}
+      {/* ✅ 질문 입력 */}
       <QuestionInput
         value={question}
         onChange={(val) => onUpdate({ question: val })}
       />
 
-      {/* ✅ 정답 입력 */}
+      {/* ✅ 선택형 or 단답형 */}
       {type === "MULTIPLE" ? (
         <MultipleChoiceInput
           choices={choices}
@@ -105,15 +111,17 @@ export default function QuestionRenderer({
         />
       )}
 
-      {/* ✅ 이미지 업로드 */}
+      {/* ✅ 이미지 업로드 입력 */}
       {showImage && (
         <ImageUploadInput
-          imageUrl={imageUrl}
-          onChange={(url) => onUpdate({ imageUrl: url })}
+          previewUrl={imageUrl}
+          onSelectFile={(file) => {
+            onSelectImageFile?.(file); // 상위로 전달 (Cloudflare 업로드용)
+          }}
         />
       )}
 
-      {/* ✅ 배점 입력 */}
+      {/* ✅ 배점 */}
       <div className="flex flex-col gap-1">
         <label className="font-medium">배점 (점수)</label>
         <input
@@ -125,11 +133,6 @@ export default function QuestionRenderer({
           placeholder="예: 1"
         />
       </div>
-
-      {/* ✅ 항상 미리보기 표시 */}
-      <PassagePreview
-        passage={isReadingWriting ? passage ?? "" : question ?? ""}
-      />
     </div>
   );
 }

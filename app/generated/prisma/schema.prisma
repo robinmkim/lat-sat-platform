@@ -4,8 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Test {
@@ -39,15 +40,16 @@ model Question {
   index        Int
   questionText String
   passage      String?      @default("")
-  choices      Json?
-  answer       Json
+  choices      String? // ✅ JSON 문자열로 저장
+  answer       String?
   type         QuestionType @default(MULTIPLE)
   tableTitle   String?
-  tableData    Json?
+  tableData    String? // ✅ JSON 문자열로 저장
   imageUrl     String?      @default("")
+  imageId      String? // ✅ Cloudflare 이미지 삭제용
   showTable    Boolean      @default(false)
   showImage    Boolean      @default(false)
-  score        Int          @default(1) // ✅ 새로 추가됨
+  score        Int          @default(1)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

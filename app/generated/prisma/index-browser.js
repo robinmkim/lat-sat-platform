@@ -114,6 +114,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -145,6 +148,7 @@ exports.Prisma.QuestionScalarFieldEnum = {
   tableTitle: 'tableTitle',
   tableData: 'tableData',
   imageUrl: 'imageUrl',
+  imageId: 'imageId',
   showTable: 'showTable',
   showImage: 'showImage',
   score: 'score',
@@ -157,29 +161,32 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull
+exports.Prisma.TestOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name'
 };
 
-exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.JsonNullValueFilter = {
-  DbNull: Prisma.DbNull,
-  JsonNull: Prisma.JsonNull,
-  AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.QueryMode = {
-  default: 'default',
-  insensitive: 'insensitive'
+exports.Prisma.SectionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  testId: 'testId'
 };
 
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.QuestionOrderByRelevanceFieldEnum = {
+  id: 'id',
+  sectionId: 'sectionId',
+  questionText: 'questionText',
+  passage: 'passage',
+  choices: 'choices',
+  answer: 'answer',
+  tableTitle: 'tableTitle',
+  tableData: 'tableData',
+  imageUrl: 'imageUrl',
+  imageId: 'imageId'
 };
 exports.SectionType = exports.$Enums.SectionType = {
   READING_WRITING: 'READING_WRITING',

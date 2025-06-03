@@ -7,6 +7,7 @@ import { getNextQuestionRoute } from "@/app/action";
 type Props = {
   sectionNumber: number;
   testId: string;
+  questionIndex: number;
 };
 
 const getInitialSeconds = (sectionNumber: number): number => {
@@ -21,35 +22,83 @@ const formatTime = (seconds: number): string => {
   return `${min}:${sec}`;
 };
 
-export default function TestHeader({ sectionNumber, testId }: Props) {
+export default function TestHeader({
+  sectionNumber,
+  testId,
+  questionIndex,
+}: Props) {
   const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState(() =>
-    getInitialSeconds(sectionNumber)
-  );
+  const storageKey = `timeLeft-${testId}-section-${sectionNumber}`;
+  const flagKey = `${storageKey}-initialized`;
+
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
 
   useEffect(() => {
-    if (paused || showTimeoutModal) return;
+    const initial = getInitialSeconds(sectionNumber);
+    const alreadyInitialized = sessionStorage.getItem(flagKey) === "true";
+
+    if (questionIndex === 1 && !alreadyInitialized) {
+      sessionStorage.removeItem(storageKey);
+      sessionStorage.setItem(storageKey, String(initial));
+      sessionStorage.setItem(flagKey, "true");
+      setTimeLeft(initial);
+    } else {
+      const saved = sessionStorage.getItem(storageKey);
+      if (saved) {
+        const value = Number(saved);
+        if (!isNaN(value)) {
+          setTimeLeft(value);
+        }
+      }
+    }
+  }, [storageKey, flagKey, sectionNumber, questionIndex]);
+
+  useEffect(() => {
+    if (paused || showTimeoutModal || timeLeft === null) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
+        if (prev === null) return null;
+        const next = prev - 1;
+        if (next <= 0) {
           clearInterval(timer);
           setShowTimeoutModal(true);
           return 0;
         }
-        return prev - 1;
+        sessionStorage.setItem(storageKey, String(next));
+        return next;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [paused, showTimeoutModal]);
+  }, [paused, showTimeoutModal, timeLeft, storageKey]);
 
   const handleExit = () => {
-    if (confirm("If you exit now, your answers will not be saved.")) {
-      router.push("/");
-    }
+    const confirmed = confirm(
+      "If you exit now, your answers will not be saved."
+    );
+    if (!confirmed) return;
+
+    // 1. 타이머 관련 삭제
+    sessionStorage.removeItem(storageKey);
+    sessionStorage.removeItem(flagKey);
+
+    // 2. 북마크, 타이머, 답변 전체 정리
+    Object.keys(sessionStorage).forEach((key) => {
+      if (
+        key.startsWith(`bookmark-${testId}`) ||
+        key.startsWith(`timeLeft-${testId}-`)
+      ) {
+        sessionStorage.removeItem(key);
+      }
+    });
+
+    // ✅ 3. 단일 answers key 제거 (정확히 일치해야 함)
+    sessionStorage.removeItem(`answers-${testId}`);
+
+    router.push("/");
   };
 
   const handleNextSection = async () => {
@@ -59,22 +108,26 @@ export default function TestHeader({ sectionNumber, testId }: Props) {
 
     if (!route) {
       alert("There are no more sections. Returning to home.");
+      sessionStorage.removeItem(storageKey);
+      sessionStorage.removeItem(flagKey);
       router.push("/");
       return;
     }
 
+    sessionStorage.removeItem(storageKey);
+    sessionStorage.removeItem(flagKey);
     router.push(route);
   };
 
   return (
     <>
-      <div className="flex items-center justify-between w-full h-[80px] bg-blue-100 border-b-2 border-dashed px-5 pt-1">
-        {/* Left: Section Number */}
+      <div className="flex items-center justify-between w-full h-[80px] shrink-0 bg-blue-100 border-b-2 border-dashed px-5 pt-1">
         <div className="text-lg font-medium">Section {sectionNumber}</div>
 
-        {/* Center: Timer + Pause */}
         <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center w-fit h-fit">
-          <div className="text-lg font-mono">{formatTime(timeLeft)}</div>
+          {timeLeft !== null && (
+            <div className="text-lg font-mono">{formatTime(timeLeft)}</div>
+          )}
           <button
             onClick={() => setPaused(true)}
             className="flex items-center justify-center w-fit h-fit bg-gray-200 rounded-md px-3 py-1 text-sm text-blue-700 font-medium hover:bg-gray-300 transition"
@@ -83,7 +136,6 @@ export default function TestHeader({ sectionNumber, testId }: Props) {
           </button>
         </div>
 
-        {/* Right: Exit */}
         <button
           onClick={handleExit}
           className="flex items-center justify-center w-fit h-fit bg-red-600 rounded-md px-3 py-1 text-sm text-white font-medium hover:bg-red-700 transition"
@@ -92,7 +144,6 @@ export default function TestHeader({ sectionNumber, testId }: Props) {
         </button>
       </div>
 
-      {/* Pause Overlay */}
       {paused && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="text-white text-3xl font-semibold mb-6">Paused</div>
@@ -105,7 +156,6 @@ export default function TestHeader({ sectionNumber, testId }: Props) {
         </div>
       )}
 
-      {/* Timeout Modal */}
       {showTimeoutModal && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="flex flex-col items-center w-fit h-fit bg-white rounded-lg shadow-md p-6 gap-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { getNextQuestionRoute } from "@/app/action";
 import QuestionNavigatorModal from "./QuestionNavigatiorModal";
@@ -10,6 +10,7 @@ type Props = {
   questionIndex: number;
   testId: string;
   totalQuestions: number;
+  bookmarks: Record<number, boolean>;
 };
 
 export default function TestFooter({
@@ -17,31 +18,55 @@ export default function TestFooter({
   questionIndex,
   testId,
   totalQuestions,
+  bookmarks,
 }: Props) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
-  const handleNavigate = (direction: "next" | "prev") => {
+  const isFirstQuestion = questionIndex === 1;
+  const isLastQuestionInSection = questionIndex === totalQuestions;
+  const isLastSection = sectionId === 4;
+  const isFinalQuestion = isLastSection && isLastQuestionInSection;
+
+  console.log(questionIndex);
+
+  const handleNavigate = async (direction: "next" | "prev") => {
+    setIsLoading(true);
     const offset = direction === "next" ? 1 : -1;
     const targetIndex = questionIndex + offset;
-    startTransition(async () => {
-      const route = await getNextQuestionRoute(testId, sectionId, targetIndex);
-      if (!route) {
-        alert(
-          direction === "next"
-            ? "This is the last question."
-            : "This is the first question."
-        );
-        return;
-      }
-      router.push(route);
-    });
-  };
 
+    // ✅ 4-27 → test-result 이동
+    if (direction === "next" && isFinalQuestion) {
+      router.push(`/test-result?testId=${testId}`);
+      return;
+    }
+
+    const route = await getNextQuestionRoute(
+      testId,
+      sectionId,
+      targetIndex,
+      direction
+    );
+
+    console.log("Next Route:", route); // ✅ 추가
+
+    if (!route) {
+      if (direction === "prev") {
+        alert("This is the first question.");
+      } else {
+        alert("다음 문제를 찾을 수 없습니다.");
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    router.push(route);
+    setIsLoading(false);
+  };
   return (
     <>
-      <div className="relative flex items-center justify-between w-full h-[50px] bg-blue-100 border-t-2 border-dashed px-5">
+      <div className="relative flex items-center justify-between w-full h-[50px] shrink-0 bg-blue-100 border-t-2 border-dashed px-5">
         <div className="text-sm">Minseob Kim</div>
 
         <button
@@ -54,14 +79,14 @@ export default function TestFooter({
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleNavigate("prev")}
-            disabled={isPending}
+            disabled={isLoading || isFirstQuestion}
             className="flex items-center justify-center w-fit h-fit bg-gray-300 rounded-xl px-3 py-1 text-sm text-gray-800 font-medium hover:bg-gray-400 transition disabled:opacity-50"
           >
             Back
           </button>
           <button
             onClick={() => handleNavigate("next")}
-            disabled={isPending}
+            disabled={isLoading}
             className="flex items-center justify-center w-fit h-fit bg-blue-700 rounded-xl px-3 py-1 text-sm text-white font-medium hover:bg-blue-800 transition disabled:opacity-50"
           >
             Next
@@ -75,6 +100,7 @@ export default function TestFooter({
           sectionId={sectionId}
           total={totalQuestions}
           current={questionIndex}
+          bookmarks={bookmarks}
           onClose={() => setShowModal(false)}
         />
       )}

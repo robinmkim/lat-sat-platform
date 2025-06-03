@@ -1,5 +1,4 @@
 export default function QuestionFooter({
-  testId,
   sectionNumber,
   questionIndex,
   isDirty,
@@ -13,8 +12,9 @@ export default function QuestionFooter({
   onNavigate: (section: number, index: number) => void;
   onSaveAndNext: () => void;
 }) {
+  const isLastQuestion = sectionNumber === 4 && questionIndex === 27;
   const hasPrev = questionIndex > 1 || sectionNumber > 1;
-  const hasNext = sectionNumber < 4 || questionIndex < 27;
+  const hasNext = !isLastQuestion;
 
   const prev: [number, number] =
     questionIndex > 1
@@ -25,7 +25,7 @@ export default function QuestionFooter({
     questionIndex < 27
       ? [sectionNumber, questionIndex + 1]
       : [sectionNumber + 1, 1];
-
+  console.log(questionIndex, sectionNumber);
   return (
     <div className="relative flex justify-between items-center mt-12 h-16">
       {hasPrev ? (

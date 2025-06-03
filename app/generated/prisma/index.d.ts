@@ -709,10 +709,6 @@ export namespace Prisma {
             args: Prisma.TestCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
-          createManyAndReturn: {
-            args: Prisma.TestCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPayload>[]
-          }
           delete: {
             args: Prisma.TestDeleteArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$TestPayload>
@@ -728,10 +724,6 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.TestUpdateManyArgs<ExtArgs>
             result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.TestUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$TestPayload>[]
           }
           upsert: {
             args: Prisma.TestUpsertArgs<ExtArgs>
@@ -783,10 +775,6 @@ export namespace Prisma {
             args: Prisma.SectionCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
-          createManyAndReturn: {
-            args: Prisma.SectionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SectionPayload>[]
-          }
           delete: {
             args: Prisma.SectionDeleteArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$SectionPayload>
@@ -802,10 +790,6 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.SectionUpdateManyArgs<ExtArgs>
             result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.SectionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$SectionPayload>[]
           }
           upsert: {
             args: Prisma.SectionUpsertArgs<ExtArgs>
@@ -857,10 +841,6 @@ export namespace Prisma {
             args: Prisma.QuestionCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
-          createManyAndReturn: {
-            args: Prisma.QuestionCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$QuestionPayload>[]
-          }
           delete: {
             args: Prisma.QuestionDeleteArgs<ExtArgs>
             result: $Utils.PayloadToResult<Prisma.$QuestionPayload>
@@ -876,10 +856,6 @@ export namespace Prisma {
           updateMany: {
             args: Prisma.QuestionUpdateManyArgs<ExtArgs>
             result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.QuestionUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$QuestionPayload>[]
           }
           upsert: {
             args: Prisma.QuestionUpsertArgs<ExtArgs>
@@ -1301,19 +1277,7 @@ export namespace Prisma {
     _count?: boolean | TestCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["test"]>
 
-  export type TestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["test"]>
 
-  export type TestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    name?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["test"]>
 
   export type TestSelectScalar = {
     id?: boolean
@@ -1327,8 +1291,6 @@ export namespace Prisma {
     sections?: boolean | Test$sectionsArgs<ExtArgs>
     _count?: boolean | TestCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type TestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
-  export type TestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $TestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Test"
@@ -1458,30 +1420,6 @@ export namespace Prisma {
     createMany<T extends TestCreateManyArgs>(args?: SelectSubset<T, TestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Tests and returns the data saved in the database.
-     * @param {TestCreateManyAndReturnArgs} args - Arguments to create many Tests.
-     * @example
-     * // Create many Tests
-     * const test = await prisma.test.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Tests and only return the `id`
-     * const testWithIdOnly = await prisma.test.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends TestCreateManyAndReturnArgs>(args?: SelectSubset<T, TestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
      * Delete a Test.
      * @param {TestDeleteArgs} args - Arguments to delete one Test.
      * @example
@@ -1544,36 +1482,6 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends TestUpdateManyArgs>(args: SelectSubset<T, TestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Tests and returns the data updated in the database.
-     * @param {TestUpdateManyAndReturnArgs} args - Arguments to update many Tests.
-     * @example
-     * // Update many Tests
-     * const test = await prisma.test.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Tests and only return the `id`
-     * const testWithIdOnly = await prisma.test.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends TestUpdateManyAndReturnArgs>(args: SelectSubset<T, TestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Create or update one Test.
@@ -1997,24 +1905,7 @@ export namespace Prisma {
      * The data used to create many Tests.
      */
     data: TestCreateManyInput | TestCreateManyInput[]
-  }
-
-  /**
-   * Test createManyAndReturn
-   */
-  export type TestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Test
-     */
-    select?: TestSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Test
-     */
-    omit?: TestOmit<ExtArgs> | null
-    /**
-     * The data used to create many Tests.
-     */
-    data: TestCreateManyInput | TestCreateManyInput[]
+    skipDuplicates?: boolean
   }
 
   /**
@@ -2047,32 +1938,6 @@ export namespace Prisma {
    * Test updateMany
    */
   export type TestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Tests.
-     */
-    data: XOR<TestUpdateManyMutationInput, TestUncheckedUpdateManyInput>
-    /**
-     * Filter which Tests to update
-     */
-    where?: TestWhereInput
-    /**
-     * Limit how many Tests to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Test updateManyAndReturn
-   */
-  export type TestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Test
-     */
-    select?: TestSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Test
-     */
-    omit?: TestOmit<ExtArgs> | null
     /**
      * The data used to update Tests.
      */
@@ -2407,25 +2272,7 @@ export namespace Prisma {
     _count?: boolean | SectionCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["section"]>
 
-  export type SectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    number?: boolean
-    type?: boolean
-    testId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    test?: boolean | TestDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["section"]>
 
-  export type SectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    number?: boolean
-    type?: boolean
-    testId?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    test?: boolean | TestDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["section"]>
 
   export type SectionSelectScalar = {
     id?: boolean
@@ -2441,12 +2288,6 @@ export namespace Prisma {
     test?: boolean | TestDefaultArgs<ExtArgs>
     questions?: boolean | Section$questionsArgs<ExtArgs>
     _count?: boolean | SectionCountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type SectionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    test?: boolean | TestDefaultArgs<ExtArgs>
-  }
-  export type SectionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    test?: boolean | TestDefaultArgs<ExtArgs>
   }
 
   export type $SectionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2580,30 +2421,6 @@ export namespace Prisma {
     createMany<T extends SectionCreateManyArgs>(args?: SelectSubset<T, SectionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Sections and returns the data saved in the database.
-     * @param {SectionCreateManyAndReturnArgs} args - Arguments to create many Sections.
-     * @example
-     * // Create many Sections
-     * const section = await prisma.section.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Sections and only return the `id`
-     * const sectionWithIdOnly = await prisma.section.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends SectionCreateManyAndReturnArgs>(args?: SelectSubset<T, SectionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
      * Delete a Section.
      * @param {SectionDeleteArgs} args - Arguments to delete one Section.
      * @example
@@ -2666,36 +2483,6 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends SectionUpdateManyArgs>(args: SelectSubset<T, SectionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Sections and returns the data updated in the database.
-     * @param {SectionUpdateManyAndReturnArgs} args - Arguments to update many Sections.
-     * @example
-     * // Update many Sections
-     * const section = await prisma.section.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Sections and only return the `id`
-     * const sectionWithIdOnly = await prisma.section.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends SectionUpdateManyAndReturnArgs>(args: SelectSubset<T, SectionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SectionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Create or update one Section.
@@ -3122,28 +2909,7 @@ export namespace Prisma {
      * The data used to create many Sections.
      */
     data: SectionCreateManyInput | SectionCreateManyInput[]
-  }
-
-  /**
-   * Section createManyAndReturn
-   */
-  export type SectionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Section
-     */
-    select?: SectionSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Section
-     */
-    omit?: SectionOmit<ExtArgs> | null
-    /**
-     * The data used to create many Sections.
-     */
-    data: SectionCreateManyInput | SectionCreateManyInput[]
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SectionIncludeCreateManyAndReturn<ExtArgs> | null
+    skipDuplicates?: boolean
   }
 
   /**
@@ -3188,36 +2954,6 @@ export namespace Prisma {
      * Limit how many Sections to update.
      */
     limit?: number
-  }
-
-  /**
-   * Section updateManyAndReturn
-   */
-  export type SectionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Section
-     */
-    select?: SectionSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Section
-     */
-    omit?: SectionOmit<ExtArgs> | null
-    /**
-     * The data used to update Sections.
-     */
-    data: XOR<SectionUpdateManyMutationInput, SectionUncheckedUpdateManyInput>
-    /**
-     * Filter which Sections to update
-     */
-    where?: SectionWhereInput
-    /**
-     * Limit how many Sections to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: SectionIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3357,9 +3093,13 @@ export namespace Prisma {
     index: number | null
     questionText: string | null
     passage: string | null
+    choices: string | null
+    answer: string | null
     type: $Enums.QuestionType | null
     tableTitle: string | null
+    tableData: string | null
     imageUrl: string | null
+    imageId: string | null
     showTable: boolean | null
     showImage: boolean | null
     score: number | null
@@ -3373,9 +3113,13 @@ export namespace Prisma {
     index: number | null
     questionText: string | null
     passage: string | null
+    choices: string | null
+    answer: string | null
     type: $Enums.QuestionType | null
     tableTitle: string | null
+    tableData: string | null
     imageUrl: string | null
+    imageId: string | null
     showTable: boolean | null
     showImage: boolean | null
     score: number | null
@@ -3395,6 +3139,7 @@ export namespace Prisma {
     tableTitle: number
     tableData: number
     imageUrl: number
+    imageId: number
     showTable: number
     showImage: number
     score: number
@@ -3420,9 +3165,13 @@ export namespace Prisma {
     index?: true
     questionText?: true
     passage?: true
+    choices?: true
+    answer?: true
     type?: true
     tableTitle?: true
+    tableData?: true
     imageUrl?: true
+    imageId?: true
     showTable?: true
     showImage?: true
     score?: true
@@ -3436,9 +3185,13 @@ export namespace Prisma {
     index?: true
     questionText?: true
     passage?: true
+    choices?: true
+    answer?: true
     type?: true
     tableTitle?: true
+    tableData?: true
     imageUrl?: true
+    imageId?: true
     showTable?: true
     showImage?: true
     score?: true
@@ -3458,6 +3211,7 @@ export namespace Prisma {
     tableTitle?: true
     tableData?: true
     imageUrl?: true
+    imageId?: true
     showTable?: true
     showImage?: true
     score?: true
@@ -3558,12 +3312,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage: string | null
-    choices: JsonValue | null
-    answer: JsonValue
+    choices: string | null
+    answer: string | null
     type: $Enums.QuestionType
     tableTitle: string | null
-    tableData: JsonValue | null
+    tableData: string | null
     imageUrl: string | null
+    imageId: string | null
     showTable: boolean
     showImage: boolean
     score: number
@@ -3602,6 +3357,7 @@ export namespace Prisma {
     tableTitle?: boolean
     tableData?: boolean
     imageUrl?: boolean
+    imageId?: boolean
     showTable?: boolean
     showImage?: boolean
     score?: boolean
@@ -3610,45 +3366,7 @@ export namespace Prisma {
     section?: boolean | SectionDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["question"]>
 
-  export type QuestionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sectionId?: boolean
-    index?: boolean
-    questionText?: boolean
-    passage?: boolean
-    choices?: boolean
-    answer?: boolean
-    type?: boolean
-    tableTitle?: boolean
-    tableData?: boolean
-    imageUrl?: boolean
-    showTable?: boolean
-    showImage?: boolean
-    score?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    section?: boolean | SectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["question"]>
 
-  export type QuestionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    sectionId?: boolean
-    index?: boolean
-    questionText?: boolean
-    passage?: boolean
-    choices?: boolean
-    answer?: boolean
-    type?: boolean
-    tableTitle?: boolean
-    tableData?: boolean
-    imageUrl?: boolean
-    showTable?: boolean
-    showImage?: boolean
-    score?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    section?: boolean | SectionDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["question"]>
 
   export type QuestionSelectScalar = {
     id?: boolean
@@ -3662,6 +3380,7 @@ export namespace Prisma {
     tableTitle?: boolean
     tableData?: boolean
     imageUrl?: boolean
+    imageId?: boolean
     showTable?: boolean
     showImage?: boolean
     score?: boolean
@@ -3669,14 +3388,8 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type QuestionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sectionId" | "index" | "questionText" | "passage" | "choices" | "answer" | "type" | "tableTitle" | "tableData" | "imageUrl" | "showTable" | "showImage" | "score" | "createdAt" | "updatedAt", ExtArgs["result"]["question"]>
+  export type QuestionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sectionId" | "index" | "questionText" | "passage" | "choices" | "answer" | "type" | "tableTitle" | "tableData" | "imageUrl" | "imageId" | "showTable" | "showImage" | "score" | "createdAt" | "updatedAt", ExtArgs["result"]["question"]>
   export type QuestionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    section?: boolean | SectionDefaultArgs<ExtArgs>
-  }
-  export type QuestionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    section?: boolean | SectionDefaultArgs<ExtArgs>
-  }
-  export type QuestionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     section?: boolean | SectionDefaultArgs<ExtArgs>
   }
 
@@ -3691,12 +3404,13 @@ export namespace Prisma {
       index: number
       questionText: string
       passage: string | null
-      choices: Prisma.JsonValue | null
-      answer: Prisma.JsonValue
+      choices: string | null
+      answer: string | null
       type: $Enums.QuestionType
       tableTitle: string | null
-      tableData: Prisma.JsonValue | null
+      tableData: string | null
       imageUrl: string | null
+      imageId: string | null
       showTable: boolean
       showImage: boolean
       score: number
@@ -3820,30 +3534,6 @@ export namespace Prisma {
     createMany<T extends QuestionCreateManyArgs>(args?: SelectSubset<T, QuestionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Questions and returns the data saved in the database.
-     * @param {QuestionCreateManyAndReturnArgs} args - Arguments to create many Questions.
-     * @example
-     * // Create many Questions
-     * const question = await prisma.question.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Questions and only return the `id`
-     * const questionWithIdOnly = await prisma.question.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends QuestionCreateManyAndReturnArgs>(args?: SelectSubset<T, QuestionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuestionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
      * Delete a Question.
      * @param {QuestionDeleteArgs} args - Arguments to delete one Question.
      * @example
@@ -3906,36 +3596,6 @@ export namespace Prisma {
      * 
      */
     updateMany<T extends QuestionUpdateManyArgs>(args: SelectSubset<T, QuestionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Questions and returns the data updated in the database.
-     * @param {QuestionUpdateManyAndReturnArgs} args - Arguments to update many Questions.
-     * @example
-     * // Update many Questions
-     * const question = await prisma.question.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Questions and only return the `id`
-     * const questionWithIdOnly = await prisma.question.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends QuestionUpdateManyAndReturnArgs>(args: SelectSubset<T, QuestionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$QuestionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
      * Create or update one Question.
@@ -4131,12 +3791,13 @@ export namespace Prisma {
     readonly index: FieldRef<"Question", 'Int'>
     readonly questionText: FieldRef<"Question", 'String'>
     readonly passage: FieldRef<"Question", 'String'>
-    readonly choices: FieldRef<"Question", 'Json'>
-    readonly answer: FieldRef<"Question", 'Json'>
+    readonly choices: FieldRef<"Question", 'String'>
+    readonly answer: FieldRef<"Question", 'String'>
     readonly type: FieldRef<"Question", 'QuestionType'>
     readonly tableTitle: FieldRef<"Question", 'String'>
-    readonly tableData: FieldRef<"Question", 'Json'>
+    readonly tableData: FieldRef<"Question", 'String'>
     readonly imageUrl: FieldRef<"Question", 'String'>
+    readonly imageId: FieldRef<"Question", 'String'>
     readonly showTable: FieldRef<"Question", 'Boolean'>
     readonly showImage: FieldRef<"Question", 'Boolean'>
     readonly score: FieldRef<"Question", 'Int'>
@@ -4371,28 +4032,7 @@ export namespace Prisma {
      * The data used to create many Questions.
      */
     data: QuestionCreateManyInput | QuestionCreateManyInput[]
-  }
-
-  /**
-   * Question createManyAndReturn
-   */
-  export type QuestionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Question
-     */
-    select?: QuestionSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Question
-     */
-    omit?: QuestionOmit<ExtArgs> | null
-    /**
-     * The data used to create many Questions.
-     */
-    data: QuestionCreateManyInput | QuestionCreateManyInput[]
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: QuestionIncludeCreateManyAndReturn<ExtArgs> | null
+    skipDuplicates?: boolean
   }
 
   /**
@@ -4437,36 +4077,6 @@ export namespace Prisma {
      * Limit how many Questions to update.
      */
     limit?: number
-  }
-
-  /**
-   * Question updateManyAndReturn
-   */
-  export type QuestionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Question
-     */
-    select?: QuestionSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Question
-     */
-    omit?: QuestionOmit<ExtArgs> | null
-    /**
-     * The data used to update Questions.
-     */
-    data: XOR<QuestionUpdateManyMutationInput, QuestionUncheckedUpdateManyInput>
-    /**
-     * Filter which Questions to update
-     */
-    where?: QuestionWhereInput
-    /**
-     * Limit how many Questions to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: QuestionIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -4559,6 +4169,9 @@ export namespace Prisma {
    */
 
   export const TransactionIsolationLevel: {
+    ReadUncommitted: 'ReadUncommitted',
+    ReadCommitted: 'ReadCommitted',
+    RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
   };
 
@@ -4599,6 +4212,7 @@ export namespace Prisma {
     tableTitle: 'tableTitle',
     tableData: 'tableData',
     imageUrl: 'imageUrl',
+    imageId: 'imageId',
     showTable: 'showTable',
     showImage: 'showImage',
     score: 'score',
@@ -4617,36 +4231,20 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
-  export const NullableJsonNullValueInput: {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull
+  export const TestOrderByRelevanceFieldEnum: {
+    id: 'id',
+    name: 'name'
   };
 
-  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+  export type TestOrderByRelevanceFieldEnum = (typeof TestOrderByRelevanceFieldEnum)[keyof typeof TestOrderByRelevanceFieldEnum]
 
 
-  export const JsonNullValueInput: {
-    JsonNull: typeof JsonNull
+  export const SectionOrderByRelevanceFieldEnum: {
+    id: 'id',
+    testId: 'testId'
   };
 
-  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
-
-
-  export const JsonNullValueFilter: {
-    DbNull: typeof DbNull,
-    JsonNull: typeof JsonNull,
-    AnyNull: typeof AnyNull
-  };
-
-  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
-
-
-  export const QueryMode: {
-    default: 'default',
-    insensitive: 'insensitive'
-  };
-
-  export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+  export type SectionOrderByRelevanceFieldEnum = (typeof SectionOrderByRelevanceFieldEnum)[keyof typeof SectionOrderByRelevanceFieldEnum]
 
 
   export const NullsOrder: {
@@ -4655,6 +4253,22 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const QuestionOrderByRelevanceFieldEnum: {
+    id: 'id',
+    sectionId: 'sectionId',
+    questionText: 'questionText',
+    passage: 'passage',
+    choices: 'choices',
+    answer: 'answer',
+    tableTitle: 'tableTitle',
+    tableData: 'tableData',
+    imageUrl: 'imageUrl',
+    imageId: 'imageId'
+  };
+
+  export type QuestionOrderByRelevanceFieldEnum = (typeof QuestionOrderByRelevanceFieldEnum)[keyof typeof QuestionOrderByRelevanceFieldEnum]
 
 
   /**
@@ -4687,20 +4301,6 @@ export namespace Prisma {
    * Reference to a field of type 'SectionType'
    */
   export type EnumSectionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SectionType'>
-    
-
-
-  /**
-   * Reference to a field of type 'Json'
-   */
-  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
-    
-
-
-  /**
-   * Reference to a field of type 'QueryMode'
-   */
-  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -4745,6 +4345,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     sections?: SectionOrderByRelationAggregateInput
+    _relevance?: TestOrderByRelevanceInput
   }
 
   export type TestWhereUniqueInput = Prisma.AtLeast<{
@@ -4801,6 +4402,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     test?: TestOrderByWithRelationInput
     questions?: QuestionOrderByRelationAggregateInput
+    _relevance?: SectionOrderByRelevanceInput
   }
 
   export type SectionWhereUniqueInput = Prisma.AtLeast<{
@@ -4853,12 +4455,13 @@ export namespace Prisma {
     index?: IntFilter<"Question"> | number
     questionText?: StringFilter<"Question"> | string
     passage?: StringNullableFilter<"Question"> | string | null
-    choices?: JsonNullableFilter<"Question">
-    answer?: JsonFilter<"Question">
+    choices?: StringNullableFilter<"Question"> | string | null
+    answer?: StringNullableFilter<"Question"> | string | null
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
     tableTitle?: StringNullableFilter<"Question"> | string | null
-    tableData?: JsonNullableFilter<"Question">
+    tableData?: StringNullableFilter<"Question"> | string | null
     imageUrl?: StringNullableFilter<"Question"> | string | null
+    imageId?: StringNullableFilter<"Question"> | string | null
     showTable?: BoolFilter<"Question"> | boolean
     showImage?: BoolFilter<"Question"> | boolean
     score?: IntFilter<"Question"> | number
@@ -4874,17 +4477,19 @@ export namespace Prisma {
     questionText?: SortOrder
     passage?: SortOrderInput | SortOrder
     choices?: SortOrderInput | SortOrder
-    answer?: SortOrder
+    answer?: SortOrderInput | SortOrder
     type?: SortOrder
     tableTitle?: SortOrderInput | SortOrder
     tableData?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
+    imageId?: SortOrderInput | SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
     score?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     section?: SectionOrderByWithRelationInput
+    _relevance?: QuestionOrderByRelevanceInput
   }
 
   export type QuestionWhereUniqueInput = Prisma.AtLeast<{
@@ -4897,12 +4502,13 @@ export namespace Prisma {
     index?: IntFilter<"Question"> | number
     questionText?: StringFilter<"Question"> | string
     passage?: StringNullableFilter<"Question"> | string | null
-    choices?: JsonNullableFilter<"Question">
-    answer?: JsonFilter<"Question">
+    choices?: StringNullableFilter<"Question"> | string | null
+    answer?: StringNullableFilter<"Question"> | string | null
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
     tableTitle?: StringNullableFilter<"Question"> | string | null
-    tableData?: JsonNullableFilter<"Question">
+    tableData?: StringNullableFilter<"Question"> | string | null
     imageUrl?: StringNullableFilter<"Question"> | string | null
+    imageId?: StringNullableFilter<"Question"> | string | null
     showTable?: BoolFilter<"Question"> | boolean
     showImage?: BoolFilter<"Question"> | boolean
     score?: IntFilter<"Question"> | number
@@ -4918,11 +4524,12 @@ export namespace Prisma {
     questionText?: SortOrder
     passage?: SortOrderInput | SortOrder
     choices?: SortOrderInput | SortOrder
-    answer?: SortOrder
+    answer?: SortOrderInput | SortOrder
     type?: SortOrder
     tableTitle?: SortOrderInput | SortOrder
     tableData?: SortOrderInput | SortOrder
     imageUrl?: SortOrderInput | SortOrder
+    imageId?: SortOrderInput | SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
     score?: SortOrder
@@ -4944,12 +4551,13 @@ export namespace Prisma {
     index?: IntWithAggregatesFilter<"Question"> | number
     questionText?: StringWithAggregatesFilter<"Question"> | string
     passage?: StringNullableWithAggregatesFilter<"Question"> | string | null
-    choices?: JsonNullableWithAggregatesFilter<"Question">
-    answer?: JsonWithAggregatesFilter<"Question">
+    choices?: StringNullableWithAggregatesFilter<"Question"> | string | null
+    answer?: StringNullableWithAggregatesFilter<"Question"> | string | null
     type?: EnumQuestionTypeWithAggregatesFilter<"Question"> | $Enums.QuestionType
     tableTitle?: StringNullableWithAggregatesFilter<"Question"> | string | null
-    tableData?: JsonNullableWithAggregatesFilter<"Question">
+    tableData?: StringNullableWithAggregatesFilter<"Question"> | string | null
     imageUrl?: StringNullableWithAggregatesFilter<"Question"> | string | null
+    imageId?: StringNullableWithAggregatesFilter<"Question"> | string | null
     showTable?: BoolWithAggregatesFilter<"Question"> | boolean
     showImage?: BoolWithAggregatesFilter<"Question"> | boolean
     score?: IntWithAggregatesFilter<"Question"> | number
@@ -5081,12 +4689,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage?: string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer: JsonNullValueInput | InputJsonValue
+    choices?: string | null
+    answer?: string | null
     type?: $Enums.QuestionType
     tableTitle?: string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: string | null
     imageUrl?: string | null
+    imageId?: string | null
     showTable?: boolean
     showImage?: boolean
     score?: number
@@ -5101,12 +4710,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage?: string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer: JsonNullValueInput | InputJsonValue
+    choices?: string | null
+    answer?: string | null
     type?: $Enums.QuestionType
     tableTitle?: string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: string | null
     imageUrl?: string | null
+    imageId?: string | null
     showTable?: boolean
     showImage?: boolean
     score?: number
@@ -5119,12 +4729,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number
@@ -5139,12 +4750,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number
@@ -5158,12 +4770,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage?: string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer: JsonNullValueInput | InputJsonValue
+    choices?: string | null
+    answer?: string | null
     type?: $Enums.QuestionType
     tableTitle?: string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: string | null
     imageUrl?: string | null
+    imageId?: string | null
     showTable?: boolean
     showImage?: boolean
     score?: number
@@ -5176,12 +4789,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number
@@ -5195,12 +4809,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number
@@ -5219,6 +4834,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
@@ -5241,6 +4857,12 @@ export namespace Prisma {
 
   export type SectionOrderByRelationAggregateInput = {
     _count?: SortOrder
+  }
+
+  export type TestOrderByRelevanceInput = {
+    fields: TestOrderByRelevanceFieldEnum | TestOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
   }
 
   export type TestCountOrderByAggregateInput = {
@@ -5275,6 +4897,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -5326,6 +4949,12 @@ export namespace Prisma {
 
   export type QuestionOrderByRelationAggregateInput = {
     _count?: SortOrder
+  }
+
+  export type SectionOrderByRelevanceInput = {
+    fields: SectionOrderByRelevanceFieldEnum | SectionOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
   }
 
   export type SectionTestIdNumberCompoundUniqueInput = {
@@ -5405,43 +5034,8 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
-  }
-  export type JsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-  export type JsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type EnumQuestionTypeFilter<$PrismaModel = never> = {
@@ -5466,6 +5060,12 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
+  export type QuestionOrderByRelevanceInput = {
+    fields: QuestionOrderByRelevanceFieldEnum | QuestionOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
   export type QuestionSectionIdIndexCompoundUniqueInput = {
     sectionId: string
     index: number
@@ -5483,6 +5083,7 @@ export namespace Prisma {
     tableTitle?: SortOrder
     tableData?: SortOrder
     imageUrl?: SortOrder
+    imageId?: SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
     score?: SortOrder
@@ -5501,9 +5102,13 @@ export namespace Prisma {
     index?: SortOrder
     questionText?: SortOrder
     passage?: SortOrder
+    choices?: SortOrder
+    answer?: SortOrder
     type?: SortOrder
     tableTitle?: SortOrder
+    tableData?: SortOrder
     imageUrl?: SortOrder
+    imageId?: SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
     score?: SortOrder
@@ -5517,9 +5122,13 @@ export namespace Prisma {
     index?: SortOrder
     questionText?: SortOrder
     passage?: SortOrder
+    choices?: SortOrder
+    answer?: SortOrder
     type?: SortOrder
     tableTitle?: SortOrder
+    tableData?: SortOrder
     imageUrl?: SortOrder
+    imageId?: SortOrder
     showTable?: SortOrder
     showImage?: SortOrder
     score?: SortOrder
@@ -5543,52 +5152,11 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
-  }
-  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedJsonNullableFilter<$PrismaModel>
-    _max?: NestedJsonNullableFilter<$PrismaModel>
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type EnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -5764,6 +5332,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
@@ -5789,6 +5358,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
@@ -5875,6 +5445,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
@@ -5901,6 +5472,7 @@ export namespace Prisma {
     contains?: string | StringFieldRefInput<$PrismaModel>
     startsWith?: string | StringFieldRefInput<$PrismaModel>
     endsWith?: string | StringFieldRefInput<$PrismaModel>
+    search?: string
     not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
@@ -5916,42 +5488,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-  export type NestedJsonNullableFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonNullableFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-  }
-  export type NestedJsonFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
-        Required<NestedJsonFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
-
-  export type NestedJsonFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type NestedEnumQuestionTypeWithAggregatesFilter<$PrismaModel = never> = {
@@ -5997,6 +5533,7 @@ export namespace Prisma {
 
   export type SectionCreateManyTestInputEnvelope = {
     data: SectionCreateManyTestInput | SectionCreateManyTestInput[]
+    skipDuplicates?: boolean
   }
 
   export type SectionUpsertWithWhereUniqueWithoutTestInput = {
@@ -6051,12 +5588,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage?: string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer: JsonNullValueInput | InputJsonValue
+    choices?: string | null
+    answer?: string | null
     type?: $Enums.QuestionType
     tableTitle?: string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: string | null
     imageUrl?: string | null
+    imageId?: string | null
     showTable?: boolean
     showImage?: boolean
     score?: number
@@ -6069,12 +5607,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage?: string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer: JsonNullValueInput | InputJsonValue
+    choices?: string | null
+    answer?: string | null
     type?: $Enums.QuestionType
     tableTitle?: string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: string | null
     imageUrl?: string | null
+    imageId?: string | null
     showTable?: boolean
     showImage?: boolean
     score?: number
@@ -6089,6 +5628,7 @@ export namespace Prisma {
 
   export type QuestionCreateManySectionInputEnvelope = {
     data: QuestionCreateManySectionInput | QuestionCreateManySectionInput[]
+    skipDuplicates?: boolean
   }
 
   export type TestUpsertWithoutSectionsInput = {
@@ -6141,12 +5681,13 @@ export namespace Prisma {
     index?: IntFilter<"Question"> | number
     questionText?: StringFilter<"Question"> | string
     passage?: StringNullableFilter<"Question"> | string | null
-    choices?: JsonNullableFilter<"Question">
-    answer?: JsonFilter<"Question">
+    choices?: StringNullableFilter<"Question"> | string | null
+    answer?: StringNullableFilter<"Question"> | string | null
     type?: EnumQuestionTypeFilter<"Question"> | $Enums.QuestionType
     tableTitle?: StringNullableFilter<"Question"> | string | null
-    tableData?: JsonNullableFilter<"Question">
+    tableData?: StringNullableFilter<"Question"> | string | null
     imageUrl?: StringNullableFilter<"Question"> | string | null
+    imageId?: StringNullableFilter<"Question"> | string | null
     showTable?: BoolFilter<"Question"> | boolean
     showImage?: BoolFilter<"Question"> | boolean
     score?: IntFilter<"Question"> | number
@@ -6245,12 +5786,13 @@ export namespace Prisma {
     index: number
     questionText: string
     passage?: string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer: JsonNullValueInput | InputJsonValue
+    choices?: string | null
+    answer?: string | null
     type?: $Enums.QuestionType
     tableTitle?: string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: string | null
     imageUrl?: string | null
+    imageId?: string | null
     showTable?: boolean
     showImage?: boolean
     score?: number
@@ -6263,12 +5805,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number
@@ -6281,12 +5824,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number
@@ -6299,12 +5843,13 @@ export namespace Prisma {
     index?: IntFieldUpdateOperationsInput | number
     questionText?: StringFieldUpdateOperationsInput | string
     passage?: NullableStringFieldUpdateOperationsInput | string | null
-    choices?: NullableJsonNullValueInput | InputJsonValue
-    answer?: JsonNullValueInput | InputJsonValue
+    choices?: NullableStringFieldUpdateOperationsInput | string | null
+    answer?: NullableStringFieldUpdateOperationsInput | string | null
     type?: EnumQuestionTypeFieldUpdateOperationsInput | $Enums.QuestionType
     tableTitle?: NullableStringFieldUpdateOperationsInput | string | null
-    tableData?: NullableJsonNullValueInput | InputJsonValue
+    tableData?: NullableStringFieldUpdateOperationsInput | string | null
     imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    imageId?: NullableStringFieldUpdateOperationsInput | string | null
     showTable?: BoolFieldUpdateOperationsInput | boolean
     showImage?: BoolFieldUpdateOperationsInput | boolean
     score?: IntFieldUpdateOperationsInput | number

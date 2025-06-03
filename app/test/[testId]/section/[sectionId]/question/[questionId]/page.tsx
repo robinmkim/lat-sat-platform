@@ -2,9 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { mapStringArrayToChoices } from "@/app/components/utils/choice";
 import TestSolveClient from "./TestSolveClient";
 import { getNextQuestionRoute } from "@/app/action";
+import { mapStringArrayToChoices } from "@/app/components/utils/choice";
+import { parseChoices, parseTableData } from "@/app/components/utils/parser";
 
 export default async function Page({
   params,
@@ -31,17 +32,22 @@ export default async function Page({
   const question = sorted.find((q) => q.index === questionIndex);
   if (!question) return notFound();
 
-  const choices = mapStringArrayToChoices(question.choices ?? []);
+  // ✅ 안전하게 choices, tableData 파싱
+  const parsedChoices = parseChoices(question.choices);
+  const choices = mapStringArrayToChoices(parsedChoices);
+  const tableData = parseTableData(question.tableData);
 
   const prevRoute = await getNextQuestionRoute(
     testId,
     sectionNumber,
-    questionIndex - 1
+    questionIndex - 1,
+    "prev"
   );
   const nextRoute = await getNextQuestionRoute(
     testId,
     sectionNumber,
-    questionIndex + 1
+    questionIndex + 1,
+    "next"
   );
 
   return (
@@ -51,9 +57,13 @@ export default async function Page({
       totalQuestions={sorted.length}
       question={{
         index: question.index,
-        questionText: question.questionText,
-        passage: question.passage,
+        question: question.questionText ?? "",
+        passage: question.passage ?? undefined,
         choices,
+        type: question.type,
+        tableTitle: question.tableTitle ?? undefined,
+        tableData,
+        imageUrl: question.imageUrl ?? undefined,
       }}
       prevRoute={prevRoute}
       nextRoute={nextRoute}

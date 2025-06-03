@@ -1,11 +1,24 @@
+// ✅ renderPassage.tsx
 import React from "react";
+import { MathJax } from "better-react-mathjax";
 
 function renderInline(text: string) {
-  const parts = text.split(/(__.*?__)/g); // underline 인식
+  const parts = text.split(/(\${1,2}[^$]+\${1,2})/g); // 수식 덩어리와 나머지 분리
 
   return parts.map((part, idx) => {
     if (!part) return null;
 
+    // ✅ 수식 처리: $...$ 또는 $$...$$ → MathJax로 렌더링
+    if (/^\${1,2}.*\${1,2}$/.test(part)) {
+      const latex = part.replace(/^\${1,2}|\${1,2}$/g, "").trim();
+      return (
+        <MathJax key={idx} inline dynamic>
+          {"\\(" + latex + "\\)"}
+        </MathJax>
+      );
+    }
+
+    // ✅ 밑줄 처리: __...__
     if (part.startsWith("__") && part.endsWith("__")) {
       return (
         <u key={idx} className="font-medium">
@@ -14,17 +27,7 @@ function renderInline(text: string) {
       );
     }
 
-    // 수식이 포함된 경우 ($...$)
-    const latexMatch = part.match(/^\$(.*?)\$/);
-    if (latexMatch) {
-      return (
-        <span key={idx} className="text-blue-600 font-mono">
-          {"(" + latexMatch[1] + ")"}
-        </span>
-      );
-    }
-
-    return <React.Fragment key={idx}>{part}</React.Fragment>;
+    return <span key={idx}>{part}</span>;
   });
 }
 
@@ -54,4 +57,13 @@ export function renderPassage(passage: string) {
       </div>
     );
   });
+}
+// ✅ table 유틸: tableData가 1x1이고 값이 없으면 표시하지 않음
+export function isEmptyTable(tableData?: string[][]): boolean {
+  return (
+    Array.isArray(tableData) &&
+    tableData.length === 1 &&
+    tableData[0].length === 1 &&
+    !tableData[0][0]?.trim()
+  );
 }

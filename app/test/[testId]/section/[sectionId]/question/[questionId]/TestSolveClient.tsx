@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import MultipleChoice from "@/app/components/MultipleChoice";
 import BookmarkToggle from "@/app/components/BookmarkToggle";
-import QuestionNavigatorModal from "@/app/test/components/QuestionNavigatiorModal";
 import TestHeader from "@/app/test/components/TestHeader";
+import TestFooter from "@/app/test/components/TestFooter";
+import MultipleChoice from "@/app/components/MultipleChoice";
+import FractionInput from "@/app/components/FractionInput";
+import {
+  isEmptyTable,
+  renderPassage,
+} from "@/app/components/common/renderPassage";
+import ShortAnswerInstruction from "@/app/test-edit/components/ShortAnswerInstruction";
 
-type Choice = {
+export type Choice = {
   id: string;
   text: string;
 };
@@ -18,9 +23,13 @@ type Props = {
   totalQuestions: number;
   question: {
     index: number;
-    questionText: string;
-    passage?: string | null;
-    choices: Choice[];
+    question: string;
+    passage?: string;
+    choices?: Choice[];
+    type: "MULTIPLE" | "SHORT";
+    tableTitle?: string;
+    tableData?: string[][];
+    imageUrl?: string;
   };
   prevRoute: string | null;
   nextRoute: string | null;
@@ -31,63 +40,140 @@ export default function TestSolveClient({
   sectionId,
   totalQuestions,
   question,
-  prevRoute,
-  nextRoute,
 }: Props) {
-  const [showModal, setShowModal] = useState(false);
   const [bookmarks, setBookmarks] = useState<Record<number, boolean>>({});
-  const [isRestored, setIsRestored] = useState(false); // ✅ 복원 완료 여부
-  const storageKey = `bookmark-${testId}-section-${sectionId}`;
+  const [answers, setAnswers] = useState<
+    Record<string, Record<number, string>>
+  >({});
 
-  // ✅ 복원: mount 시 1회
+  const bookmarkKey = `bookmark-${testId}-section-${sectionId}`;
+  const answerKey = `answers-${testId}`;
+
   useEffect(() => {
-    const stored = sessionStorage.getItem(storageKey);
-    console.log("🔄 [복원 시도]", storageKey, stored);
-
+    const stored = sessionStorage.getItem(bookmarkKey);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        console.log("✅ [복원 성공]", parsed);
         setBookmarks(parsed);
-      } catch (err) {
-        console.warn("❌ [복원 실패]", err);
+      } catch {
         setBookmarks({});
       }
-    } else {
-      console.log("🚫 [복원 없음]");
-      setBookmarks({});
     }
-    setIsRestored(true); // ✅ 복원 완료 표시
-  }, [storageKey]);
+  }, [bookmarkKey]);
 
-  // ✅ 저장: 복원 후에만 저장
   useEffect(() => {
-    if (!isRestored) return;
-    console.log("💾 [저장]", storageKey, bookmarks);
-    sessionStorage.setItem(storageKey, JSON.stringify(bookmarks));
-  }, [bookmarks, isRestored]);
+    const stored = sessionStorage.getItem(answerKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setAnswers(parsed);
+      } catch {
+        setAnswers({});
+      }
+    }
+  }, [answerKey]);
 
-  const toggleBookmark = (index: number) => {
-    console.log("🔖 [토글 요청]", index);
-    setBookmarks((prev) => {
-      const next = { ...prev, [index]: !prev[index] };
-      console.log("➡️ [북마크 상태]", next);
+  const updateAnswer = (
+    sectionId: number,
+    questionIndex: number,
+    answer: string
+  ) => {
+    setAnswers((prev) => {
+      const sectionKey = `section${sectionId}`;
+      const updatedSection = {
+        ...prev[sectionKey],
+        [questionIndex]: answer,
+      };
+      const next = {
+        ...prev,
+        [sectionKey]: updatedSection,
+      };
+      sessionStorage.setItem(answerKey, JSON.stringify(next));
       return next;
     });
   };
 
+  const toggleBookmark = (index: number) => {
+    setBookmarks((prev) => {
+      const next = { ...prev, [index]: !prev[index] };
+      sessionStorage.setItem(bookmarkKey, JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const isMathMultiple = question.type === "MULTIPLE" && sectionId % 2 === 0;
+  const isMathShort = question.type === "SHORT" && sectionId % 2 === 0;
+  const showLeftBlock =
+    isMathShort ||
+    (!isMathMultiple &&
+      (question.passage?.trim() ||
+        question.tableTitle?.trim() ||
+        !isEmptyTable(question.tableData) ||
+        question.imageUrl?.trim()));
+
+  const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
+  console.log(question.choices);
   return (
-    <div className="flex flex-col w-full h-[80vh]">
-      <TestHeader sectionNumber={sectionId} testId={testId} />
+    <div className="flex flex-col w-full h-[80vh] overflow-hidden">
+      <TestHeader
+        sectionNumber={sectionId}
+        testId={testId}
+        questionIndex={question.index}
+      />
+      <div className="flex flex-grow min-h-0 w-full">
+        {/* ✅ 왼쪽: 지문/표/설명/이미지 */}
+        {showLeftBlock && (
+          <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
+            <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
+              {/* ✅ 이미지 먼저 출력 */}
+              {question.imageUrl && (
+                <img
+                  src={question.imageUrl}
+                  alt="문제 이미지"
+                  className="max-w-full max-h-64 border rounded object-contain"
+                />
+              )}
 
-      <div className="flex flex-grow items-stretch w-full">
-        <div className="flex justify-center w-1/2 overflow-y-auto p-5">
-          <span>{question.passage ?? "No passage provided."}</span>
-        </div>
+              {isMathShort && <ShortAnswerInstruction />}
 
-        <div className="w-1.5 bg-gray-400" />
+              {!isMathShort && question.tableTitle && (
+                <h3 className="text-lg font-semibold">{question.tableTitle}</h3>
+              )}
 
-        <div className="flex flex-col w-1/2 overflow-y-auto p-5">
+              {!isMathShort && !isEmptyTable(question.tableData) && (
+                <table className="w-full table-auto border border-gray-400 bg-white text-sm">
+                  <tbody>
+                    {question.tableData!.map((row, rowIdx) => (
+                      <tr key={rowIdx}>
+                        {row.map((cell, colIdx) => (
+                          <td
+                            key={colIdx}
+                            className="border border-gray-400 px-2 py-1"
+                          >
+                            {cell || "⠀"}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              {!isMathShort && question.passage && (
+                <div>{renderPassage(question.passage)}</div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {!isMathMultiple && <div className="w-1.5 bg-gray-400" />}
+
+        {/* ✅ 오른쪽: 문제/선택지/입력 */}
+        <div
+          className={`flex flex-col ${
+            isMathMultiple ? "w-full" : "w-1/2"
+          } p-5 overflow-y-auto min-h-0`}
+        >
           <div className="flex w-full border-b-2 border-dashed items-center justify-between">
             <div className="w-8 bg-black text-white text-center py-1">
               {question.index}
@@ -101,53 +187,37 @@ export default function TestSolveClient({
             </div>
           </div>
 
-          <div className="mt-4 mb-2">{question.questionText}</div>
-          <MultipleChoice choices={question.choices} />
+          <div className="mt-4 mb-2">{question.question}</div>
+
+          {/* ✅ MultipleChoice 복구 */}
+          {question.type === "MULTIPLE" && question.choices && (
+            <MultipleChoice
+              choices={question.choices}
+              selectedIndex={
+                currentAnswer !== "" ? parseInt(currentAnswer) : null
+              }
+              onAnswer={(index) =>
+                updateAnswer(sectionId, question.index, index.toString())
+              }
+            />
+          )}
+
+          {question.type === "SHORT" && (
+            <FractionInput
+              value={currentAnswer}
+              onAnswer={(text) => updateAnswer(sectionId, question.index, text)}
+            />
+          )}
         </div>
       </div>
 
-      <div className="relative flex items-center justify-between w-full h-[50px] bg-blue-100 border-t-2 border-dashed px-5">
-        <div className="text-sm">Minseob Kim</div>
-
-        <button
-          onClick={() => setShowModal(true)}
-          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center w-fit h-fit bg-gray-900 rounded-md px-3 py-1 text-sm text-white font-medium hover:bg-gray-800 transition"
-        >
-          Question {question.index} of {totalQuestions} ⌄
-        </button>
-
-        <div className="flex items-center gap-2">
-          <Link
-            href={prevRoute ?? "#"}
-            aria-disabled={!prevRoute}
-            className={`flex items-center justify-center w-fit h-fit bg-gray-300 rounded-xl px-3 py-1 text-sm text-gray-800 font-medium hover:bg-gray-400 transition ${
-              !prevRoute ? "pointer-events-none opacity-50" : ""
-            }`}
-          >
-            Back
-          </Link>
-          <Link
-            href={nextRoute ?? "#"}
-            aria-disabled={!nextRoute}
-            className={`flex items-center justify-center w-fit h-fit bg-blue-700 rounded-xl px-3 py-1 text-sm text-white font-medium hover:bg-blue-800 transition ${
-              !nextRoute ? "pointer-events-none opacity-50" : ""
-            }`}
-          >
-            Next
-          </Link>
-        </div>
-      </div>
-
-      {showModal && (
-        <QuestionNavigatorModal
-          testId={testId}
-          sectionId={sectionId}
-          total={totalQuestions}
-          current={question.index}
-          bookmarks={bookmarks}
-          onClose={() => setShowModal(false)}
-        />
-      )}
+      <TestFooter
+        testId={testId}
+        sectionId={sectionId}
+        questionIndex={question.index}
+        totalQuestions={totalQuestions}
+        bookmarks={bookmarks}
+      />
     </div>
   );
 }
