@@ -1,0 +1,36 @@
+# Node dependencies
+node_modules/
+.pnpm/
+.yarn/
+
+# Build output
+.next/
+out/
+build/
+
+# Environment variables
+.env*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# System files
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Test coverage
+coverage/
+
+# IDE/editor settings (optional)
+.vscode/
+.idea/
+
+# Prisma generated client (예: client 또는 wasm 등)
+app/generated/
+prisma/generated/
