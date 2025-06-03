@@ -7,11 +7,10 @@ import { notFound } from "next/navigation";
 // ✅ 타입 import (경로는 실제 위치에 맞게 조정해주세요)
 import type { Test, Section, Question } from "@/types/test";
 
-export default async function TestResultPage({
-  searchParams,
-}: {
-  searchParams: { testId?: string };
-}) {
+export default async function TestResultPage(
+  props: Promise<{ searchParams: { testId?: string } }>
+) {
+  const { searchParams } = await props;
   const testId = searchParams.testId;
   if (!testId) return notFound();
 
