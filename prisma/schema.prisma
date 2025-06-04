@@ -1,7 +1,9 @@
 generator client {
-  provider      = "prisma-client-js"
-  output        = "./generated/prisma"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma" // 💡 필요에 따라 상대경로 조정
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
+  previewFeatures = ["clientExtensions"]
+  plugins         = ["@prisma/nextjs-monorepo-workaround-plugin"]
 }
 
 datasource db {

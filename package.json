@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "prisma generate && next build",
-    "start": "next start",
-    "lint": "next lint"
+  "dev": "next dev --turbopack",
+  "build": "prisma generate && next build",
+  "vercel-build": "prisma generate && prisma migrate deploy && next build",
+  "start": "next start",
+  "lint": "next lint"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@prisma/client": "^6.7.0",
+    "@prisma/nextjs-monorepo-workaround-plugin": "^6.9.0",
     "better-react-mathjax": "^2.3.0",
     "mathlive": "^0.105.3",
     "next": "15.3.1",
@@ -32,6 +34,9 @@
     "typescript": "^5"
   },
   "prisma": {
-  "binaryTargets": ["native", "rhel-openssl-3.0.x"]
-}
+    "binaryTargets": [
+      "native",
+      "rhel-openssl-3.0.x"
+    ]
+  }
 }
