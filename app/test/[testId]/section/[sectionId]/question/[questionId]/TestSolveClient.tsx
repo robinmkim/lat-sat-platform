@@ -1,16 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import BookmarkToggle from "@/app/components/BookmarkToggle";
-import TestHeader from "@/app/test/components/TestHeader";
-import TestFooter from "@/app/test/components/TestFooter";
-import MultipleChoice from "@/app/components/MultipleChoice";
-import FractionInput from "@/app/components/FractionInput";
-import {
-  isEmptyTable,
-  renderPassage,
-} from "@/app/components/common/renderPassage";
-import ShortAnswerInstruction from "@/app/test-edit/components/ShortAnswerInstruction";
+import BookmarkToggle from "@/components/BookmarkToggle";
+import TestHeader from "@/test/components/TestHeader";
+import TestFooter from "@/test/components/TestFooter";
+import MultipleChoice from "@/components/MultipleChoice";
+import FractionInput from "@/components/FractionInput";
+import { isEmptyTable, renderPassage } from "@/components/common/renderPassage";
+import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
 import Image from "next/image";
 
 export type Choice = {

@@ -1,11 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "lib/prisma";
 import { notFound } from "next/navigation";
 import TestSolveClient from "./TestSolveClient";
-import { getNextQuestionRoute } from "@/app/action";
-import { mapStringArrayToChoices } from "@/app/components/utils/choice";
-import { parseChoices, parseTableData } from "@/app/components/utils/parser";
+import { getNextQuestionRoute } from "@/action";
+import { mapStringArrayToChoices } from "@/components/utils/choice";
+import { parseChoices, parseTableData } from "@/components/utils/parser";
 
 export default async function Page({
   params,

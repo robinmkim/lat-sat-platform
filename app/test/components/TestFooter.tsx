@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getNextQuestionRoute } from "@/app/action";
+import { getNextQuestionRoute } from "@/action";
 import QuestionNavigatorModal from "./QuestionNavigatiorModal";
 
 type Props = {

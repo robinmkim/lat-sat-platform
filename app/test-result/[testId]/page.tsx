@@ -1,11 +1,11 @@
 export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "lib/prisma";
 import TestResultClient from "../TestResultClient";
 import { notFound } from "next/navigation";
 
 // 타입은 필요에 따라 조정
-import type { Test, Section, Question } from "@/types/test";
+import type { Test, Section, Question } from "types/test";
 
 export default async function TestResultPage({
   params,

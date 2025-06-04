@@ -1,7 +1,7 @@
 // app/actions/getTestRoute.ts
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "lib/prisma";
 
 export async function getFirstSolveRoute(testId: string): Promise<string> {
   const section = await prisma.section.findFirst({

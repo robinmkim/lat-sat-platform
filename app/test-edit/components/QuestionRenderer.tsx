@@ -3,7 +3,7 @@ import PassageInput from "./PassageInput";
 import MultipleChoiceInput from "./MultipleChoiceInput";
 import QuestionInput from "./QuestionInput";
 import MathInput from "./MathInput";
-import PassagePreview from "@/app/components/common/PassagePreview";
+import PassagePreview from "@/components/common/PassagePreview";
 import TableInput from "./TableInput";
 import ImageUploadInput from "./ImageUploadInput";
 import ShortAnswerInput from "./ShortAnswerInput";

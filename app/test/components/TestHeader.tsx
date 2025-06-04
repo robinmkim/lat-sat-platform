@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getNextQuestionRoute } from "@/app/action";
+import { getNextQuestionRoute } from "@/action";
 
 type Props = {
   sectionNumber: number;

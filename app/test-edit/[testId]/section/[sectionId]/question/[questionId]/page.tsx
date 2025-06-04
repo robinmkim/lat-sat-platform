@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma";
-import { getQuestion } from "@/lib/queries/getQuestion";
-import SectionEditClient from "@/app/test-edit/SectionEditClient";
+import { prisma } from "lib/prisma";
+import { getQuestion } from "lib/queries/getQuestion";
+import SectionEditClient from "@/test-edit/SectionEditClient";
 import { redirect } from "next/navigation";
 
 export default async function SectionEditPage({

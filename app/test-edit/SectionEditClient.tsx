@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import QuestionForm, { Question } from "@/app/test-edit/QuestionForm";
+import QuestionForm, { Question } from "@/test-edit/QuestionForm";
 import QuestionFooter from "./components/QuestionFooter";
-import { saveQuestion } from "@/app/test-edit/actions";
+import { saveQuestion } from "@/test-edit/actions";
 import { v4 as uuidv4 } from "uuid";
 
 export default function SectionEditClient({

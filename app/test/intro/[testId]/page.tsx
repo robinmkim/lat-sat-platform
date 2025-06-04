@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import IntroFooter from "@/app/components/IntroFooter";
-import { getFirstSolveRoute } from "@/app/action";
+import { prisma } from "lib/prisma";
+import IntroFooter from "@/components/IntroFooter";
+import { getFirstSolveRoute } from "@/action";
 
 export default async function TestIntroPage({
   params,
