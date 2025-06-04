@@ -78,3 +78,11 @@ function renderInline(text: string) {
     return <span key={idx}>{part}</span>;
   });
 }
+export function isEmptyTable(tableData?: string[][]): boolean {
+  return (
+    Array.isArray(tableData) &&
+    tableData.length === 1 &&
+    tableData[0].length === 1 &&
+    !tableData[0][0]?.trim()
+  );
+}
