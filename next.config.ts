@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
-import PrismaPlugin from "@prisma/nextjs-monorepo-workaround-plugin"; // 타입 선언이 있으면 OK
+
+// ✅ CommonJS 모듈은 require 방식으로 import
+
+const PrismaPlugin = require("@prisma/nextjs-monorepo-workaround-plugin");
 
 const nextConfig: NextConfig = {
-  /* config options here */
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
+    // eslint 에러가 있어도 빌드 진행
     ignoreDuringBuilds: true,
   },
   webpack: (config, { isServer }) => {
@@ -14,7 +15,8 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
-  output: "standalone", // ✅ Prisma 바이너리 포함을 보장
+  // ✅ Prisma 바이너리가 포함되도록 설정
+  output: "standalone",
 };
 
 export default nextConfig;
