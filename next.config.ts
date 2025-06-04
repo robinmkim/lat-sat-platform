@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import PrismaPlugin from "@prisma/nextjs-monorepo-workaround-plugin";
+import PrismaPlugin from "@prisma/nextjs-monorepo-workaround-plugin"; // 타입 선언이 있으면 OK
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -14,7 +14,6 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
-  optimizePackageImports: ["@prisma/client"],
   output: "standalone", // ✅ Prisma 바이너리 포함을 보장
 };
 
