@@ -56,7 +56,46 @@ export async function saveQuestion(
   }
 }
 
+async function deleteImageFromCloudflare(imageId: string) {
+  try {
+    await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/images/v1/${imageId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+        },
+      }
+    );
+  } catch (e) {
+    console.warn("Cloudflare 이미지 삭제 실패:", imageId, e);
+  }
+}
+
 export async function deleteTestById(testId: string) {
+  // ✅ 해당 테스트의 모든 이미지 ID 조회
+  const questionsWithImages = await prisma.question.findMany({
+    where: {
+      section: {
+        testId,
+      },
+      imageId: {
+        not: null,
+      },
+    },
+    select: {
+      imageId: true,
+    },
+  });
+
+  // ✅ Cloudflare 이미지 삭제
+  for (const { imageId } of questionsWithImages) {
+    if (imageId) await deleteImageFromCloudflare(imageId);
+  }
+
+  // ✅ 테스트 삭제
   await prisma.test.delete({ where: { id: testId } });
+
+  // ✅ 캐시 무효화
   revalidatePath("/test-list");
 }

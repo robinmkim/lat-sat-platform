@@ -66,6 +66,12 @@ export default function QuestionRenderer({
           onChange={(val) => onUpdate({ passage: val })}
         />
       )}
+      {/* ✅ 질문 입력 */}
+      <QuestionInput
+        value={question}
+        onChange={(val) => onUpdate({ question: val })}
+      />
+
       {/* ✅ 최종 미리보기 */}
       <PassagePreview
         passage={isReadingWriting ? passage ?? "" : question ?? ""}
@@ -83,12 +89,6 @@ export default function QuestionRenderer({
           </div>
         </div>
       )}
-
-      {/* ✅ 질문 입력 */}
-      <QuestionInput
-        value={question}
-        onChange={(val) => onUpdate({ question: val })}
-      />
 
       {/* ✅ 선택형 or 단답형 */}
       {type === "MULTIPLE" ? (
@@ -123,10 +123,17 @@ export default function QuestionRenderer({
       <div className="flex flex-col gap-1">
         <label className="font-medium">배점 (점수)</label>
         <input
-          type="number"
-          min={1}
-          value={score ?? 1}
-          onChange={(e) => onUpdate({ score: parseInt(e.target.value) || 1 })}
+          type="text"
+          inputMode="numeric" // 모바일에서는 숫자 키패드 유도
+          pattern="[0-9]*" // 숫자만 입력 가능 (기본 유효성)
+          value={score ?? ""}
+          onChange={(e) => {
+            const value = e.target.value;
+            // 빈 문자열 허용 + 숫자만 처리
+            if (value === "" || /^[0-9]+$/.test(value)) {
+              onUpdate({ score: value === "" ? undefined : parseInt(value) });
+            }
+          }}
           className="border px-3 py-2 rounded w-32"
           placeholder="예: 1"
         />

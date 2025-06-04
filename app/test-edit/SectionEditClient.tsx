@@ -236,24 +236,44 @@ export default function SectionEditClient({
       if (raw) {
         try {
           const parsed: Question = JSON.parse(raw);
+
+          // ✅ 디버깅 로그: 로드된 문제 개별 확인
+          console.log(`🧩 문제 ${i} 로드됨`, parsed);
+
           if (uploadedMap.current.has(i)) {
             const file = uploadedMap.current.get(i)!;
+            console.log(`📷 문제 ${i} 이미지 업로드 시도`);
             const { imageUrl, imageId } = await uploadImage(file);
             parsed.imageUrl = imageUrl;
             parsed.imageId = imageId;
           }
+
           allQuestions.push(parsed);
         } catch (e) {
-          console.warn(`문제 ${i}번 파싱 실패`, e);
+          console.warn(`⚠️ 문제 ${i}번 파싱 실패`, e);
         }
+      } else {
+        console.warn(`⚠️ 문제 ${i}번 캐시 없음`);
       }
     }
 
+    console.log("✅ 저장 대상 문제 수:", allQuestions.length);
     if (allQuestions.length > 0) {
+      console.log("📝 예시 문제:", allQuestions[0]);
       const formData = new FormData();
       formData.append("sectionId", sectionId);
       formData.append("payload", JSON.stringify(allQuestions));
+
+      console.log("📦 최종 전송 FormData:", {
+        sectionId,
+        payloadPreview: JSON.stringify(allQuestions.slice(0, 1), null, 2),
+      });
+
       await saveQuestion(formData);
+    } else {
+      console.warn(
+        "❌ 저장할 문제가 없습니다. 모든 문제가 비어 있거나 파싱 실패"
+      );
     }
 
     router.push("/test-list");
