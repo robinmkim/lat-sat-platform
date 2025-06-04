@@ -1,14 +1,40 @@
-// ✅ renderPassage.tsx
-import React from "react";
+// components/common/renderPassage.tsx
+"use client";
+
 import { MathJax } from "better-react-mathjax";
 
+export function renderPassage(passage: string) {
+  const lines = passage.split("\n");
+
+  return (
+    <div className="whitespace-pre-wrap space-y-2">
+      {lines.map((line, idx) => {
+        if (line.trim().startsWith("&")) {
+          // ✅ bullet list 렌더링
+          return (
+            <div key={idx} className="flex items-start gap-2">
+              <div className="mt-1">•</div>
+              <div>{renderInline(line.slice(1).trim())}</div>
+            </div>
+          );
+        }
+
+        return <div key={idx}>{renderInline(line)}</div>;
+      })}
+    </div>
+  );
+}
+
 function renderInline(text: string) {
-  const parts = text.split(/(\${1,2}[^$]+\${1,2})/g); // 수식 덩어리와 나머지 분리
+  // ✅ 수식, 밑줄, 기울임, blank를 한 번에 구분하는 정규식
+  const parts = text.split(
+    /(\${1,2}[^$]+\${1,2}|__[^_]+__|_[^_]+_|\(blank\))/g
+  );
 
   return parts.map((part, idx) => {
     if (!part) return null;
 
-    // ✅ 수식 처리: $...$ 또는 $$...$$ → MathJax로 렌더링
+    // ✅ 수식 렌더링
     if (/^\${1,2}.*\${1,2}$/.test(part)) {
       const latex = part.replace(/^\${1,2}|\${1,2}$/g, "").trim();
       return (
@@ -18,7 +44,7 @@ function renderInline(text: string) {
       );
     }
 
-    // ✅ 밑줄 처리: __...__
+    // ✅ 밑줄 렌더링
     if (part.startsWith("__") && part.endsWith("__")) {
       return (
         <u key={idx} className="font-medium">
@@ -27,43 +53,28 @@ function renderInline(text: string) {
       );
     }
 
+    // ✅ 기울임 렌더링
+    if (part.startsWith("_") && part.endsWith("_")) {
+      return (
+        <em key={idx} className="italic">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+
+    // ✅ 빈칸 (blank) 렌더링
+    if (part === "(blank)") {
+      return (
+        <span
+          key={idx}
+          className="inline-block w-24 border-b border-black align-baseline"
+        >
+          &nbsp;
+        </span>
+      );
+    }
+
+    // ✅ 일반 텍스트
     return <span key={idx}>{part}</span>;
   });
-}
-
-export function renderPassage(passage: string) {
-  const blocks = passage.split(/(?:\n---\n)|(?:\n{2,})/);
-
-  return blocks.map((block, idx) => {
-    const lines = block.trim().split("\n");
-    const bullets = lines.filter((line) => line.trim().startsWith("&"));
-    const nonBullets = lines.filter((line) => !line.trim().startsWith("&"));
-
-    return (
-      <div key={idx} className="mb-4 space-y-2">
-        {nonBullets.map((line, i) => (
-          <p key={i} className="whitespace-pre-wrap">
-            {renderInline(line)}
-          </p>
-        ))}
-
-        {bullets.length > 0 && (
-          <ul className="list-disc list-inside pl-5 space-y-1 m-0">
-            {bullets.map((b, i) => (
-              <li key={i}>{renderInline(b.slice(1).trim())}</li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
-  });
-}
-// ✅ table 유틸: tableData가 1x1이고 값이 없으면 표시하지 않음
-export function isEmptyTable(tableData?: string[][]): boolean {
-  return (
-    Array.isArray(tableData) &&
-    tableData.length === 1 &&
-    tableData[0].length === 1 &&
-    !tableData[0][0]?.trim()
-  );
 }
