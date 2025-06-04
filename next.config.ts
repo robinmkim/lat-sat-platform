@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  output: "standalone", // ✅ Prisma 바이너리 포함을 보장
 };
 
 export default nextConfig;
