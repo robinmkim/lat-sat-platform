@@ -1,16 +1,18 @@
-const applyPrismaPlugin =
-  require("@prisma/nextjs-monorepo-workaround-plugin").default;
+import type { NextConfig } from "next";
 
-const nextConfig: import("next").NextConfig = {
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      applyPrismaPlugin(config); // ✅ 함수 호출
-    }
-    return config;
-  },
+// require()를 피하고 named import 사용
+import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
+
+const nextConfig: NextConfig = {
   output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.plugins.push(new PrismaPlugin());
+    }
+    return config;
   },
 };
 
