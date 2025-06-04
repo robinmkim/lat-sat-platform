@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "lib/prisma";
 
 export async function getQuestion(sectionId: string, index: number) {
   const question = await prisma.question.findUnique({
