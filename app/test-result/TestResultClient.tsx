@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { Test } from "@/types/test";
+import type { Test } from "types/test";
 
 type ResultItem = {
   index: number;
