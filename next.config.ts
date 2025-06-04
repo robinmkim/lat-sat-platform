@@ -1,20 +1,17 @@
-import type { NextConfig } from "next";
+const applyPrismaPlugin =
+  require("@prisma/nextjs-monorepo-workaround-plugin").default;
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const applyPrismaPlugin = require("@prisma/nextjs-monorepo-workaround-plugin");
-
-const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+const nextConfig: import("next").NextConfig = {
   webpack: (config, { isServer }) => {
     if (isServer) {
-      // ✅ 함수로 호출
-      applyPrismaPlugin(config);
+      applyPrismaPlugin(config); // ✅ 함수 호출
     }
     return config;
   },
   output: "standalone",
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
