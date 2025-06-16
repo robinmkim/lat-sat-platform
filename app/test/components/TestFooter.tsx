@@ -29,16 +29,34 @@ export default function TestFooter({
   const isLastSection = sectionId === 4;
   const isFinalQuestion = isLastSection && isLastQuestionInSection;
 
-  console.log(questionIndex);
+  const autoSaveEmptyAnswer = () => {
+    try {
+      const answerKey = `answers-${testId}`;
+      const sectionKey = `section${sectionId}`;
+      const stored = sessionStorage.getItem(answerKey);
+      const parsed = stored ? JSON.parse(stored) : {};
+      const sectionAnswers = parsed[sectionKey] || {};
+
+      // 저장 안 된 문제에 대해 빈 문자열로 강제 저장
+      if (sectionAnswers[questionIndex] === undefined) {
+        sectionAnswers[questionIndex] = "";
+        parsed[sectionKey] = sectionAnswers;
+        sessionStorage.setItem(answerKey, JSON.stringify(parsed));
+      }
+    } catch {
+      // 무시 (세션 오류 방지)
+    }
+  };
 
   const handleNavigate = async (direction: "next" | "prev") => {
+    autoSaveEmptyAnswer(); // ✅ 현재 문제의 답안이 없으면 빈 문자열 저장
+
     setIsLoading(true);
     const offset = direction === "next" ? 1 : -1;
     const targetIndex = questionIndex + offset;
 
     // ✅ 4-27 → test-result 이동
     if (direction === "next" && isFinalQuestion) {
-      setIsLoading(true); // ✅ optional: 로딩 상태 표시
       router.push(`/test-result/${testId}`);
       return;
     }
@@ -51,11 +69,11 @@ export default function TestFooter({
     );
 
     if (!route) {
-      if (direction === "prev") {
-        alert("This is the first question.");
-      } else {
-        alert("다음 문제를 찾을 수 없습니다.");
-      }
+      alert(
+        direction === "prev"
+          ? "This is the first question."
+          : "다음 문제를 찾을 수 없습니다."
+      );
       setIsLoading(false);
       return;
     }
@@ -63,6 +81,7 @@ export default function TestFooter({
     router.push(route);
     setIsLoading(false);
   };
+
   return (
     <>
       <div className="relative flex items-center justify-between w-full h-[50px] shrink-0 bg-blue-100 border-t-2 border-dashed px-5">

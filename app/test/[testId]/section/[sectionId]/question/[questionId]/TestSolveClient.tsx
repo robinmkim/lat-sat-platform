@@ -15,30 +15,34 @@ export type Choice = {
   text: string;
 };
 
+type QuestionData = {
+  index: number;
+  question: string;
+  passage?: string;
+  choices?: Choice[];
+  type: "MULTIPLE" | "SHORT";
+  tableTitle?: string;
+  tableData?: string[][];
+  imageUrl?: string;
+};
+
 type Props = {
   testId: string;
   sectionId: number;
   totalQuestions: number;
-  question: {
-    index: number;
-    question: string;
-    passage?: string;
-    choices?: Choice[];
-    type: "MULTIPLE" | "SHORT";
-    tableTitle?: string;
-    tableData?: string[][];
-    imageUrl?: string;
-  };
-  prevRoute: string | null;
-  nextRoute: string | null;
+  currentIndex: number;
+  questions: QuestionData[];
 };
 
 export default function TestSolveClient({
   testId,
   sectionId,
   totalQuestions,
-  question,
+  currentIndex,
+  questions,
 }: Props) {
+  const question = questions.find((q) => q.index === currentIndex)!;
+
   const [bookmarks, setBookmarks] = useState<Record<number, boolean>>({});
   const [answers, setAnswers] = useState<
     Record<string, Record<number, string>>
@@ -110,7 +114,7 @@ export default function TestSolveClient({
         question.imageUrl?.trim()));
 
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
-  console.log(question.choices);
+
   return (
     <div className="flex flex-col w-full h-[80vh] overflow-hidden">
       <TestHeader
@@ -119,11 +123,9 @@ export default function TestSolveClient({
         questionIndex={question.index}
       />
       <div className="flex flex-grow min-h-0 w-full">
-        {/* ✅ 왼쪽: 지문/표/설명/이미지 */}
         {showLeftBlock && (
           <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
-              {/* ✅ 이미지 먼저 출력 */}
               {question.imageUrl && (
                 <Image
                   src={question.imageUrl}
@@ -131,13 +133,10 @@ export default function TestSolveClient({
                   className="max-w-full max-h-64 border rounded object-contain"
                 />
               )}
-
               {isMathShort && <ShortAnswerInstruction />}
-
               {!isMathShort && question.tableTitle && (
                 <h3 className="text-lg font-semibold">{question.tableTitle}</h3>
               )}
-
               {!isMathShort && !isEmptyTable(question.tableData) && (
                 <table className="w-full table-auto border border-gray-400 bg-white text-sm">
                   <tbody>
@@ -156,7 +155,6 @@ export default function TestSolveClient({
                   </tbody>
                 </table>
               )}
-
               {!isMathShort && question.passage && (
                 <div>{renderPassage(question.passage)}</div>
               )}
@@ -166,7 +164,6 @@ export default function TestSolveClient({
 
         {!isMathMultiple && <div className="w-1.5 bg-gray-400" />}
 
-        {/* ✅ 오른쪽: 문제/선택지/입력 */}
         <div
           className={`flex flex-col ${
             isMathMultiple ? "w-full" : "w-1/2"
@@ -187,7 +184,6 @@ export default function TestSolveClient({
 
           <div className="mt-4 mb-2">{question.question}</div>
 
-          {/* ✅ MultipleChoice 복구 */}
           {question.type === "MULTIPLE" && question.choices && (
             <MultipleChoice
               choices={question.choices}

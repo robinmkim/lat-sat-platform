@@ -1,11 +1,11 @@
+// app/test/[testId]/section/[sectionId]/question/[questionId]/page.tsx
 export const dynamic = "force-dynamic";
 
-import { prisma } from "lib/prisma";
 import { notFound } from "next/navigation";
+import { prisma } from "lib/prisma";
 import TestSolveClient from "./TestSolveClient";
-import { getNextQuestionRoute } from "@/action";
-import { mapStringArrayToChoices } from "@/components/utils/choice";
 import { parseChoices, parseTableData } from "@/components/utils/parser";
+import { mapStringArrayToChoices } from "@/components/utils/choice";
 
 export default async function Page({
   params,
@@ -19,54 +19,41 @@ export default async function Page({
   const { testId, sectionId, questionId } = await params;
 
   const sectionNumber = Number(sectionId);
-  const questionIndex = Number(questionId);
+  const currentIndex = Number(questionId);
 
   const section = await prisma.section.findFirst({
-    where: { testId, number: sectionNumber },
-    include: { questions: true },
+    where: {
+      testId,
+      number: sectionNumber,
+    },
+    include: {
+      questions: {
+        orderBy: { index: "asc" },
+      },
+    },
   });
 
-  if (!section) return notFound();
+  if (!section || section.questions.length === 0) return notFound();
 
-  const sorted = [...section.questions].sort((a, b) => a.index - b.index);
-  const question = sorted.find((q) => q.index === questionIndex);
-  if (!question) return notFound();
-
-  // ✅ 안전하게 choices, tableData 파싱
-  const parsedChoices = parseChoices(question.choices);
-  const choices = mapStringArrayToChoices(parsedChoices);
-  const tableData = parseTableData(question.tableData);
-
-  const prevRoute = await getNextQuestionRoute(
-    testId,
-    sectionNumber,
-    questionIndex - 1,
-    "prev"
-  );
-  const nextRoute = await getNextQuestionRoute(
-    testId,
-    sectionNumber,
-    questionIndex + 1,
-    "next"
-  );
+  const parsedQuestions = section.questions.map((q) => ({
+    id: q.id,
+    index: q.index,
+    question: q.questionText ?? "",
+    passage: q.passage ?? undefined,
+    choices: mapStringArrayToChoices(parseChoices(q.choices)),
+    type: q.type,
+    tableTitle: q.tableTitle ?? undefined,
+    tableData: parseTableData(q.tableData),
+    imageUrl: q.imageUrl ?? undefined,
+  }));
 
   return (
     <TestSolveClient
       testId={testId}
-      sectionId={section.number}
-      totalQuestions={sorted.length}
-      question={{
-        index: question.index,
-        question: question.questionText ?? "",
-        passage: question.passage ?? undefined,
-        choices,
-        type: question.type,
-        tableTitle: question.tableTitle ?? undefined,
-        tableData,
-        imageUrl: question.imageUrl ?? undefined,
-      }}
-      prevRoute={prevRoute}
-      nextRoute={nextRoute}
+      sectionId={sectionNumber}
+      currentIndex={currentIndex}
+      questions={parsedQuestions}
+      totalQuestions={parsedQuestions.length}
     />
   );
 }

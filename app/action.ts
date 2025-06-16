@@ -46,31 +46,58 @@ export async function getNextQuestionRoute(
 
   if (!section) return null;
 
-  const inSection = section.questions.some((q) => q.index === targetIndex);
+  const sorted = [...section.questions].sort((a, b) => a.index - b.index);
+  const total = sorted.length;
+
+  const inSection = sorted.some((q) => q.index === targetIndex);
+
+  // ✅ 섹션 내부 이동
   if (inSection) {
     return `/test/${testId}/section/${sectionNumber}/question/${targetIndex}`;
   }
 
-  // next 섹션 또는 이전 섹션으로 넘어가야 하는 경우
-  const adjacentSection = await prisma.section.findFirst({
-    where: {
-      testId,
-      number:
-        direction === "next" ? { gt: sectionNumber } : { lt: sectionNumber },
-    },
-    orderBy: {
-      number: direction === "next" ? "asc" : "desc",
-    },
-    include: {
-      questions: {
-        where: { index: 1 },
-        take: 1,
+  // ✅ 섹션 밖으로 넘어갈 경우 (예: section1/review → section2/question/1)
+  if (direction === "next" && (!inSection || targetIndex > total)) {
+    const adjacentSection = await prisma.section.findFirst({
+      where: {
+        testId,
+        number: { gt: sectionNumber },
       },
-    },
-  });
+      orderBy: { number: "asc" },
+      include: {
+        questions: {
+          where: { index: 1 },
+          take: 1,
+        },
+      },
+    });
 
-  if (adjacentSection && adjacentSection.questions.length > 0) {
-    return `/test/${testId}/section/${adjacentSection.number}/question/1`;
+    if (adjacentSection && adjacentSection.questions.length > 0) {
+      return `/test/${testId}/section/${adjacentSection.number}/question/1`;
+    }
+
+    return null;
+  }
+
+  // ✅ 섹션 첫 문제 이전 → 이전 섹션의 마지막 문제
+  if (direction === "prev" && targetIndex <= 0) {
+    const prevSection = await prisma.section.findFirst({
+      where: {
+        testId,
+        number: { lt: sectionNumber },
+      },
+      orderBy: { number: "desc" },
+      include: {
+        questions: true,
+      },
+    });
+
+    if (prevSection) {
+      const lastIndex = Math.max(...prevSection.questions.map((q) => q.index));
+      return `/test/${testId}/section/${prevSection.number}/question/${lastIndex}`;
+    }
+
+    return null;
   }
 
   return null;
