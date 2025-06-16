@@ -19,6 +19,9 @@ export default function TestListClient({ tests }: TestListClientProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = (id: string) => {
+    const confirmed = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmed) return;
+
     setDeletingId(id);
     startTransition(async () => {
       try {
