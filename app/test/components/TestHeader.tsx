@@ -98,7 +98,14 @@ export default function TestHeader({
     // ✅ 3. 단일 answers key 제거 (정확히 일치해야 함)
     sessionStorage.removeItem(`answers-${testId}`);
 
-    router.push("/");
+    // ✅ 팝업으로 열린 경우만 닫기 가능
+    if (window.opener) {
+      window.close();
+    } else {
+      alert(
+        "이 페이지는 팝업으로 열려야 종료할 수 있습니다. 직접 브라우저 탭을 닫아주세요."
+      );
+    }
   };
 
   const handleNextSection = async () => {

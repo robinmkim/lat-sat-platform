@@ -55,8 +55,7 @@ export default function TestSolveClient({
     const stored = sessionStorage.getItem(bookmarkKey);
     if (stored) {
       try {
-        const parsed = JSON.parse(stored);
-        setBookmarks(parsed);
+        setBookmarks(JSON.parse(stored));
       } catch {
         setBookmarks({});
       }
@@ -67,8 +66,7 @@ export default function TestSolveClient({
     const stored = sessionStorage.getItem(answerKey);
     if (stored) {
       try {
-        const parsed = JSON.parse(stored);
-        setAnswers(parsed);
+        setAnswers(JSON.parse(stored));
       } catch {
         setAnswers({});
       }
@@ -86,10 +84,7 @@ export default function TestSolveClient({
         ...prev[sectionKey],
         [questionIndex]: answer,
       };
-      const next = {
-        ...prev,
-        [sectionKey]: updatedSection,
-      };
+      const next = { ...prev, [sectionKey]: updatedSection };
       sessionStorage.setItem(answerKey, JSON.stringify(next));
       return next;
     });
@@ -116,7 +111,7 @@ export default function TestSolveClient({
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
 
   return (
-    <div className="flex flex-col w-full h-[80vh] overflow-hidden">
+    <div className="flex flex-col w-full h-screen overflow-hidden">
       <TestHeader
         sectionNumber={sectionId}
         testId={testId}
@@ -130,9 +125,12 @@ export default function TestSolveClient({
                 <Image
                   src={question.imageUrl}
                   alt="문제 이미지"
-                  className="max-w-full max-h-64 border rounded object-contain"
+                  fill
+                  className="relative w-full h-64 object-contain border rounded"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                 />
               )}
+
               {isMathShort && <ShortAnswerInstruction />}
               {!isMathShort && question.tableTitle && (
                 <h3 className="text-lg font-semibold">{question.tableTitle}</h3>

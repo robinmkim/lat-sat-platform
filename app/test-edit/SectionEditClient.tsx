@@ -6,6 +6,7 @@ import QuestionForm, { Question } from "@/test-edit/QuestionForm";
 import QuestionFooter from "./components/QuestionFooter";
 import { saveQuestion } from "@/test-edit/actions";
 import { v4 as uuidv4 } from "uuid";
+import SectionEditHeader from "./components/SectionEditHeader";
 
 export default function SectionEditClient({
   testId,
@@ -282,17 +283,14 @@ export default function SectionEditClient({
   if (!questions.length) return null;
 
   return (
-    <form className="flex flex-col w-full max-w-4xl h-[calc(100vh-4rem)] p-6">
-      <div className="flex justify-between">
-        <h1 className="text-2xl font-semibold mb-2">문제 입력</h1>
-        <button
-          type="button"
-          onClick={handleSaveAndExit}
-          className="top-4 right-4 bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
-        >
-          저장 후 종료
-        </button>
-      </div>
+    <div className="flex flex-col w-full max-w-4xl h-[calc(100vh-4rem)] p-6">
+      <SectionEditHeader
+        testId={testId}
+        sectionNumber={sectionNumber}
+        currentIndex={questionIndex}
+        totalQuestions={27} // 고정 또는 상수로 설정
+        onSaveAndExit={handleSaveAndExit}
+      />
 
       <div className="flex-grow overflow-auto">
         <QuestionForm
@@ -322,6 +320,6 @@ export default function SectionEditClient({
         onNavigate={handleNavigate}
         onSaveAndNext={handleSaveAndNext}
       />
-    </form>
+    </div>
   );
 }

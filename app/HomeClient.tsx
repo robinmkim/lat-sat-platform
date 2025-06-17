@@ -1,8 +1,7 @@
 "use client";
 
 /// <reference path="../../types/mathlive.d.ts" />
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import Link from "next/link";
 import { Cog6ToothIcon } from "@heroicons/react/16/solid";
 
@@ -13,18 +12,21 @@ type Test = {
 
 export default function HomeClient({ tests }: { tests: Test[] }) {
   const [selected, setSelected] = useState(tests[0]?.id ?? "");
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const handleStart = () => {
-    startTransition(async () => {
-      try {
-        router.push(`/test/intro/${selected}`);
-      } catch (err) {
-        alert("문제를 찾을 수 없습니다.");
-        console.error(err);
-      }
-    });
+    if (!selected) {
+      alert("시험을 선택해주세요.");
+      return;
+    }
+
+    const url = `/test/intro/${selected}`;
+
+    // 새 창 열기 (주소창/툴바 최소화)
+    window.open(
+      url,
+      "_blank",
+      "width=1200,height=800,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no"
+    );
   };
 
   return (
@@ -60,10 +62,9 @@ export default function HomeClient({ tests }: { tests: Test[] }) {
 
         <button
           onClick={handleStart}
-          className="border rounded-xl px-2 py-1 disabled:opacity-50"
-          disabled={isPending}
+          className="border rounded-xl px-4 py-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
         >
-          {isPending ? "Loading..." : "Start"}
+          Start Test
         </button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import QuestionRenderer from "./components/QuestionRenderer";
+import { formatSectionLabel } from "@/components/utils/formatSectionLabel";
 
 export interface Question {
   id: string;
@@ -54,8 +55,11 @@ export default function QuestionForm({
 
   return (
     <div className="space-y-4">
-      <div className="text-lg font-semibold">
-        Section {sectionNumber} - Question {questionIndex}
+      <div>
+        <div className="text-lg font-semibold">
+          {formatSectionLabel(sectionNumber)}
+        </div>
+        <div>Question {questionIndex}</div>
       </div>
 
       <div className="flex flex-wrap items-center gap-4 text-sm">

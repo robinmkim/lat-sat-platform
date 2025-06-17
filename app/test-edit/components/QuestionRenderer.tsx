@@ -50,7 +50,7 @@ export default function QuestionRenderer({
   return (
     <div className="flex flex-col w-full bg-white p-4 gap-6">
       {/* ✅ 테이블 입력 */}
-      {isReadingWriting && showTable && tableData.length > 0 && (
+      {showTable && tableData.length > 0 && (
         <TableInput
           title={tableTitle}
           data={tableData}
