@@ -1,12 +1,13 @@
 import type { NextConfig } from "next";
-
-// require()를 피하고 named import 사용
 import { PrismaPlugin } from "@prisma/nextjs-monorepo-workaround-plugin";
 
 const nextConfig: NextConfig = {
   output: "standalone",
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  images: {
+    domains: ["imagedelivery.net"], // ✅ 이미지 도메인 허용 추가
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
