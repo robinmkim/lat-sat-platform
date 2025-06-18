@@ -44,7 +44,7 @@ export default function QuestionRenderer({
   onUpdate,
   onSelectImageFile,
 }: QuestionRendererProps) {
-  const isReadingWriting = sectionNumber % 2 === 1;
+  const isReadingWriting = sectionNumber <= 2;
   const [mathPreview, setMathPreview] = useState("");
 
   return (

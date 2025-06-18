@@ -18,8 +18,8 @@ export async function createTestWithSections(formData: FormData) {
     // 섹션 생성
     const types = [
       "READING_WRITING",
-      "MATH",
       "READING_WRITING",
+      "MATH",
       "MATH",
     ] as const;
 

@@ -4,7 +4,6 @@ import { useState } from "react";
 import { formatSectionLabelWithDash } from "@/components/utils/formatSectionLabel";
 
 type Props = {
-  totalPerSection: number;
   currentSection: number;
   currentIndex: number;
   onNavigate: (section: number, index: number) => void;
@@ -12,13 +11,17 @@ type Props = {
 };
 
 export default function QuestionEditNavigatorModal({
-  totalPerSection,
   currentSection,
   currentIndex,
   onNavigate,
   onClose,
 }: Props) {
   const [selectedSection, setSelectedSection] = useState(currentSection);
+
+  // ✅ 섹션에 따른 문제 수 정의
+  const getTotalQuestions = (section: number) => (section <= 2 ? 27 : 22);
+
+  const totalPerSection = getTotalQuestions(selectedSection);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -30,11 +33,11 @@ export default function QuestionEditNavigatorModal({
               key={num}
               onClick={() => setSelectedSection(num)}
               className={`px-4 py-2 rounded-md text-base font-medium transition
-        ${
-          selectedSection === num
-            ? "bg-blue-600 text-white"
-            : "bg-gray-100 hover:bg-gray-200"
-        }`}
+                ${
+                  selectedSection === num
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 hover:bg-gray-200"
+                }`}
             >
               {formatSectionLabelWithDash(num)}
             </button>
@@ -53,7 +56,7 @@ export default function QuestionEditNavigatorModal({
                 key={index}
                 onClick={() => {
                   onNavigate(selectedSection, index);
-                  onClose();
+                  setTimeout(onClose, 10); // ✅ Hydration 오류 방지용 딜레이
                 }}
                 className={`flex items-center justify-center w-10 h-10 border border-dashed rounded transition
                   ${

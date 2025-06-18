@@ -12,20 +12,41 @@ export default function QuestionFooter({
   onNavigate: (section: number, index: number) => void;
   onSaveAndNext: () => void;
 }) {
-  const isLastQuestion = sectionNumber === 4 && questionIndex === 27;
-  const hasPrev = questionIndex > 1 || sectionNumber > 1;
+  // ✅ 섹션별 문제 수 정의
+  const totalQuestionsBySection: Record<number, number> = {
+    1: 27,
+    2: 27,
+    3: 22,
+    4: 22,
+  };
+
+  const totalCurrentSection = totalQuestionsBySection[sectionNumber];
+  const isLastSection = sectionNumber === 4;
+  const isFirstSection = sectionNumber === 1;
+
+  const isLastQuestion = questionIndex === totalCurrentSection && isLastSection;
+  const hasPrev = questionIndex > 1 || !isFirstSection;
   const hasNext = !isLastQuestion;
 
-  const prev: [number, number] =
-    questionIndex > 1
-      ? [sectionNumber, questionIndex - 1]
-      : [sectionNumber - 1, 27];
+  // ✅ 이전 문제 계산
+  let prev: [number, number];
+  if (questionIndex > 1) {
+    prev = [sectionNumber, questionIndex - 1];
+  } else {
+    const prevSection = sectionNumber - 1;
+    const prevTotal = totalQuestionsBySection[prevSection] ?? 27;
+    prev = [prevSection, prevTotal];
+  }
 
-  const next: [number, number] =
-    questionIndex < 27
-      ? [sectionNumber, questionIndex + 1]
-      : [sectionNumber + 1, 1];
-  console.log(questionIndex, sectionNumber);
+  // ✅ 다음 문제 계산
+  let next: [number, number];
+  if (questionIndex < totalCurrentSection) {
+    next = [sectionNumber, questionIndex + 1];
+  } else {
+    const nextSection = sectionNumber + 1;
+    next = [nextSection, 1];
+  }
+
   return (
     <div className="relative flex justify-between items-center mt-12 h-16">
       {hasPrev ? (

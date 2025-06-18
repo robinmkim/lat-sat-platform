@@ -15,7 +15,6 @@ export default function SectionEditHeader({
   testId,
   sectionNumber,
   currentIndex,
-  totalQuestions,
   onSaveAndExit,
 }: Props) {
   const [showModal, setShowModal] = useState(false);
@@ -42,7 +41,6 @@ export default function SectionEditHeader({
 
       {showModal && (
         <QuestionEditNavigatorModal
-          totalPerSection={totalQuestions}
           currentSection={sectionNumber}
           currentIndex={currentIndex}
           onNavigate={(targetSection, targetIndex) => {
