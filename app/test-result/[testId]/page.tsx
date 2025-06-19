@@ -8,9 +8,9 @@ import type { Test, Section, Question } from "types/test";
 export default async function TestResultPage({
   params,
 }: {
-  params: { testId: string };
+  params: Promise<{ testId: string }>;
 }) {
-  const { testId } = params;
+  const { testId } = await params;
 
   const test = await prisma.test.findUnique({
     where: { id: testId },
