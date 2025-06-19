@@ -8,31 +8,12 @@ import TestListClient from "./TestListClient";
 export default async function TestListPage() {
   const tests = await prisma.test.findMany({
     orderBy: { createdAt: "desc" },
-    include: {
-      sections: {
-        where: { number: 1 }, // 1번 섹션만
-        take: 1,
-        include: {
-          questions: {
-            where: { index: 1 }, // 1번 문제만
-            take: 1,
-          },
-        },
-      },
-    },
   });
 
-  const serialized = tests.map((test) => {
-    const section = test.sections?.[0];
-    const question = section?.questions?.[0];
-
-    return {
-      id: test.id,
-      name: test.name,
-      sectionId: section?.id ?? null,
-      questionId: question?.id ?? null,
-    };
-  });
+  const serialized = tests.map((test) => ({
+    id: test.id,
+    name: test.name,
+  }));
 
   return (
     <div className="w-full flex flex-col gap-4 p-6">

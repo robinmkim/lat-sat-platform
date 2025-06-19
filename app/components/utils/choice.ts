@@ -16,3 +16,24 @@ export function mapStringArrayToChoices(input: unknown): Choice[] {
     text: String(text),
   }));
 }
+
+// app/utils/parseStringChoices.ts
+
+export function parseStringChoices(input: unknown): string[] {
+  if (Array.isArray(input) && typeof input[0] === "string") {
+    return input as string[];
+  }
+
+  if (typeof input === "string") {
+    try {
+      const parsed = JSON.parse(input);
+      if (Array.isArray(parsed) && typeof parsed[0] === "string") {
+        return parsed;
+      }
+    } catch {
+      console.warn("❌ choices JSON 파싱 실패:", input);
+    }
+  }
+
+  return ["", "", "", ""]; // fallback
+}

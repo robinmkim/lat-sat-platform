@@ -3,20 +3,20 @@
 import { TrashIcon, PencilSquareIcon } from "@heroicons/react/16/solid";
 import { useTransition, useState } from "react";
 import { deleteTestById } from "../test-edit/actions";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { fetchTestEditData } from "./actions/getTestData";
 
 type TestListClientProps = {
   tests: {
     id: string;
     name: string;
-    sectionId?: string;
-    questionId?: string;
   }[];
 };
 
 export default function TestListClient({ tests }: TestListClientProps) {
   const [isPending, startTransition] = useTransition();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleDelete = (id: string) => {
     const confirmed = window.confirm("정말 삭제하시겠습니까?");
@@ -36,15 +36,21 @@ export default function TestListClient({ tests }: TestListClientProps) {
     });
   };
 
+  const handleEdit = async (testId: string) => {
+    try {
+      const data = await fetchTestEditData(testId);
+      localStorage.setItem(`edit-${testId}`, JSON.stringify(data));
+      router.push(`/test-edit/${testId}/section/1/question/1`);
+    } catch (err) {
+      console.log(err);
+      alert("시험 데이터를 불러오는 데 실패했습니다.");
+    }
+  };
+
   return (
     <>
       {tests.map((test) => {
         const isDeleting = deletingId === test.id;
-
-        // const editHref =
-        //   test.sectionId && test.questionId
-        //     ? `/test-edit/${test.id}/section/1/question/1`
-        //     : "#";
 
         return (
           <div
@@ -66,12 +72,12 @@ export default function TestListClient({ tests }: TestListClientProps) {
                   <TrashIcon />
                 )}
               </button>
-              <Link
-                href={`/test-edit/${test.id}/section/1/question/1`}
+              <button
+                onClick={() => handleEdit(test.id)}
                 className="w-6 h-6 text-blue-500 hover:scale-110 transition-transform"
               >
                 <PencilSquareIcon />
-              </Link>
+              </button>
             </div>
           </div>
         );

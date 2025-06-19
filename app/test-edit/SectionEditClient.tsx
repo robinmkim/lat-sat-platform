@@ -2,283 +2,247 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import QuestionForm, { Question } from "@/test-edit/QuestionForm";
+import QuestionForm from "@/test-edit/QuestionForm";
 import QuestionFooter from "./components/QuestionFooter";
-import { saveQuestion } from "@/test-edit/actions";
-import { v4 as uuidv4 } from "uuid";
 import SectionEditHeader from "./components/SectionEditHeader";
+import { v4 as uuidv4 } from "uuid";
+import type {
+  SectionWithQuestions,
+  QuestionWithRelations,
+} from "types/question";
+import { saveQuestion } from "./actions";
 
 export default function SectionEditClient({
   testId,
   sectionId,
   sectionNumber,
   questionIndex,
-  initialQuestion,
+  fallbackSections,
 }: {
   testId: string;
   sectionId: string;
   sectionNumber: number;
   questionIndex: number;
-  initialQuestion: Question | null;
+  fallbackSections: SectionWithQuestions[];
 }) {
   const router = useRouter();
-  const [isDirty, setIsDirty] = useState(false);
-  const [showAutoSaved, setShowAutoSaved] = useState(false);
+  const uploadedMap = useRef<Map<string, File>>(new Map()); // ✅ string key로 변경
   const generatedId = useMemo(() => uuidv4(), []);
-  const cacheKey = `edit-${testId}-s${sectionNumber}-q${questionIndex}`;
-  const [questions, setQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<QuestionWithRelations[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // ✅ index별로 파일 보관
-  const uploadedMap = useRef<Map<number, File>>(new Map());
+  const handleSaveAndExit = async () => {
+    setIsSaving(true);
+    setError(null);
+
+    const raw = localStorage.getItem(`edit-${testId}`);
+    if (!raw) {
+      setError("저장할 문제가 없습니다.");
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      const updatedSections = JSON.parse(raw) as SectionWithQuestions[];
+      const originalSection = fallbackSections.find(
+        (s) => s.sectionNumber === sectionNumber
+      );
+      const updatedSection = updatedSections.find(
+        (s) => s.sectionNumber === sectionNumber
+      );
+
+      if (!updatedSection) {
+        setError("수정된 섹션 정보를 찾을 수 없습니다.");
+        setIsSaving(false);
+        return;
+      }
+
+      const changedQuestions: QuestionWithRelations[] = [];
+
+      for (const updated of updatedSection.questions) {
+        const original = originalSection?.questions.find(
+          (q) => q.index === updated.index
+        );
+
+        const isChanged =
+          !original || JSON.stringify(original) !== JSON.stringify(updated);
+
+        if (!isChanged) continue;
+
+        // ✅ 이미지 업로드 처리
+        const imageEntries: { id: string; url: string }[] = [];
+        const imageKey = `q${updated.index}`;
+        if (uploadedMap.current.has(imageKey)) {
+          const file = uploadedMap.current.get(imageKey)!;
+          const { imageUrl, imageId } = await uploadImage(file);
+          imageEntries.push({ id: imageId, url: imageUrl });
+        }
+
+        // ✅ 선택지 이미지 업로드 처리
+        const newChoices = await Promise.all(
+          updated.choices.map(async (choice, order) => {
+            const choiceKey = `q${updated.index}-choice-${order}`;
+            if (uploadedMap.current.has(choiceKey)) {
+              const file = uploadedMap.current.get(choiceKey)!;
+              const { imageUrl, imageId } = await uploadImage(file);
+              return {
+                ...choice,
+                images: [{ id: imageId, url: imageUrl }],
+              };
+            }
+            return choice;
+          })
+        );
+
+        updated.images = imageEntries;
+        updated.choices = newChoices;
+
+        changedQuestions.push(updated);
+      }
+
+      if (changedQuestions.length === 0) {
+        setError("변경된 문제가 없습니다.");
+        setIsSaving(false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("sectionId", sectionId);
+      formData.append("payload", JSON.stringify(changedQuestions));
+
+      await saveQuestion(formData);
+
+      // ✅ 저장 성공 시 localStorage 제거
+      const remainingSections = updatedSections.map((section) =>
+        section.sectionNumber === sectionNumber
+          ? { ...section, questions: [] }
+          : section
+      );
+      localStorage.setItem(`edit-${testId}`, JSON.stringify(remainingSections));
+
+      router.push("/test-list");
+    } catch (e) {
+      console.error("❌ 저장 실패:", e);
+      setError("저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   useEffect(() => {
-    const raw = localStorage.getItem(cacheKey);
+    const raw = localStorage.getItem(`edit-${testId}`);
     if (raw) {
       try {
-        const cached = JSON.parse(raw);
-        setQuestions([
-          {
-            id: cached.id ?? generatedId,
-            index: cached.index ?? questionIndex,
-            passage: cached.passage ?? "",
-            question: cached.question ?? "",
-            choices: Array.isArray(cached.choices)
-              ? cached.choices
-              : ["", "", "", ""],
-            answer:
-              typeof cached.answer === "string"
-                ? cached.answer
-                : String(cached.answer ?? ""),
-            type: cached.type ?? "MULTIPLE",
-            tableData: Array.isArray(cached.tableData)
-              ? cached.tableData
-              : [[""]],
-            tableTitle: cached.tableTitle ?? "",
-            imageUrl: cached.imageUrl ?? "",
-            imageId: cached.imageId ?? "",
-            showTable: cached.showTable ?? false,
-            showImage: cached.showImage ?? false,
-            score: cached.score ?? 1,
-          },
-        ]);
-        setIsDirty(true);
-        return;
+        const allSections = JSON.parse(raw) as SectionWithQuestions[];
+        const section = allSections.find(
+          (s) => s.sectionNumber === sectionNumber
+        );
+        const question = section?.questions.find(
+          (q) => q.index === questionIndex
+        );
+        if (question) {
+          const anyChoiceHasImage = question.choices?.some(
+            (c) => Array.isArray(c.images) && c.images.length > 0
+          );
+
+          setQuestions([
+            {
+              ...question,
+              isImageChoice: anyChoiceHasImage,
+            },
+          ]);
+          return;
+        }
       } catch (e) {
-        console.warn("로컬 캐시 파싱 실패", e);
+        console.warn("❌ localStorage 파싱 실패:", e);
       }
     }
 
-    setQuestions([
-      {
-        id: initialQuestion?.id ?? generatedId,
-        index: initialQuestion?.index ?? questionIndex,
-        passage: initialQuestion?.passage ?? "",
-        question: initialQuestion?.question ?? "",
-        choices: Array.isArray(initialQuestion?.choices)
-          ? initialQuestion.choices
-          : ["", "", "", ""],
-        answer:
-          typeof initialQuestion?.answer === "string"
-            ? initialQuestion.answer
-            : String(initialQuestion?.answer ?? ""),
-        type: initialQuestion?.type ?? "MULTIPLE",
-        tableData: Array.isArray(initialQuestion?.tableData)
-          ? initialQuestion.tableData
-          : [[""]],
-        tableTitle: initialQuestion?.tableTitle ?? "",
-        imageUrl: initialQuestion?.imageUrl ?? "",
-        imageId: initialQuestion?.imageId ?? "",
-        showTable: initialQuestion?.showTable ?? false,
-        showImage: initialQuestion?.showImage ?? false,
-        score: initialQuestion?.score ?? 1,
-      },
-    ]);
-  }, [cacheKey, generatedId, initialQuestion, questionIndex]);
+    const section = fallbackSections.find(
+      (s) => s.sectionNumber === sectionNumber
+    );
+    const fallbackQuestion = section?.questions.find(
+      (q) => q.index === questionIndex
+    );
+    if (fallbackQuestion) {
+      const anyChoiceHasImage = fallbackQuestion.choices?.some(
+        (c) => Array.isArray(c.images) && c.images.length > 0
+      );
 
-  useEffect(() => {
-    if (questions.length > 0) {
-      localStorage.setItem(cacheKey, JSON.stringify(questions[0]));
+      setQuestions([
+        {
+          ...fallbackQuestion,
+          id: fallbackQuestion.id ?? generatedId,
+          isImageChoice: anyChoiceHasImage,
+        },
+      ]);
     }
-  }, [questions, cacheKey]);
+  }, [testId, sectionNumber, questionIndex, fallbackSections, generatedId]);
 
-  // ✅ 파일 업로드 함수
-  const uploadImage = async (file: File) => {
+  const uploadImage = async (
+    file: File
+  ): Promise<{ imageUrl: string; imageId: string }> => {
     const formData = new FormData();
     formData.append("file", file);
+
     const res = await fetch("/api/upload-image", {
       method: "POST",
       body: formData,
     });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error("업로드 실패: " + errorText);
+    }
+
     const result = await res.json();
 
     if (!result.imageUrl || !result.imageId) {
-      alert("이미지 업로드 실패: " + (result.error || "알 수 없는 오류"));
-      return {};
+      throw new Error(
+        "이미지 업로드 실패: " + (result.error || "알 수 없는 오류")
+      );
     }
+
     return {
       imageUrl: result.imageUrl,
       imageId: result.imageId,
     };
   };
 
-  const handleNavigate = async (targetSection: number, targetIndex: number) => {
-    if (!questions.length) return;
-
+  useEffect(() => {
     const current = questions[0];
-    localStorage.setItem(cacheKey, JSON.stringify(current));
+    if (!current) return;
 
-    // ✅ 마지막 문제일 때만 저장 처리
-    const isLastQuestionInSection = questionIndex === 27;
-    if (isLastQuestionInSection) {
-      const sectionQuestions: Question[] = [];
-
-      for (let i = 1; i <= 27; i++) {
-        const key = `edit-${testId}-s${sectionNumber}-q${i}`;
-        const raw = localStorage.getItem(key);
-        if (raw) {
-          try {
-            const parsed: Question = JSON.parse(raw);
-
-            if (uploadedMap.current.has(i)) {
-              const file = uploadedMap.current.get(i)!;
-              const { imageUrl, imageId } = await uploadImage(file);
-              parsed.imageUrl = imageUrl;
-              parsed.imageId = imageId;
-            }
-
-            sectionQuestions.push(parsed);
-          } catch (e) {
-            console.warn(`문제 ${i}번 로딩 실패`, e);
-          }
-        }
-      }
-
-      if (sectionQuestions.length > 0) {
-        const formData = new FormData();
-        formData.append("sectionId", sectionId);
-        formData.append("payload", JSON.stringify(sectionQuestions));
-        const result = await saveQuestion(formData);
-
-        if (result?.success) {
-          setShowAutoSaved(true);
-          setTimeout(() => setShowAutoSaved(false), 3000);
-        } else {
-          alert("자동 저장 실패: " + (result?.error ?? "알 수 없는 오류"));
-        }
-      }
+    const raw = localStorage.getItem(`edit-${testId}`);
+    let allSections: SectionWithQuestions[] = [];
+    try {
+      allSections = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      console.warn("❌ 시험 로딩 실패:", e);
     }
 
-    // ✅ 마지막 섹션 넘김 방지
-    const isLastSection = sectionNumber === 4 && questionIndex === 27;
-    if (!isLastSection) {
-      router.push(
-        `/test-edit/${testId}/section/${targetSection}/question/${targetIndex}`
-      );
-    } else {
-      alert("마지막 문제입니다. 더 이상 이동할 수 없습니다.");
-    }
-  };
-
-  const handleSaveAndNext = async () => {
-    if (!questions.length) return;
-
-    const current = questions[0];
-
-    // ✅ 현재 문제 업로드 대기 파일 처리
-    if (uploadedMap.current.has(questionIndex)) {
-      const file = uploadedMap.current.get(questionIndex)!;
-      const { imageUrl, imageId } = await uploadImage(file);
-      current.imageUrl = imageUrl;
-      current.imageId = imageId;
-    }
-
-    // ✅ 로컬 캐시 저장
-    localStorage.setItem(cacheKey, JSON.stringify(current));
-
-    // ✅ 서버 저장
-    const formData = new FormData();
-    formData.append("sectionId", sectionId);
-    formData.append("index", String(questionIndex));
-    formData.append("payload", JSON.stringify([current]));
-    const result = await saveQuestion(formData);
-
-    if (!result?.success) {
-      alert("저장 실패: " + (result?.error ?? "알 수 없는 오류"));
-      return;
-    }
-
-    // ✅ 다음 위치 계산 (확실한 조건 추가)
-    const isLastQuestionInSection = questionIndex === 27;
-    const isLastSection = sectionNumber === 4;
-
-    const nextSection = isLastQuestionInSection
-      ? sectionNumber + 1
-      : sectionNumber;
-    const nextIndex = isLastQuestionInSection ? 1 : questionIndex + 1;
-
-    // ✅ 라우팅 조건 보장: 마지막 문제/섹션이 아닐 경우에만 이동
-    if (!isLastQuestionInSection || !isLastSection) {
-      router.push(
-        `/test-edit/${testId}/section/${nextSection}/question/${nextIndex}`
-      );
-    } else {
-      // 마지막 문제인 경우, test-list로 이동하거나 처리
-      alert("모든 문제가 저장되었습니다.");
-      router.push("/test-list");
-    }
-  };
-
-  const handleSaveAndExit = async () => {
-    const allQuestions: Question[] = [];
-
-    for (let i = 1; i <= 27; i++) {
-      const key = `edit-${testId}-s${sectionNumber}-q${i}`;
-      const raw = localStorage.getItem(key);
-      if (raw) {
-        try {
-          const parsed: Question = JSON.parse(raw);
-
-          // ✅ 디버깅 로그: 로드된 문제 개별 확인
-          console.log(`🧩 문제 ${i} 로드됨`, parsed);
-
-          if (uploadedMap.current.has(i)) {
-            const file = uploadedMap.current.get(i)!;
-            console.log(`📷 문제 ${i} 이미지 업로드 시도`);
-            const { imageUrl, imageId } = await uploadImage(file);
-            parsed.imageUrl = imageUrl;
-            parsed.imageId = imageId;
-          }
-
-          allQuestions.push(parsed);
-        } catch (e) {
-          console.warn(`⚠️ 문제 ${i}번 파싱 실패`, e);
-        }
-      } else {
-        console.warn(`⚠️ 문제 ${i}번 캐시 없음`);
-      }
-    }
-
-    console.log("✅ 저장 대상 문제 수:", allQuestions.length);
-    if (allQuestions.length > 0) {
-      console.log("📝 예시 문제:", allQuestions[0]);
-      const formData = new FormData();
-      formData.append("sectionId", sectionId);
-      formData.append("payload", JSON.stringify(allQuestions));
-
-      console.log("📦 최종 전송 FormData:", {
+    let section = allSections.find((s) => s.sectionNumber === sectionNumber);
+    if (!section) {
+      section = {
         sectionId,
-        payloadPreview: JSON.stringify(allQuestions.slice(0, 1), null, 2),
-      });
-
-      await saveQuestion(formData);
-    } else {
-      console.warn(
-        "❌ 저장할 문제가 없습니다. 모든 문제가 비어 있거나 파싱 실패"
-      );
+        sectionNumber,
+        questions: [],
+      };
+      allSections.push(section);
     }
 
-    router.push("/test-list");
-  };
+    const existingIndex = section.questions.findIndex(
+      (q) => q.index === current.index
+    );
+    if (existingIndex >= 0) {
+      section.questions[existingIndex] = current;
+    } else {
+      section.questions.push(current);
+    }
+
+    localStorage.setItem(`edit-${testId}`, JSON.stringify(allSections));
+  }, [questions[0], testId, sectionId, sectionNumber]);
 
   if (!questions.length) return null;
 
@@ -288,7 +252,7 @@ export default function SectionEditClient({
         testId={testId}
         sectionNumber={sectionNumber}
         currentIndex={questionIndex}
-        totalQuestions={27} // 고정 또는 상수로 설정
+        totalQuestions={27}
         onSaveAndExit={handleSaveAndExit}
       />
 
@@ -298,28 +262,43 @@ export default function SectionEditClient({
           questionIndex={questionIndex}
           questions={questions}
           setQuestions={setQuestions}
-          onDirtyChange={setIsDirty}
-          initialQuestion={initialQuestion}
-          onSelectImageFile={(index, file) =>
-            uploadedMap.current.set(index, file)
-          } // ✅ index별로 저장
+          onSelectImageFile={(key, file) => uploadedMap.current.set(key, file)}
         />
-
-        {showAutoSaved && (
-          <p className="text-green-600 text-center font-medium mt-4">
-            자동 저장되었습니다.
-          </p>
-        )}
       </div>
 
       <QuestionFooter
         testId={testId}
         sectionNumber={sectionNumber}
         questionIndex={questionIndex}
-        isDirty={isDirty}
-        onNavigate={handleNavigate}
-        onSaveAndNext={handleSaveAndNext}
+        onNavigate={(s, i) =>
+          router.push(`/test-edit/${testId}/section/${s}/question/${i}`)
+        }
       />
+      {/* ✅ 저장 중일 때 화면 차단 및 로딩 표시 */}
+      {isSaving && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex flex-col items-center justify-center space-y-4">
+          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin" />
+          <div className="text-white text-lg font-semibold">
+            저장 중입니다...
+          </div>
+        </div>
+      )}
+
+      {/* ❌ 오류 발생 시 모달 표시 */}
+      {error && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">
+            <div className="text-red-600 font-bold text-lg mb-2">저장 실패</div>
+            <div className="text-gray-700 mb-4">{error}</div>
+            <button
+              onClick={() => setError(null)}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded transition"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

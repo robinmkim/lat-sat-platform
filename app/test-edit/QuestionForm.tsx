@@ -1,32 +1,35 @@
-import { useEffect, useRef } from "react";
 import QuestionRenderer from "./components/QuestionRenderer";
 import { formatSectionLabel } from "@/components/utils/formatSectionLabel";
+import type {
+  ChoiceData,
+  ImageData,
+  TableData,
+  QuestionWithRelations,
+} from "types/question";
 
 export interface Question {
   id: string;
   index: number;
   question: string;
   passage?: string;
-  choices?: string[];
+  choices: ChoiceData[];
   answer: string;
   type: "MULTIPLE" | "SHORT";
-  tableData: string[][];
-  tableTitle?: string;
-  imageUrl?: string;
-  imageId?: string;
+  table?: TableData;
+  images: ImageData[];
   score?: number;
   showTable?: boolean;
   showImage?: boolean;
+  isImageChoice?: boolean;
 }
 
 interface QuestionFormProps {
   sectionNumber: number;
   questionIndex: number;
   questions: Question[];
-  setQuestions: React.Dispatch<React.SetStateAction<Question[]>>;
-  onDirtyChange?: (dirty: boolean) => void;
+  setQuestions: React.Dispatch<React.SetStateAction<QuestionWithRelations[]>>;
   initialQuestion?: Question | null;
-  onSelectImageFile?: (index: number, file: File) => void;
+  onSelectImageFile?: (key: string, file: File) => void;
 }
 
 export default function QuestionForm({
@@ -34,23 +37,23 @@ export default function QuestionForm({
   questionIndex,
   questions,
   setQuestions,
-  onDirtyChange,
-  initialQuestion,
   onSelectImageFile,
 }: QuestionFormProps) {
   const current = questions[0];
-  const initialRef = useRef(JSON.stringify(initialQuestion ?? current));
-
-  useEffect(() => {
-    const now = JSON.stringify(current);
-    const isDirty = now !== initialRef.current;
-    onDirtyChange?.(isDirty);
-  }, [current, onDirtyChange]);
 
   const updateQuestion = (id: string, newPartial: Partial<Question>) => {
     setQuestions((prev) =>
       prev.map((q) => (q.id === id ? { ...q, ...newPartial } : q))
     );
+  };
+
+  // ✅ 전달용 래핑 함수: index → string key 변환
+  const handleSelectImageFile = (choiceIndex: number, file: File) => {
+    const key =
+      current.isImageChoice && current.type === "MULTIPLE"
+        ? `q${questionIndex}-choice-${choiceIndex}`
+        : `q${questionIndex}`;
+    onSelectImageFile?.(key, file);
   };
 
   return (
@@ -62,6 +65,7 @@ export default function QuestionForm({
         <div>Question {questionIndex}</div>
       </div>
 
+      {/* ✅ 입력 모드 토글 */}
       <div className="flex flex-wrap items-center gap-4 text-sm">
         <label className="flex items-center gap-1">
           <input
@@ -103,14 +107,30 @@ export default function QuestionForm({
           />
           이미지 표시
         </label>
+        {current.type === "MULTIPLE" && (
+          <label className="flex items-center gap-1">
+            <input
+              type="checkbox"
+              checked={current.isImageChoice ?? false}
+              onChange={() =>
+                updateQuestion(current.id, {
+                  isImageChoice: !(current.isImageChoice ?? false),
+                })
+              }
+            />
+            이미지 선택지 사용
+          </label>
+        )}
       </div>
 
+      {/* ✅ 문제 렌더러 */}
       <QuestionRenderer
         key={current.id}
         sectionNumber={sectionNumber}
         {...current}
+        isImageChoice={current.isImageChoice ?? false}
         onUpdate={(partial) => updateQuestion(current.id, partial)}
-        onSelectImageFile={(file) => onSelectImageFile?.(questionIndex, file)} // ✅ deferred 방식 적용
+        onSelectImageFile={handleSelectImageFile}
       />
 
       <input type="hidden" name="payload" value={JSON.stringify(questions)} />

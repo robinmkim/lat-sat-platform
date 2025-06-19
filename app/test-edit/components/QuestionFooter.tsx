@@ -1,16 +1,12 @@
 export default function QuestionFooter({
   sectionNumber,
   questionIndex,
-  isDirty,
   onNavigate,
-  onSaveAndNext,
 }: {
   testId: string;
   sectionNumber: number;
   questionIndex: number;
-  isDirty: boolean;
   onNavigate: (section: number, index: number) => void;
-  onSaveAndNext: () => void;
 }) {
   // ✅ 섹션별 문제 수 정의
   const totalQuestionsBySection: Record<number, number> = {
@@ -60,20 +56,6 @@ export default function QuestionFooter({
       ) : (
         <div />
       )}
-
-      <button
-        type="button"
-        onClick={onSaveAndNext}
-        disabled={!isDirty}
-        className={`absolute left-1/2 transform -translate-x-1/2 px-6 py-2 border rounded transition
-          ${
-            !isDirty
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-      >
-        Save & Next
-      </button>
 
       {hasNext ? (
         <button

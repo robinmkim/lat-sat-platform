@@ -1,89 +1,98 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
-interface ImageUploadInputProps {
-  previewUrl?: string; // DB에서 불러온 imageUrl
+interface Props {
+  previewUrl?: string;
   onSelectFile: (file: File) => void;
-  visible?: boolean;
-  onToggleVisibility?: () => void;
+  visible: boolean;
+  onToggleVisibility: () => void;
 }
 
 export default function ImageUploadInput({
   previewUrl,
   onSelectFile,
-  visible = true,
+  visible,
   onToggleVisibility,
-}: ImageUploadInputProps) {
+}: Props) {
   const [localPreview, setLocalPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    return () => {
-      if (localPreview) {
-        URL.revokeObjectURL(localPreview);
-      }
-    };
-  }, [localPreview]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 로컬 미리보기 설정
+    // ✅ MIME type 검사
+    if (!file.type.startsWith("image/")) {
+      setError("이미지 파일만 업로드할 수 있습니다.");
+      return;
+    }
+
+    // ✅ 파일 크기 제한 (5MB)
+    const MAX_SIZE = 5 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      setError("파일 크기는 5MB 이하만 가능합니다.");
+      return;
+    }
+
+    // ✅ 기존 프리뷰 URL 해제
+    if (localPreview) {
+      URL.revokeObjectURL(localPreview);
+    }
+
     const objectUrl = URL.createObjectURL(file);
     setLocalPreview(objectUrl);
-
-    // 이미지 파일만 상위로 전달, 업로드는 추후 수행
+    setError(null);
     onSelectFile(file);
   };
 
-  const handleRemove = () => {
-    setLocalPreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    // 선택 해제 → 상위에서 uploadedMap에서 삭제하도록 구성 가능
-  };
+  // ✅ unmount 시 메모리 정리
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
 
-  if (!visible) return null;
+  if (!visible) {
+    return (
+      <button
+        type="button"
+        onClick={onToggleVisibility}
+        className="text-blue-600 text-sm underline"
+      >
+        이미지 입력 보이기
+      </button>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="font-medium">문제 이미지</label>
+      <input type="file" accept="image/*" onChange={handleFileChange} />
 
+      {/* ✅ 오류 메시지 */}
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+
+      {/* ✅ 이미지 미리보기 */}
       {(localPreview || previewUrl) && (
-        <div className="relative w-64">
+        <div className="relative w-48 h-auto">
           <Image
             src={localPreview ?? previewUrl!}
             alt="preview"
-            className="w-64 h-auto rounded border"
+            width={192}
+            height={0} // h-auto 적용을 위해 height 0 + className 필요
+            className="w-full h-auto rounded border"
           />
-          <button
-            type="button"
-            className="absolute top-1 right-1 bg-red-500 text-white rounded px-2 py-0.5 text-xs"
-            onClick={handleRemove}
-          >
-            삭제
-          </button>
         </div>
       )}
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-
-      {onToggleVisibility && (
-        <button
-          type="button"
-          onClick={onToggleVisibility}
-          className="text-sm text-blue-600 underline mt-1"
-        >
-          이미지 입력 숨기기
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={onToggleVisibility}
+        className="text-blue-600 text-sm underline"
+      >
+        이미지 입력 숨기기
+      </button>
     </div>
   );
 }

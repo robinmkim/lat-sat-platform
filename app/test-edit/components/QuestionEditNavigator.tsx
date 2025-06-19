@@ -1,9 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { isComplete } from "../utils/isComplete";
 import { formatSectionLabelWithDash } from "@/components/utils/formatSectionLabel";
+import type {
+  SectionWithQuestions,
+  QuestionWithRelations,
+} from "types/question";
 
 type Props = {
+  testId: string;
   currentSection: number;
   currentIndex: number;
   onNavigate: (section: number, index: number) => void;
@@ -11,6 +17,7 @@ type Props = {
 };
 
 export default function QuestionEditNavigatorModal({
+  testId,
   currentSection,
   currentIndex,
   onNavigate,
@@ -18,10 +25,25 @@ export default function QuestionEditNavigatorModal({
 }: Props) {
   const [selectedSection, setSelectedSection] = useState(currentSection);
 
-  // ✅ 섹션에 따른 문제 수 정의
   const getTotalQuestions = (section: number) => (section <= 2 ? 27 : 22);
-
   const totalPerSection = getTotalQuestions(selectedSection);
+
+  const localKey = `edit-${testId}`;
+  let questions: QuestionWithRelations[] = [];
+
+  try {
+    const raw =
+      typeof window !== "undefined" ? localStorage.getItem(localKey) : null;
+    if (raw) {
+      const allSections: SectionWithQuestions[] = JSON.parse(raw);
+      const section = allSections.find(
+        (s) => s.sectionNumber === selectedSection
+      );
+      questions = section?.questions ?? [];
+    }
+  } catch (e) {
+    console.warn("❌ localStorage 파싱 실패:", e);
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -51,18 +73,23 @@ export default function QuestionEditNavigatorModal({
             const isCurrent =
               selectedSection === currentSection && index === currentIndex;
 
+            const q = questions.find((q) => q.index === index);
+            const incomplete = !isComplete(q ?? null, selectedSection);
+
             return (
               <button
                 key={index}
                 onClick={() => {
                   onNavigate(selectedSection, index);
-                  setTimeout(onClose, 10); // ✅ Hydration 오류 방지용 딜레이
+                  setTimeout(onClose, 10);
                 }}
-                className={`flex items-center justify-center w-10 h-10 border border-dashed rounded transition
+                className={`flex items-center justify-center w-10 h-10 border rounded transition text-sm
                   ${
                     isCurrent
-                      ? "border-blue-500 font-semibold"
-                      : "text-gray-800 hover:bg-gray-100"
+                      ? "border-blue-500 font-bold"
+                      : incomplete
+                      ? "border-red-400 text-red-600"
+                      : "border-gray-300 text-gray-800 hover:bg-gray-100"
                   }
                 `}
               >

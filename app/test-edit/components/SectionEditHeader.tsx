@@ -41,6 +41,7 @@ export default function SectionEditHeader({
 
       {showModal && (
         <QuestionEditNavigatorModal
+          testId={testId}
           currentSection={sectionNumber}
           currentIndex={currentIndex}
           onNavigate={(targetSection, targetIndex) => {
