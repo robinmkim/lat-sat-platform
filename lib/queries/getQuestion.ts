@@ -36,7 +36,7 @@ export async function getAllSectionsWithQuestions(testId: string) {
         type: question.type,
         showTable: question.showTable,
         showImage: question.showImage,
-        score: question.score,
+        score: question.score ?? 0,
 
         choices: question.choices.map((choice) => ({
           id: choice.id,
@@ -53,7 +53,7 @@ export async function getAllSectionsWithQuestions(testId: string) {
             ? {
                 id: question.tables[0].id,
                 title: question.tables[0].title ?? "",
-                data: question.tables[0].data,
+                data: JSON.parse(question.tables[0].data), // ✅ string → string[][]
               }
             : undefined,
 
