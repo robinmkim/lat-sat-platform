@@ -52,20 +52,19 @@ export default async function Page({
 
   // 질문 데이터 가공
   // ...
+  console.log(
+    section.questions.map((q) => ({
+      index: q.index,
+      choices: q.choices.map((c) => ({
+        text: c.text,
+        imageCount: c.images.length,
+      })),
+    }))
+  );
 
   const parsedQuestions: QuestionWithRelations[] = section.questions.map(
-    (q) => ({
-      id: q.id,
-      sectionId: q.sectionId,
-      index: q.index,
-      question: q.question,
-      passage: q.passage ?? "",
-      answer: q.answer ?? "",
-      type: q.type === "MULTIPLE" ? "MULTIPLE" : "SHORT",
-      showTable: q.showTable,
-      showImage: q.showImage,
-      score: q.score ?? 1,
-      choices: q.choices.map((c) => ({
+    (q) => {
+      const choices = q.choices.map((c) => ({
         id: c.id,
         order: c.order,
         text: c.text,
@@ -73,22 +72,39 @@ export default async function Page({
           id: img.id,
           url: img.url,
         })),
-      })),
-      table:
-        q.tables.length > 0
-          ? {
-              id: q.tables[0].id,
-              title: q.tables[0].title ?? "",
-              data: safeParseTableData(q.tables[0].data),
-            }
-          : undefined,
-      images: q.images.map((img) => ({
-        id: img.id,
-        url: img.url,
-      })),
-      isImageChoice: false,
-    })
+      }));
+
+      const hasImageChoice = choices.some((c) => c.images.length > 0);
+
+      return {
+        id: q.id,
+        sectionId: q.sectionId,
+        index: q.index,
+        question: q.question,
+        passage: q.passage ?? "",
+        answer: q.answer ?? "",
+        type: q.type === "MULTIPLE" ? "MULTIPLE" : "SHORT",
+        showTable: q.showTable,
+        showImage: q.showImage,
+        score: q.score ?? 1,
+        choices,
+        table:
+          q.tables.length > 0
+            ? {
+                id: q.tables[0].id,
+                title: q.tables[0].title ?? "",
+                data: safeParseTableData(q.tables[0].data),
+              }
+            : undefined,
+        images: q.images.map((img) => ({
+          id: img.id,
+          url: img.url,
+        })),
+        isImageChoice: hasImageChoice, // ✅ 조건에 따라 설정
+      };
+    }
   );
+
   return (
     <TestSolveClient
       testId={testId}

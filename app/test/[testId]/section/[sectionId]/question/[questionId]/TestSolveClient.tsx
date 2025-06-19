@@ -7,11 +7,13 @@ import FractionInput from "@/components/FractionInput";
 import { isEmptyTable, renderPassage } from "@/components/common/renderPassage";
 import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
 import Image from "next/image";
-import { TableData } from "types/question";
+import { ImageData, TableData } from "types/question";
+import ImageChoice from "@/test/components/ImageChoice";
 
 export type Choice = {
   id: string;
   text: string;
+  images: ImageData[];
 };
 
 type QuestionData = {
@@ -22,6 +24,8 @@ type QuestionData = {
   type: "MULTIPLE" | "SHORT";
   table?: TableData;
   imageUrl?: string;
+  // ✅ 추가
+  isImageChoice?: boolean;
 };
 
 type Props = {
@@ -193,17 +197,33 @@ export default function TestSolveClient({
             {question.question}
           </div>
 
-          {question.type === "MULTIPLE" && question.choices && (
-            <MultipleChoice
-              choices={question.choices}
-              selectedIndex={
-                currentAnswer !== "" ? parseInt(currentAnswer) : null
-              }
-              onAnswer={(index) =>
-                updateAnswer(sectionId, question.index, index.toString())
-              }
-            />
-          )}
+          {question.type === "MULTIPLE" &&
+            question.choices &&
+            (question.isImageChoice ? (
+              <ImageChoice
+                choices={question.choices.map((c) => ({
+                  id: c.id,
+                  text: c.text,
+                  imageUrl: c.images?.[0]?.url ?? "",
+                }))}
+                selectedIndex={
+                  currentAnswer !== "" ? parseInt(currentAnswer) : null
+                }
+                onAnswer={(index) =>
+                  updateAnswer(sectionId, question.index, index.toString())
+                }
+              />
+            ) : (
+              <MultipleChoice
+                choices={question.choices}
+                selectedIndex={
+                  currentAnswer !== "" ? parseInt(currentAnswer) : null
+                }
+                onAnswer={(index) =>
+                  updateAnswer(sectionId, question.index, index.toString())
+                }
+              />
+            ))}
 
           {question.type === "SHORT" && (
             <FractionInput
