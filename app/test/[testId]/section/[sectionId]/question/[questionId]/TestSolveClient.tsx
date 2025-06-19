@@ -118,7 +118,6 @@ export default function TestSolveClient({
         question.imageUrl?.trim()));
 
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
-  console.log(question);
   return (
     <div className="flex flex-col flex-grow min-h-0 w-full">
       <div className="flex flex-grow min-h-0 w-full overflow-hidden">

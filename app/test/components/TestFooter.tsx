@@ -74,14 +74,6 @@ export default function TestFooter() {
     autoSaveEmptyAnswer();
     setIsLoading(true);
 
-    console.log("➡️ handleNavigate 호출", {
-      direction,
-      pathname,
-      testId,
-      sectionId,
-      questionIndex,
-    });
-
     // ✅ review 페이지인 경우
     if (pathname.endsWith("/review")) {
       if (direction === "next") {
@@ -102,12 +94,9 @@ export default function TestFooter() {
           "next"
         );
 
-        console.log("➡️ 다음 섹션 1번 문제로 이동:", route);
-
         if (route) {
           router.push(route);
         } else {
-          console.log("✅ 마지막 섹션이므로 결과 페이지로 이동");
           router.push(`/test-result/${testId}`);
         }
 
@@ -119,10 +108,8 @@ export default function TestFooter() {
     // ✅ 마지막 문제인 경우 → review 페이지로 이동
     if (direction === "next" && isLastQuestionInSection) {
       if (isFinalQuestion) {
-        console.log("✅ 마지막 문제이자 마지막 섹션 → 결과 페이지로 이동");
         router.push(`/test-result/${testId}`);
       } else {
-        console.log("➡️ 마지막 문제 → 리뷰 페이지로 이동");
         router.push(`/test/${testId}/section/${sectionId}/review`);
       }
       setIsLoading(false);
@@ -139,7 +126,6 @@ export default function TestFooter() {
       targetIndex,
       direction
     );
-    console.log("➡️ 일반 문제 이동:", route);
 
     if (!route) {
       alert(

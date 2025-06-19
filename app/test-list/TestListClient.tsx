@@ -28,7 +28,6 @@ export default function TestListClient({ tests }: TestListClientProps) {
         await deleteTestById(id);
         alert("삭제가 완료되었습니다.");
       } catch (e) {
-        console.log(e);
         alert("삭제 중 오류가 발생했습니다.");
       } finally {
         setDeletingId(null);
@@ -42,7 +41,6 @@ export default function TestListClient({ tests }: TestListClientProps) {
       localStorage.setItem(`edit-${testId}`, JSON.stringify(data));
       router.push(`/test-edit/${testId}/section/1/question/1`);
     } catch (err) {
-      console.log(err);
       alert("시험 데이터를 불러오는 데 실패했습니다.");
     }
   };

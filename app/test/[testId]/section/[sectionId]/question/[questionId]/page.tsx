@@ -50,18 +50,6 @@ export default async function Page({
 
   if (!section || section.questions.length === 0) return notFound();
 
-  // 질문 데이터 가공
-  // ...
-  console.log(
-    section.questions.map((q) => ({
-      index: q.index,
-      choices: q.choices.map((c) => ({
-        text: c.text,
-        imageCount: c.images.length,
-      })),
-    }))
-  );
-
   const parsedQuestions: QuestionWithRelations[] = section.questions.map(
     (q) => {
       const choices = q.choices.map((c) => ({

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import Image from "next/image";
 
 type ChoiceData = {
@@ -20,16 +19,6 @@ export default function ImageChoice({
   selectedIndex,
   onAnswer,
 }: Props) {
-  useEffect(() => {
-    choices.forEach((choice, idx) => {
-      if (choice.imageUrl) {
-        console.log(`🖼️ Choice ${idx + 1} 이미지 URL:`, choice.imageUrl);
-      } else {
-        console.log(`❌ Choice ${idx + 1} 이미지 없음`);
-      }
-    });
-  }, [choices]);
-
   return (
     <div className="grid grid-cols-2 gap-4">
       {choices.map((choice, idx) => {
@@ -55,9 +44,6 @@ export default function ImageChoice({
                   fill
                   className="object-contain"
                   sizes="(max-width: 768px) 100vw, 33vw"
-                  onLoadingComplete={() =>
-                    console.log(`✅ 이미지 로딩 완료: ${choice.imageUrl}`)
-                  }
                 />
               </div>
             )}
