@@ -58,7 +58,9 @@ export default function QuestionForm({
   };
   useEffect(() => {
     if (!current.table) {
-      updateQuestion(current.id, { table: { id: "", title: "", data: "[]" } });
+      updateQuestion(current.id, {
+        table: { id: "", title: "", data: [["", ""]] },
+      });
     }
     if (!current.choices || current.choices.length === 0) {
       updateQuestion(current.id, {
