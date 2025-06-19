@@ -1,31 +1,54 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { getNextQuestionRoute } from "@/action";
 import QuestionNavigatorModal from "./QuestionNavigatiorModal";
 
-type Props = {
-  sectionId: number;
-  questionIndex: number;
-  testId: string;
-  totalQuestions: number;
-  bookmarks: Record<number, boolean>;
-};
-
-export default function TestFooter({
-  sectionId,
-  questionIndex,
-  testId,
-  totalQuestions,
-  bookmarks,
-}: Props) {
+export default function TestFooter() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  const [testId, setTestId] = useState("");
+  const [sectionId, setSectionId] = useState(0);
+  const [questionIndex, setQuestionIndex] = useState(1);
+  const [bookmarks, setBookmarks] = useState<Record<number, boolean>>({});
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  useEffect(() => {
+    const match = pathname.match(
+      /\/test\/(.+?)\/section\/(\d+)(?:\/question\/(\d+))?/
+    );
+
+    if (match) {
+      const testId = match[1];
+      const sectionNum = Number(match[2]);
+      const questionNum = match[3] != null ? Number(match[3]) : null;
+      const total = sectionNum <= 2 ? 27 : 22;
+
+      setTestId(testId);
+      setSectionId(sectionNum);
+      setTotalQuestions(total);
+
+      // ✅ review 페이지에서는 항상 마지막 문제 index로 설정
+      if (pathname.endsWith("/review")) {
+        setQuestionIndex(total);
+      } else if (questionNum != null) {
+        setQuestionIndex(questionNum);
+      }
+
+      const bookmarkKey = `bookmark-${testId}-section-${sectionNum}`;
+      const stored = sessionStorage.getItem(bookmarkKey);
+      setBookmarks(stored ? JSON.parse(stored) : {});
+    }
+  }, [pathname]);
+
   const isFirstQuestion = questionIndex === 1;
-  const isLastQuestionInSection = questionIndex === totalQuestions;
+  const isLastQuestionInSection =
+    (sectionId <= 2 && questionIndex === 27) ||
+    (sectionId >= 3 && questionIndex === 22);
   const isLastSection = sectionId === 4;
   const isFinalQuestion = isLastSection && isLastQuestionInSection;
 
@@ -37,29 +60,78 @@ export default function TestFooter({
       const parsed = stored ? JSON.parse(stored) : {};
       const sectionAnswers = parsed[sectionKey] || {};
 
-      // 저장 안 된 문제에 대해 빈 문자열로 강제 저장
       if (sectionAnswers[questionIndex] === undefined) {
         sectionAnswers[questionIndex] = "";
         parsed[sectionKey] = sectionAnswers;
         sessionStorage.setItem(answerKey, JSON.stringify(parsed));
       }
     } catch {
-      // 무시 (세션 오류 방지)
+      // 무시
     }
   };
 
   const handleNavigate = async (direction: "next" | "prev") => {
-    autoSaveEmptyAnswer(); // ✅ 현재 문제의 답안이 없으면 빈 문자열 저장
-
+    autoSaveEmptyAnswer();
     setIsLoading(true);
-    const offset = direction === "next" ? 1 : -1;
-    const targetIndex = questionIndex + offset;
 
-    // ✅ 4-27 → test-result 이동
-    if (direction === "next" && isFinalQuestion) {
-      router.push(`/test-result/${testId}`);
+    console.log("➡️ handleNavigate 호출", {
+      direction,
+      pathname,
+      testId,
+      sectionId,
+      questionIndex,
+    });
+
+    // ✅ review 페이지인 경우
+    if (pathname.endsWith("/review")) {
+      if (direction === "next") {
+        const confirmNext = confirm("다음 섹션으로 이동할까요?");
+        if (!confirmNext) {
+          setIsLoading(false);
+          return;
+        }
+
+        // ✅ 현재 섹션의 마지막 index보다 1 큰 값으로 넘겨야 다음 섹션으로 이동함
+        const lastIndex = sectionId <= 2 ? 27 : 22;
+        const targetIndex = lastIndex + 1;
+
+        const route = await getNextQuestionRoute(
+          testId,
+          sectionId,
+          targetIndex,
+          "next"
+        );
+
+        console.log("➡️ 다음 섹션 1번 문제로 이동:", route);
+
+        if (route) {
+          router.push(route);
+        } else {
+          console.log("✅ 마지막 섹션이므로 결과 페이지로 이동");
+          router.push(`/test-result/${testId}`);
+        }
+
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    // ✅ 마지막 문제인 경우 → review 페이지로 이동
+    if (direction === "next" && isLastQuestionInSection) {
+      if (isFinalQuestion) {
+        console.log("✅ 마지막 문제이자 마지막 섹션 → 결과 페이지로 이동");
+        router.push(`/test-result/${testId}`);
+      } else {
+        console.log("➡️ 마지막 문제 → 리뷰 페이지로 이동");
+        router.push(`/test/${testId}/section/${sectionId}/review`);
+      }
+      setIsLoading(false);
       return;
     }
+
+    // ✅ 일반적인 prev/next 이동
+    const offset = direction === "next" ? 1 : -1;
+    const targetIndex = questionIndex + offset;
 
     const route = await getNextQuestionRoute(
       testId,
@@ -67,6 +139,7 @@ export default function TestFooter({
       targetIndex,
       direction
     );
+    console.log("➡️ 일반 문제 이동:", route);
 
     if (!route) {
       alert(
@@ -97,7 +170,9 @@ export default function TestFooter({
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleNavigate("prev")}
-            disabled={isLoading || isFirstQuestion}
+            disabled={
+              isLoading || (isFirstQuestion && !pathname.endsWith("/review"))
+            }
             className="flex items-center justify-center w-fit h-fit bg-gray-300 rounded-xl px-3 py-1 text-sm text-gray-800 font-medium hover:bg-gray-400 transition disabled:opacity-50"
           >
             Back

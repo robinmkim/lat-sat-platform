@@ -5,7 +5,6 @@ import { MathJax } from "better-react-mathjax";
 
 export function renderPassage(passage: string) {
   const lines = passage.split("\n");
-  console.log("📘 renderPassage 호출됨:", passage);
 
   return (
     <div className="whitespace-pre-wrap space-y-2">
@@ -42,7 +41,6 @@ export function renderPassage(passage: string) {
 }
 
 export function renderInline(text: string): React.ReactNode[] {
-  console.log("🧩 renderInline 실행됨:", text);
   const ESCAPE_PREFIX = "<<<ESCAPED_DOLLAR_";
   const ESCAPE_SUFFIX = ">>>";
   const tokenized = text.replace(
@@ -81,7 +79,6 @@ export function renderInline(text: string): React.ReactNode[] {
     // ✅ 밑줄 (재귀)
     if (part.startsWith("__") && part.endsWith("__")) {
       const inner = part.slice(2, -2);
-      console.log("밑줄 안 내용 재귀 처리:", inner);
       return (
         <u key={idx} className="font-medium">
           {renderInline(inner)}
@@ -127,10 +124,14 @@ export function renderInline(text: string): React.ReactNode[] {
 }
 
 export function isEmptyTable(tableData?: string[][]): boolean {
-  return (
-    Array.isArray(tableData) &&
+  if (!tableData) return true;
+  if (tableData.length === 0) return true;
+  if (tableData.length === 1 && tableData[0].length === 0) return true;
+  if (
     tableData.length === 1 &&
     tableData[0].length === 1 &&
-    !tableData[0][0]?.trim()
-  );
+    !tableData[0][0].trim()
+  )
+    return true;
+  return false;
 }

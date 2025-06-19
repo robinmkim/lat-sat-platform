@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import BookmarkToggle from "@/components/BookmarkToggle";
-import TestHeader from "@/test/components/TestHeader";
-import TestFooter from "@/test/components/TestFooter";
 import MultipleChoice from "@/components/MultipleChoice";
 import FractionInput from "@/components/FractionInput";
 import { isEmptyTable, renderPassage } from "@/components/common/renderPassage";
 import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
 import Image from "next/image";
+import { TableData } from "types/question";
 
 export type Choice = {
   id: string;
@@ -21,8 +20,7 @@ type QuestionData = {
   passage?: string;
   choices?: Choice[];
   type: "MULTIPLE" | "SHORT";
-  tableTitle?: string;
-  tableData?: string[][];
+  table?: TableData;
   imageUrl?: string;
 };
 
@@ -37,16 +35,16 @@ type Props = {
 export default function TestSolveClient({
   testId,
   sectionId,
-  totalQuestions,
   currentIndex,
   questions,
 }: Props) {
-  const question = questions.find((q) => q.index === currentIndex)!;
-
+  // 훅은 무조건 최상단에서 호출
   const [bookmarks, setBookmarks] = useState<Record<number, boolean>>({});
   const [answers, setAnswers] = useState<
     Record<string, Record<number, string>>
   >({});
+
+  const question = questions.find((q) => q.index === currentIndex);
 
   const bookmarkKey = `bookmark-${testId}-section-${sectionId}`;
   const answerKey = `answers-${testId}`;
@@ -73,6 +71,11 @@ export default function TestSolveClient({
     }
   }, [answerKey]);
 
+  if (!question) {
+    // question이 없으면 로딩 메시지 출력
+    return <div className="p-4">문제를 불러오는 중입니다...</div>;
+  }
+
   const updateAnswer = (
     sectionId: number,
     questionIndex: number,
@@ -98,61 +101,67 @@ export default function TestSolveClient({
     });
   };
 
-  const isMathMultiple = question.type === "MULTIPLE" && sectionId % 2 === 0;
-  const isMathShort = question.type === "SHORT" && sectionId % 2 === 0;
+  const isMathSection = sectionId % 2 === 0;
+  const isMathMultiple = question.type === "MULTIPLE" && isMathSection;
+  const isMathShort = question.type === "SHORT" && isMathSection;
+
   const showLeftBlock =
     isMathShort ||
     (!isMathMultiple &&
       (question.passage?.trim() ||
-        question.tableTitle?.trim() ||
-        !isEmptyTable(question.tableData) ||
+        question.table?.title?.trim() ||
+        (question.table?.data && !isEmptyTable(question.table?.data)) ||
         question.imageUrl?.trim()));
 
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
-
+  console.log(question);
   return (
-    <div className="flex flex-col w-full h-screen overflow-hidden">
-      <TestHeader
-        sectionNumber={sectionId}
-        testId={testId}
-        questionIndex={question.index}
-      />
-      <div className="flex flex-grow min-h-0 w-full">
+    <div className="flex flex-col flex-grow min-h-0 w-full">
+      <div className="flex flex-grow min-h-0 w-full overflow-hidden">
         {showLeftBlock && (
           <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
               {question.imageUrl && (
-                <Image
-                  src={question.imageUrl}
-                  alt="문제 이미지"
-                  fill
-                  className="relative w-full h-64 object-contain border rounded"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+                <div className="relative w-full h-64 border rounded overflow-hidden">
+                  <Image
+                    src={question.imageUrl}
+                    alt="문제 이미지"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                </div>
               )}
 
               {isMathShort && <ShortAnswerInstruction />}
-              {!isMathShort && question.tableTitle && (
-                <h3 className="text-lg font-semibold">{question.tableTitle}</h3>
+
+              {!isMathShort && question.table?.title && (
+                <h3 className="text-lg font-semibold">
+                  {question.table?.title}
+                </h3>
               )}
-              {!isMathShort && !isEmptyTable(question.tableData) && (
-                <table className="w-full table-auto border border-gray-400 bg-white text-sm">
-                  <tbody>
-                    {question.tableData!.map((row, rowIdx) => (
-                      <tr key={rowIdx}>
-                        {row.map((cell, colIdx) => (
-                          <td
-                            key={colIdx}
-                            className="border border-gray-400 px-2 py-1"
-                          >
-                            {cell || "⠀"}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+
+              {!isMathShort &&
+                question.table?.data &&
+                !isEmptyTable(question.table.data) && (
+                  <table className="w-full table-auto border border-gray-400 bg-white text-sm">
+                    <tbody>
+                      {question.table.data.map((row, rowIdx) => (
+                        <tr key={rowIdx}>
+                          {row.map((cell, colIdx) => (
+                            <td
+                              key={colIdx}
+                              className="border border-gray-400 px-2 py-1 whitespace-pre-wrap"
+                            >
+                              {cell || "⠀"}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
               {!isMathShort && question.passage && (
                 <div>{renderPassage(question.passage)}</div>
               )}
@@ -180,7 +189,9 @@ export default function TestSolveClient({
             </div>
           </div>
 
-          <div className="mt-4 mb-2">{question.question}</div>
+          <div className="mt-4 mb-2 whitespace-pre-wrap">
+            {question.question}
+          </div>
 
           {question.type === "MULTIPLE" && question.choices && (
             <MultipleChoice
@@ -202,14 +213,6 @@ export default function TestSolveClient({
           )}
         </div>
       </div>
-
-      <TestFooter
-        testId={testId}
-        sectionId={sectionId}
-        questionIndex={question.index}
-        totalQuestions={totalQuestions}
-        bookmarks={bookmarks}
-      />
     </div>
   );
 }

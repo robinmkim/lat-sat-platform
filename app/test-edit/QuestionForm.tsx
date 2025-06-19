@@ -1,5 +1,7 @@
 import QuestionRenderer from "./components/QuestionRenderer";
 import { formatSectionLabel } from "@/components/utils/formatSectionLabel";
+import { useEffect } from "react";
+
 import type {
   ChoiceData,
   ImageData,
@@ -40,7 +42,6 @@ export default function QuestionForm({
   onSelectImageFile,
 }: QuestionFormProps) {
   const current = questions[0];
-
   const updateQuestion = (id: string, newPartial: Partial<Question>) => {
     setQuestions((prev) =>
       prev.map((q) => (q.id === id ? { ...q, ...newPartial } : q))
@@ -55,6 +56,16 @@ export default function QuestionForm({
         : `q${questionIndex}`;
     onSelectImageFile?.(key, file);
   };
+  useEffect(() => {
+    if (!current.table) {
+      updateQuestion(current.id, { table: { id: "", title: "", data: "[]" } });
+    }
+    if (!current.choices || current.choices.length === 0) {
+      updateQuestion(current.id, {
+        choices: Array(4).fill({ id: "", order: 0, text: "", images: [] }),
+      });
+    }
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -86,7 +97,7 @@ export default function QuestionForm({
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
-            checked={current.showTable ?? true}
+            checked={current.showTable ?? false}
             onChange={() =>
               updateQuestion(current.id, {
                 showTable: !(current.showTable ?? true),
@@ -98,10 +109,10 @@ export default function QuestionForm({
         <label className="flex items-center gap-1">
           <input
             type="checkbox"
-            checked={current.showImage ?? true}
+            checked={current.showImage ?? false}
             onChange={() =>
               updateQuestion(current.id, {
-                showImage: !(current.showImage ?? true),
+                showImage: !(current.showImage ?? false),
               })
             }
           />

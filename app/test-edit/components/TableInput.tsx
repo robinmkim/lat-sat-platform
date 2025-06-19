@@ -13,22 +13,24 @@ export default function TableInput({
   onChange,
   onTitleChange,
 }: TableInputProps) {
-  if (!data || data.length === 0) return null;
+  // data가 배열이 아니거나 빈 배열이면 기본 1x2 배열로 초기화
+  const safeData: string[][] =
+    Array.isArray(data) && data.length > 0 ? data : [["", ""]]; // 기본 1행 2열
 
   const updateCell = (row: number, col: number, val: string) => {
-    const updated = data.map((r, i) =>
+    const updated = safeData.map((r, i) =>
       i === row ? r.map((c, j) => (j === col ? val : c)) : r
     );
     onChange(updated);
   };
 
   const addRow = () => {
-    const newRow = Array(data[0]?.length || 2).fill("");
-    onChange([...data, newRow]);
+    const newRow = Array(safeData[0]?.length || 2).fill("");
+    onChange([...safeData, newRow]);
   };
 
   const addColumn = () => {
-    const updated = data.map((row) => [...row, ""]);
+    const updated = safeData.map((row) => [...row, ""]);
     onChange(updated);
   };
 
@@ -44,18 +46,25 @@ export default function TableInput({
 
       <table className="table-auto border-collapse border border-gray-300">
         <tbody>
-          {data.map((row, rowIdx) => (
+          {safeData.map((row, rowIdx) => (
             <tr key={rowIdx}>
-              {row.map((cell, colIdx) => (
-                <td key={colIdx} className="border border-gray-400 px-2 py-1">
-                  <input
-                    type="text"
-                    value={cell}
-                    onChange={(e) => updateCell(rowIdx, colIdx, e.target.value)}
-                    className="w-full px-1"
-                  />
-                </td>
-              ))}
+              {Array.isArray(row)
+                ? row.map((cell, colIdx) => (
+                    <td
+                      key={colIdx}
+                      className="border border-gray-400 px-2 py-1"
+                    >
+                      <input
+                        type="text"
+                        value={cell}
+                        onChange={(e) =>
+                          updateCell(rowIdx, colIdx, e.target.value)
+                        }
+                        className="w-full px-1"
+                      />
+                    </td>
+                  ))
+                : null}
             </tr>
           ))}
         </tbody>

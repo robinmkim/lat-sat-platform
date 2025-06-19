@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "lib/prisma";
-import TestIntroClient from "./TextIntroClient";
+import TestIntroClient from "./TestIntroClient";
 import { getQuestionsBySection } from "@/test/action";
 import { getFirstSolveRoute } from "@/action";
 

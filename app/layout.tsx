@@ -44,10 +44,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="antialiased bg-gray-300">
+      <body className="antialiased">
         <MathJaxContext config={config} version={3}>
           <main className="flex items-center justify-center w-full h-screen">
-            <div className="flex flex-col items-center w-4/5 min-h-[80%] bg-white rounded-lg shadow-lg">
+            <div className="flex flex-col items-center w-full h-full bg-white rounded-lg shadow-lg">
               <MathLiveFontInit />
               {children}
             </div>

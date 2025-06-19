@@ -102,7 +102,7 @@ export async function saveQuestion(
           data: {
             questionId,
             title: q.table.title ?? "",
-            data: q.table.data ?? [],
+            data: JSON.stringify(q.table.data ?? [[]]),
           },
         });
       }

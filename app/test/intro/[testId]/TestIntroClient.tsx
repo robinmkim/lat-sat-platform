@@ -1,24 +1,13 @@
 "use client";
+
 import { useEffect } from "react";
 import IntroFooter from "@/components/IntroFooter";
-import { Choice } from "@/test/[testId]/section/[sectionId]/question/[questionId]/TestSolveClient";
-
-export type Question = {
-  id: string;
-  index: number;
-  question: string;
-  passage?: string;
-  choices?: Choice[];
-  type: "MULTIPLE" | "SHORT";
-  tableTitle?: string;
-  tableData?: string[][];
-  imageUrl?: string;
-};
+import type { SectionWithQuestions } from "types/question";
 
 type Props = {
   testId: string;
   firstQuestionRoute: string;
-  section1Questions: Question[];
+  section1Questions: SectionWithQuestions;
 };
 
 export default function TestIntroClient({
@@ -26,11 +15,10 @@ export default function TestIntroClient({
   firstQuestionRoute,
   section1Questions,
 }: Props) {
-  // ✅ section1Questions를 sessionStorage에 저장 (초기 렌더 시)
   useEffect(() => {
     sessionStorage.setItem(
-      `section-${testId}-1`,
-      JSON.stringify(section1Questions)
+      `section-${testId}-${section1Questions.sectionNumber}`,
+      JSON.stringify(section1Questions.questions)
     );
   }, [testId, section1Questions]);
 

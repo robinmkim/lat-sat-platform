@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { getNextQuestionRoute } from "@/action";
 
-type Props = {
-  sectionNumber: number;
-  testId: string;
-  questionIndex: number;
-};
-
 const getInitialSeconds = (sectionNumber: number): number => {
-  return [1, 3].includes(sectionNumber) ? 32 * 60 : 35 * 60;
+  return [1, 2].includes(sectionNumber) ? 32 * 60 : 35 * 60;
 };
 
 const formatTime = (seconds: number): string => {
@@ -22,17 +16,19 @@ const formatTime = (seconds: number): string => {
   return `${min}:${sec}`;
 };
 
-export default function TestHeader({
-  sectionNumber,
-  testId,
-  questionIndex,
-}: Props) {
+export default function TestHeader() {
   const router = useRouter();
+  const pathname = usePathname();
+  const pathSegments = pathname.split("/");
+
+  const testId = pathSegments[2];
+  const sectionNumber = Number(pathSegments[4]);
+  const questionIndex = Number(pathSegments[6] || "1");
+
   const storageKey = `timeLeft-${testId}-section-${sectionNumber}`;
   const flagKey = `${storageKey}-initialized`;
 
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [paused, setPaused] = useState(false);
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
 
   useEffect(() => {
@@ -56,7 +52,7 @@ export default function TestHeader({
   }, [storageKey, flagKey, sectionNumber, questionIndex]);
 
   useEffect(() => {
-    if (paused || showTimeoutModal || timeLeft === null) return;
+    if (timeLeft === null) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -73,7 +69,7 @@ export default function TestHeader({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [paused, showTimeoutModal, timeLeft, storageKey]);
+  }, [timeLeft, storageKey]);
 
   const handleExit = () => {
     const confirmed = confirm(
@@ -81,11 +77,9 @@ export default function TestHeader({
     );
     if (!confirmed) return;
 
-    // 1. 타이머 관련 삭제
     sessionStorage.removeItem(storageKey);
     sessionStorage.removeItem(flagKey);
 
-    // 2. 북마크, 타이머, 답변 전체 정리
     Object.keys(sessionStorage).forEach((key) => {
       if (
         key.startsWith(`bookmark-${testId}`) ||
@@ -95,10 +89,8 @@ export default function TestHeader({
       }
     });
 
-    // ✅ 3. 단일 answers key 제거 (정확히 일치해야 함)
     sessionStorage.removeItem(`answers-${testId}`);
 
-    // ✅ 팝업으로 열린 경우만 닫기 가능
     if (window.opener) {
       window.close();
     } else {
@@ -110,7 +102,6 @@ export default function TestHeader({
 
   const handleNextSection = async () => {
     const nextSectionNumber = sectionNumber + 1;
-
     const route = await getNextQuestionRoute(
       testId,
       nextSectionNumber,
@@ -118,34 +109,23 @@ export default function TestHeader({
       "next"
     );
 
-    if (!route) {
-      alert("There are no more sections. Returning to home.");
-      sessionStorage.removeItem(storageKey);
-      sessionStorage.removeItem(flagKey);
-      router.push("/");
-      return;
-    }
-
     sessionStorage.removeItem(storageKey);
     sessionStorage.removeItem(flagKey);
-    router.push(route);
-  };
 
+    if (!route) {
+      alert("There are no more sections. Returning to home.");
+      router.push("/");
+    } else {
+      router.push(route);
+    }
+  };
   return (
     <>
       <div className="flex items-center justify-between w-full h-[80px] shrink-0 bg-blue-100 border-b-2 border-dashed px-5 pt-1">
         <div className="text-lg font-medium">Section {sectionNumber}</div>
 
-        <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center justify-center w-fit h-fit">
-          {timeLeft !== null && (
-            <div className="text-lg font-mono">{formatTime(timeLeft)}</div>
-          )}
-          <button
-            onClick={() => setPaused(true)}
-            className="flex items-center justify-center w-fit h-fit bg-gray-200 rounded-md px-3 py-1 text-sm text-blue-700 font-medium hover:bg-gray-300 transition"
-          >
-            Pause
-          </button>
+        <div className="absolute left-1/2 -translate-x-1/2 text-lg font-mono">
+          {timeLeft !== null && formatTime(timeLeft)}
         </div>
 
         <button
@@ -155,18 +135,6 @@ export default function TestHeader({
           Exit
         </button>
       </div>
-
-      {paused && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="text-white text-3xl font-semibold mb-6">Paused</div>
-          <button
-            onClick={() => setPaused(false)}
-            className="flex items-center justify-center w-fit h-fit bg-white rounded-md px-4 py-2 text-lg text-blue-700 font-medium shadow hover:bg-gray-100 transition"
-          >
-            Resume
-          </button>
-        </div>
-      )}
 
       {showTimeoutModal && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">

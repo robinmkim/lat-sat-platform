@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from "uuid";
 import type {
   SectionWithQuestions,
   QuestionWithRelations,
+  ChoiceData,
+  TableData,
 } from "types/question";
 import { saveQuestion } from "./actions";
 
@@ -31,6 +33,21 @@ export default function SectionEditClient({
   const [questions, setQuestions] = useState<QuestionWithRelations[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const createEmptyChoices = (count: number): ChoiceData[] =>
+    Array.from({ length: count }).map((_, idx) => ({
+      id: "",
+      order: idx,
+      text: "",
+      images: [],
+    }));
+
+  // 기본 빈 테이블 생성 함수
+  const createEmptyTable = (): TableData => ({
+    id: "",
+    title: "",
+    data: [["", ""]], // string[][] 타입
+  });
 
   const handleSaveAndExit = async () => {
     setIsSaving(true);
@@ -146,9 +163,20 @@ export default function SectionEditClient({
             (c) => Array.isArray(c.images) && c.images.length > 0
           );
 
+          // 빈 테이블, 빈 선택지, isImageChoice 초기화
+          const table = question.table?.data
+            ? question.table
+            : createEmptyTable();
+          const choices =
+            question.choices && question.choices.length > 0
+              ? question.choices
+              : createEmptyChoices(4);
+
           setQuestions([
             {
               ...question,
+              table,
+              choices,
               isImageChoice: anyChoiceHasImage,
             },
           ]);
@@ -159,6 +187,7 @@ export default function SectionEditClient({
       }
     }
 
+    // fallbackSections 초기화 로딩
     const section = fallbackSections.find(
       (s) => s.sectionNumber === sectionNumber
     );
@@ -169,11 +198,20 @@ export default function SectionEditClient({
       const anyChoiceHasImage = fallbackQuestion.choices?.some(
         (c) => Array.isArray(c.images) && c.images.length > 0
       );
+      const table = fallbackQuestion.table?.data
+        ? fallbackQuestion.table
+        : createEmptyTable();
+      const choices =
+        fallbackQuestion.choices && fallbackQuestion.choices.length > 0
+          ? fallbackQuestion.choices
+          : createEmptyChoices(4);
 
       setQuestions([
         {
           ...fallbackQuestion,
           id: fallbackQuestion.id ?? generatedId,
+          table,
+          choices,
           isImageChoice: anyChoiceHasImage,
         },
       ]);
@@ -210,6 +248,7 @@ export default function SectionEditClient({
     };
   };
 
+  // 로컬스토리지에 questions 상태 저장 (questions[0] 기준)
   useEffect(() => {
     const current = questions[0];
     if (!current) return;
@@ -274,7 +313,7 @@ export default function SectionEditClient({
           router.push(`/test-edit/${testId}/section/${s}/question/${i}`)
         }
       />
-      {/* ✅ 저장 중일 때 화면 차단 및 로딩 표시 */}
+
       {isSaving && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex flex-col items-center justify-center space-y-4">
           <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin" />
@@ -284,7 +323,6 @@ export default function SectionEditClient({
         </div>
       )}
 
-      {/* ❌ 오류 발생 시 모달 표시 */}
       {error && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
           <div className="bg-white rounded-xl shadow-xl p-6 max-w-sm w-full text-center">

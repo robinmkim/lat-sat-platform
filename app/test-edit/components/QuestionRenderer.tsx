@@ -38,29 +38,24 @@ export default function QuestionRenderer({
   const isReadingWriting = sectionNumber <= 2;
   const [mathPreview, setMathPreview] = useState("");
 
+  const safeChoices = choices ?? [];
+
   return (
     <div className="flex flex-col w-full bg-white p-4 gap-6">
       {/* ✅ 테이블 입력 */}
       {showTable && table?.data && (
         <TableInput
-          title={table.title ?? ""}
-          data={JSON.parse(table.data)}
-          onChange={(updated) =>
+          title={table?.title ?? ""}
+          data={table ? table.data : [[""]]}
+          onChange={(updated) => {
             onUpdate({
               table: {
                 ...table,
-                data: JSON.stringify(updated),
+                data: updated, // 저장 시 JSON 문자열로 변환
               },
-            })
-          }
-          onTitleChange={(title) =>
-            onUpdate({
-              table: {
-                ...table,
-                title,
-              },
-            })
-          }
+            });
+          }}
+          onTitleChange={(title) => onUpdate({ table: { ...table, title } })}
         />
       )}
 
@@ -100,7 +95,7 @@ export default function QuestionRenderer({
       {type === "MULTIPLE" ? (
         isImageChoice ? (
           <MultipleChoiceWithImageInput
-            imageUrls={choices.map((c) => c.images?.[0]?.url)}
+            imageUrls={safeChoices.map((c) => c.images?.[0]?.url ?? "")}
             correctIndex={Number(answer) || 0}
             onSelectCorrect={(i) => onUpdate({ answer: i.toString() })}
             onSelectImageFile={(i, file) => {
