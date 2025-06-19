@@ -5,6 +5,7 @@ import { MathJax } from "better-react-mathjax";
 
 export function renderPassage(passage: string) {
   const lines = passage.split("\n");
+  console.log("📘 renderPassage 호출됨:", passage);
 
   return (
     <div className="whitespace-pre-wrap space-y-2">
@@ -40,13 +41,32 @@ export function renderPassage(passage: string) {
   );
 }
 
-function renderInline(text: string) {
-  const parts = text.split(
-    /(\${1,2}[^$]+\${1,2}|__[^_]+__|\*\*[^*]+\*\*|_[^_]+_|\(blank\))/g
+export function renderInline(text: string): React.ReactNode[] {
+  console.log("🧩 renderInline 실행됨:", text);
+  const ESCAPE_PREFIX = "<<<ESCAPED_DOLLAR_";
+  const ESCAPE_SUFFIX = ">>>";
+  const tokenized = text.replace(
+    /\\\$(\d[\d,]*)/g,
+    (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
+  );
+
+  const parts = tokenized.split(
+    /(\${1,2}[^$]+\${1,2}|__.+?__|\*\*.+?\*\*|_.+?_|\(blank\)|<<<ESCAPED_DOLLAR_[^>]+>>>)/g
   );
 
   return parts.map((part, idx) => {
     if (!part) return null;
+
+    // ✅ \$ 복원
+    const dollarMatch = part.match(/^<<<ESCAPED_DOLLAR_([^>]+)>>>$/);
+    if (dollarMatch) {
+      return (
+        <span key={idx}>
+          {"$"}
+          {dollarMatch[1]}
+        </span>
+      );
+    }
 
     // ✅ 수식
     if (/^\${1,2}.*\${1,2}$/.test(part)) {
@@ -58,29 +78,33 @@ function renderInline(text: string) {
       );
     }
 
-    // ✅ 밑줄
+    // ✅ 밑줄 (재귀)
     if (part.startsWith("__") && part.endsWith("__")) {
+      const inner = part.slice(2, -2);
+      console.log("밑줄 안 내용 재귀 처리:", inner);
       return (
-        <u key={idx} className="font-medium italic">
-          {part.slice(2, -2)}
+        <u key={idx} className="font-medium">
+          {renderInline(inner)}
         </u>
       );
     }
 
-    // ✅ 굵게 (bold)
+    // ✅ 굵게 (재귀)
     if (part.startsWith("**") && part.endsWith("**")) {
+      const inner = part.slice(2, -2);
       return (
         <strong key={idx} className="font-bold">
-          {part.slice(2, -2)}
+          {renderInline(inner)}
         </strong>
       );
     }
 
-    // ✅ 기울임
+    // ✅ 기울임 (재귀)
     if (part.startsWith("_") && part.endsWith("_")) {
+      const inner = part.slice(1, -1);
       return (
         <em key={idx} className="italic">
-          {part.slice(1, -1)}
+          {renderInline(inner)}
         </em>
       );
     }
