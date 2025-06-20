@@ -17,103 +17,107 @@ export async function saveQuestion(
 
     const changedQuestions = JSON.parse(payload) as QuestionWithRelations[];
 
-    for (const q of changedQuestions) {
-      // ✅ Question upsert
-      const savedQuestion = await prisma.question.upsert({
-        where: {
-          sectionId_index: {
+    await prisma.$transaction(async (tx) => {
+      for (const q of changedQuestions) {
+        // ✅ Question upsert
+        const savedQuestion = await tx.question.upsert({
+          where: {
+            sectionId_index: {
+              sectionId,
+              index: q.index,
+            },
+          },
+          create: {
             sectionId,
             index: q.index,
+            question: q.question,
+            passage: q.passage,
+            answer: q.answer,
+            type: q.type,
+            showTable: q.showTable,
+            showImage: q.showImage,
+            score: q.score ?? 1,
           },
-        },
-        create: {
-          sectionId,
-          index: q.index,
-          question: q.question,
-          passage: q.passage,
-          answer: q.answer,
-          type: q.type,
-          showTable: q.showTable,
-          showImage: q.showImage,
-          score: q.score ?? 1,
-        },
-        update: {
-          question: q.question,
-          passage: q.passage,
-          answer: q.answer,
-          type: q.type,
-          showTable: q.showTable,
-          showImage: q.showImage,
-          score: q.score ?? 1,
-        },
-      });
-
-      const questionId = savedQuestion.id;
-
-      // ✅ 기존 choice 및 관련 이미지 삭제
-      const oldChoices = await prisma.choice.findMany({
-        where: { questionId },
-        select: { id: true },
-      });
-
-      const oldChoiceIds = oldChoices.map((c) => c.id);
-      await prisma.image.deleteMany({
-        where: { choiceId: { in: oldChoiceIds } },
-      });
-      await prisma.choice.deleteMany({ where: { questionId } });
-
-      // ✅ Choice & 이미지 재삽입
-      for (const [order, choice] of q.choices.entries()) {
-        const created = await prisma.choice.create({
-          data: {
-            questionId,
-            order,
-            text: choice.text,
+          update: {
+            question: q.question,
+            passage: q.passage,
+            answer: q.answer,
+            type: q.type,
+            showTable: q.showTable,
+            showImage: q.showImage,
+            score: q.score ?? 1,
           },
         });
 
-        if (choice.images?.length) {
-          await prisma.image.createMany({
-            data: choice.images.map((img) => ({
-              choiceId: created.id,
+        const questionId = savedQuestion.id;
+
+        // ✅ 기존 선택지 및 이미지 삭제
+        const oldChoices = await tx.choice.findMany({
+          where: { questionId },
+          select: { id: true },
+        });
+
+        const oldChoiceIds = oldChoices.map((c) => c.id);
+
+        await tx.image.deleteMany({
+          where: { choiceId: { in: oldChoiceIds } },
+        });
+
+        await tx.choice.deleteMany({ where: { questionId } });
+
+        // ✅ 새 Choice 및 관련 이미지 생성
+        for (const [order, choice] of q.choices.entries()) {
+          const created = await tx.choice.create({
+            data: {
+              questionId,
+              order,
+              text: choice.text,
+            },
+          });
+
+          if (choice.images?.length) {
+            await tx.image.createMany({
+              data: choice.images.map((img) => ({
+                choiceId: created.id,
+                url: img.url,
+                externalId: img.id,
+              })),
+            });
+          }
+        }
+
+        // ✅ 기존 본문 이미지 삭제 및 재삽입
+        await tx.image.deleteMany({ where: { questionId } });
+        if (q.images?.length) {
+          await tx.image.createMany({
+            data: q.images.map((img) => ({
+              questionId,
               url: img.url,
               externalId: img.id,
             })),
           });
         }
-      }
 
-      // ✅ 기존 본문 이미지 삭제 및 재삽입
-      await prisma.image.deleteMany({ where: { questionId } });
-      if (q.images?.length) {
-        await prisma.image.createMany({
-          data: q.images.map((img) => ({
-            questionId,
-            url: img.url,
-            externalId: img.id,
-          })),
-        });
+        // ✅ 기존 테이블 삭제 및 재삽입
+        await tx.table.deleteMany({ where: { questionId } });
+        if (q.table && q.showTable) {
+          await tx.table.create({
+            data: {
+              questionId,
+              title: q.table.title ?? "",
+              data: JSON.stringify(q.table.data ?? [[]]),
+            },
+          });
+        }
       }
+    });
 
-      // ✅ 기존 테이블 삭제 및 재삽입
-      await prisma.table.deleteMany({ where: { questionId } });
-      if (q.table && q.showTable) {
-        await prisma.table.create({
-          data: {
-            questionId,
-            title: q.table.title ?? "",
-            data: JSON.stringify(q.table.data ?? [[]]),
-          },
-        });
-      }
-    }
-
-    // ✅ 캐시 무효화
+    // ✅ 저장 후 캐시 무효화
     revalidatePath("/test-list");
 
     return { success: true };
   } catch (err) {
-    console.error("saveQuestion error:", err);
+    console.error("❌ saveQuestion error:", err);
     return { error: "문제 저장 중 오류가 발생했습니다." };
   }
 }
