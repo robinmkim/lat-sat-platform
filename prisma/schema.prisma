@@ -64,7 +64,7 @@ model Choice {
   questionId String
   question   Question @relation("QuestionChoices", fields: [questionId], references: [id])
   order      Int
-  text       String
+  text       String   @db.Text // ✅ 제한 없는 TEXT 타입으로 변경
 
   images Image[] @relation("ChoiceImages")
 

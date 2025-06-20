@@ -13,6 +13,7 @@ import type {
   TableData,
 } from "types/question";
 import { saveQuestion } from "./actions";
+import { prepareChangedQuestions } from "./utils/question";
 
 export default function SectionEditClient({
   testId,
@@ -62,6 +63,7 @@ export default function SectionEditClient({
 
     try {
       const updatedSections = JSON.parse(raw) as SectionWithQuestions[];
+
       const originalSection = fallbackSections.find(
         (s) => s.sectionNumber === sectionNumber
       );
@@ -75,48 +77,12 @@ export default function SectionEditClient({
         return;
       }
 
-      const changedQuestions: QuestionWithRelations[] = [];
-
-      for (const updated of updatedSection.questions) {
-        const original = originalSection?.questions.find(
-          (q) => q.index === updated.index
-        );
-
-        const isChanged =
-          !original || JSON.stringify(original) !== JSON.stringify(updated);
-
-        if (!isChanged) continue;
-
-        // ✅ 이미지 업로드 처리
-        const imageEntries: { id: string; url: string }[] = [];
-        const imageKey = `q${updated.index}`;
-        if (uploadedMap.current.has(imageKey)) {
-          const file = uploadedMap.current.get(imageKey)!;
-          const { imageUrl, imageId } = await uploadImage(file);
-          imageEntries.push({ id: imageId, url: imageUrl });
-        }
-
-        // ✅ 선택지 이미지 업로드 처리
-        const newChoices = await Promise.all(
-          updated.choices.map(async (choice, order) => {
-            const choiceKey = `q${updated.index}-choice-${order}`;
-            if (uploadedMap.current.has(choiceKey)) {
-              const file = uploadedMap.current.get(choiceKey)!;
-              const { imageUrl, imageId } = await uploadImage(file);
-              return {
-                ...choice,
-                images: [{ id: imageId, url: imageUrl }],
-              };
-            }
-            return choice;
-          })
-        );
-
-        updated.images = imageEntries;
-        updated.choices = newChoices;
-
-        changedQuestions.push(updated);
-      }
+      // ✅ 이미지 업로드 및 변경된 문제만 필터링
+      const changedQuestions = await prepareChangedQuestions(
+        originalSection,
+        updatedSection,
+        uploadedMap.current
+      );
 
       if (changedQuestions.length === 0) {
         setError("변경된 문제가 없습니다.");
@@ -124,13 +90,14 @@ export default function SectionEditClient({
         return;
       }
 
+      // ✅ FormData 구성 및 저장 요청
       const formData = new FormData();
       formData.append("sectionId", sectionId);
       formData.append("payload", JSON.stringify(changedQuestions));
 
       await saveQuestion(formData);
 
-      // ✅ 저장 성공 시 localStorage 제거
+      // ✅ 저장 성공 시 localStorage 초기화
       const remainingSections = updatedSections.map((section) =>
         section.sectionNumber === sectionNumber
           ? { ...section, questions: [] }
@@ -217,36 +184,6 @@ export default function SectionEditClient({
       ]);
     }
   }, [testId, sectionNumber, questionIndex, fallbackSections, generatedId]);
-
-  const uploadImage = async (
-    file: File
-  ): Promise<{ imageUrl: string; imageId: string }> => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("/api/upload-image", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error("업로드 실패: " + errorText);
-    }
-
-    const result = await res.json();
-
-    if (!result.imageUrl || !result.imageId) {
-      throw new Error(
-        "이미지 업로드 실패: " + (result.error || "알 수 없는 오류")
-      );
-    }
-
-    return {
-      imageUrl: result.imageUrl,
-      imageId: result.imageId,
-    };
-  };
 
   // 로컬스토리지에 questions 상태 저장 (questions[0] 기준)
   useEffect(() => {
