@@ -64,46 +64,40 @@ export default function SectionEditClient({
     try {
       const updatedSections = JSON.parse(raw) as SectionWithQuestions[];
 
-      const originalSection = fallbackSections.find(
-        (s) => s.sectionNumber === sectionNumber
-      );
-      const updatedSection = updatedSections.find(
-        (s) => s.sectionNumber === sectionNumber
-      );
+      const allChangedQuestions: QuestionWithRelations[] = [];
 
-      if (!updatedSection) {
-        setError("수정된 섹션 정보를 찾을 수 없습니다.");
-        setIsSaving(false);
-        return;
+      for (const updatedSection of updatedSections) {
+        const originalSection = fallbackSections.find(
+          (s) => s.sectionNumber === updatedSection.sectionNumber
+        );
+
+        const changed = await prepareChangedQuestions(
+          originalSection,
+          updatedSection,
+          uploadedMap.current
+        );
+
+        allChangedQuestions.push(...changed);
       }
 
-      // ✅ 이미지 업로드 및 변경된 문제만 필터링
-      const changedQuestions = await prepareChangedQuestions(
-        originalSection,
-        updatedSection,
-        uploadedMap.current
-      );
-
-      if (changedQuestions.length === 0) {
+      if (allChangedQuestions.length === 0) {
         setError("변경된 문제가 없습니다.");
         setIsSaving(false);
         return;
       }
 
-      // ✅ FormData 구성 및 저장 요청
       const formData = new FormData();
-      formData.append("sectionId", sectionId);
-      formData.append("payload", JSON.stringify(changedQuestions));
+      formData.append("sectionId", sectionId); // ✅ 어떤 sectionId를 넣더라도 무방 — 서버에서 sectionId는 question 기준으로 처리
+      formData.append("payload", JSON.stringify(allChangedQuestions));
 
       await saveQuestion(formData);
 
       // ✅ 저장 성공 시 localStorage 초기화
-      const remainingSections = updatedSections.map((section) =>
-        section.sectionNumber === sectionNumber
-          ? { ...section, questions: [] }
-          : section
-      );
-      localStorage.setItem(`edit-${testId}`, JSON.stringify(remainingSections));
+      const clearedSections = updatedSections.map((section) => ({
+        ...section,
+        questions: [],
+      }));
+      localStorage.setItem(`edit-${testId}`, JSON.stringify(clearedSections));
 
       router.push("/test-list");
     } catch (e) {
