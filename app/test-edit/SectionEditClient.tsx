@@ -87,7 +87,6 @@ export default function SectionEditClient({
       }
 
       const formData = new FormData();
-      formData.append("sectionId", sectionId); // ✅ 어떤 sectionId를 넣더라도 무방 — 서버에서 sectionId는 question 기준으로 처리
       formData.append("payload", JSON.stringify(allChangedQuestions));
 
       await saveQuestion(formData);

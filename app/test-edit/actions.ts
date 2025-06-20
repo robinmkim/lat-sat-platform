@@ -8,11 +8,10 @@ export async function saveQuestion(
   formData: FormData
 ): Promise<{ success?: boolean; error?: string }> {
   try {
-    const sectionId = formData.get("sectionId") as string;
     const payload = formData.get("payload") as string;
 
-    if (!sectionId || !payload) {
-      return { error: "필수 값이 누락되었습니다." };
+    if (!payload) {
+      return { error: "저장할 데이터가 없습니다." };
     }
 
     const changedQuestions = JSON.parse(payload) as QuestionWithRelations[];
@@ -20,6 +19,8 @@ export async function saveQuestion(
     await prisma.$transaction(
       async (tx) => {
         for (const q of changedQuestions) {
+          const sectionId = q.sectionId; // ✅ 각 문제에서 sectionId 직접 사용
+
           // ✅ 1. Question upsert
           const savedQuestion = await tx.question.upsert({
             where: {
@@ -52,7 +53,7 @@ export async function saveQuestion(
 
           const questionId = savedQuestion.id;
 
-          // ✅ 2. 관련 데이터 일괄 삭제
+          // ✅ 2. 관련 데이터 삭제
           await Promise.all([
             tx.image.deleteMany({
               where: {
@@ -63,7 +64,7 @@ export async function saveQuestion(
             tx.table.deleteMany({ where: { questionId } }),
           ]);
 
-          // ✅ 3. 새로운 choice + image 삽입
+          // ✅ 3. 선택지 + 이미지 삽입
           for (const [order, choice] of q.choices.entries()) {
             const created = await tx.choice.create({
               data: {
@@ -107,9 +108,10 @@ export async function saveQuestion(
           }
         }
       },
-      { timeout: 15000 } // ✅ 트랜잭션 타임아웃 명시
+      { timeout: 15000 } // ⏱ 여유롭게 설정
     );
 
+    // ✅ 저장 후 캐시 무효화
     revalidatePath("/test-list");
 
     return { success: true };
