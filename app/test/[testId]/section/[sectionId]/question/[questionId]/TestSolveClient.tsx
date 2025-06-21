@@ -7,8 +7,9 @@ import FractionInput from "@/components/FractionInput";
 import { isEmptyTable, renderPassage } from "@/components/common/renderPassage";
 import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
 import Image from "next/image";
-import { ImageData, TableData } from "types/question";
+import { ImageData } from "types/question";
 import ImageChoice from "@/test/components/ImageChoice";
+import { QuestionWithRelations } from "types/question";
 
 export type Choice = {
   id: string;
@@ -16,24 +17,12 @@ export type Choice = {
   images: ImageData[];
 };
 
-type QuestionData = {
-  index: number;
-  question: string;
-  passage?: string;
-  choices?: Choice[];
-  type: "MULTIPLE" | "SHORT";
-  table?: TableData;
-  imageUrl?: string;
-  // ✅ 추가
-  isImageChoice?: boolean;
-};
-
 type Props = {
   testId: string;
   sectionId: number;
   totalQuestions: number;
   currentIndex: number;
-  questions: QuestionData[];
+  questions: QuestionWithRelations[]; // ✅ 여기
 };
 
 export default function TestSolveClient({
@@ -115,19 +104,20 @@ export default function TestSolveClient({
       (question.passage?.trim() ||
         question.table?.title?.trim() ||
         (question.table?.data && !isEmptyTable(question.table?.data)) ||
-        question.imageUrl?.trim()));
+        question.images?.[0]?.url.trim()));
 
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
+  console.log(question);
   return (
     <div className="flex flex-col flex-grow min-h-0 w-full">
       <div className="flex flex-grow min-h-0 w-full overflow-hidden">
         {showLeftBlock && (
           <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
-              {question.imageUrl && (
+              {!question.isImageChoice && question.images?.[0]?.url && (
                 <div className="relative w-full h-64 border rounded overflow-hidden">
                   <Image
-                    src={question.imageUrl}
+                    src={question.images[0].url}
                     alt="문제 이미지"
                     fill
                     className="object-contain"

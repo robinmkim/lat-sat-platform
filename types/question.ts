@@ -7,7 +7,7 @@ export type ChoiceData = {
   id: string;
   order: number; // 0 = A, 1 = B ...
   text: string;
-  images: ImageData[];
+  images?: ImageData[];
 };
 
 // DB 저장용 타입 (Prisma 모델에서 가져오는 원시 타입)

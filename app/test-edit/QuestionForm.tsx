@@ -44,7 +44,15 @@ export default function QuestionForm({
   const current = questions[0];
   const updateQuestion = (id: string, newPartial: Partial<Question>) => {
     setQuestions((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, ...newPartial } : q))
+      prev.map((q) => {
+        if (q.id !== id) return q;
+        return {
+          ...q,
+          ...newPartial,
+          images: newPartial.images ?? q.images ?? [], // ✅ 이미지 필드 유지
+          choices: newPartial.choices ?? q.choices ?? [],
+        };
+      })
     );
   };
 
@@ -57,15 +65,36 @@ export default function QuestionForm({
     onSelectImageFile?.(key, file);
   };
   useEffect(() => {
+    // ✅ table 초기화
     if (!current.table) {
       updateQuestion(current.id, {
         table: { id: "", title: "", data: [["", ""]] },
       });
     }
+
+    // ✅ question images 초기화
+    if (!current.images) {
+      updateQuestion(current.id, { images: [] });
+    }
+
+    // ✅ choices 초기화
     if (!current.choices || current.choices.length === 0) {
       updateQuestion(current.id, {
-        choices: Array(4).fill({ id: "", order: 0, text: "", images: [] }),
+        choices: Array.from({ length: 4 }, (_, i) => ({
+          id: "",
+          order: i,
+          text: "",
+          images: [],
+        })),
       });
+    } else {
+      // ✅ 각 choice의 images 초기화
+      const fixedChoices = current.choices.map((c, i) => ({
+        ...c,
+        images: c.images ?? [],
+        order: c.order ?? i,
+      }));
+      updateQuestion(current.id, { choices: fixedChoices });
     }
   }, []);
 

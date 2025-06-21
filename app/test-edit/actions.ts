@@ -86,7 +86,11 @@ export async function saveQuestion(
           }
 
           // ✅ 4. 본문 이미지 삽입
-          if (q.images?.length) {
+          if (q.images && q.images.length > 0) {
+            await tx.image.deleteMany({
+              where: { questionId },
+            });
+
             await tx.image.createMany({
               data: q.images.map((img) => ({
                 questionId,
@@ -114,6 +118,142 @@ export async function saveQuestion(
     // ✅ 저장 후 캐시 무효화
     revalidatePath("/test-list");
 
+    return { success: true };
+  } catch (err) {
+    console.error("❌ saveQuestion error:", err);
+    return { error: "문제 저장 중 오류가 발생했습니다." };
+  }
+}
+
+export async function saveQuestionV2(
+  formData: FormData
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const payload = formData.get("payload") as string;
+
+    if (!payload) {
+      return { error: "payload가 누락되었습니다." };
+    }
+
+    const changedQuestions = JSON.parse(payload) as QuestionWithRelations[];
+
+    await prisma.$transaction(async (tx) => {
+      for (const q of changedQuestions) {
+        const sectionId = q.sectionId; // ✅ 각 질문마다의 실제 sectionId 사용
+
+        // ✅ 기존 Question 존재 여부 확인
+        const existing = await tx.question.findUnique({
+          where: {
+            sectionId_index: {
+              sectionId,
+              index: q.index,
+            },
+          },
+        });
+
+        let savedQuestion;
+
+        if (existing) {
+          // ✅ update
+          savedQuestion = await tx.question.update({
+            where: { id: existing.id },
+            data: {
+              question: q.question,
+              passage: q.passage,
+              answer: q.answer,
+              type: q.type,
+              showTable: q.showTable,
+              showImage: q.showImage,
+              score: q.score ?? 1,
+            },
+          });
+
+          // 기존 choices, tables, images 제거 후 다시 삽입
+          const oldChoices = await tx.choice.findMany({
+            where: { questionId: savedQuestion.id },
+            select: { id: true },
+          });
+          const oldChoiceIds = oldChoices.map((c) => c.id);
+
+          await tx.image.deleteMany({
+            where: {
+              OR: [
+                { choiceId: { in: oldChoiceIds } },
+                { questionId: savedQuestion.id },
+              ],
+            },
+          });
+          await tx.choice.deleteMany({
+            where: { questionId: savedQuestion.id },
+          });
+          await tx.table.deleteMany({
+            where: { questionId: savedQuestion.id },
+          });
+        } else {
+          // ✅ create
+          savedQuestion = await tx.question.create({
+            data: {
+              sectionId,
+              index: q.index,
+              question: q.question,
+              passage: q.passage,
+              answer: q.answer,
+              type: q.type,
+              showTable: q.showTable,
+              showImage: q.showImage,
+              score: q.score ?? 1,
+            },
+          });
+        }
+
+        const questionId = savedQuestion.id;
+
+        // ✅ choice 및 이미지 삽입
+        for (const [order, choice] of q.choices.entries()) {
+          const createdChoice = await tx.choice.create({
+            data: {
+              questionId,
+              order,
+              text: choice.text,
+            },
+          });
+
+          if (choice.images?.length) {
+            await tx.image.createMany({
+              data: choice.images.map((img) => ({
+                choiceId: createdChoice.id,
+                url: img.url,
+                externalId: img.id ?? "",
+              })),
+            });
+          }
+        }
+
+        // ✅ question 본문 이미지 삽입
+        if (q.images?.length) {
+          await tx.image.createMany({
+            data: q.images.map((img) => ({
+              questionId,
+              url: img.url,
+              externalId: img.id ?? "",
+            })),
+          });
+        }
+
+        // ✅ 테이블 삽입
+        if (q.table && q.showTable) {
+          await tx.table.create({
+            data: {
+              questionId,
+              title: q.table.title ?? "",
+              data: JSON.stringify(q.table.data ?? [[""]]),
+            },
+          });
+        }
+      }
+    });
+
+    revalidatePath("/test-list");
     return { success: true };
   } catch (err) {
     console.error("❌ saveQuestion error:", err);

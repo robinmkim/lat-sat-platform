@@ -47,20 +47,21 @@ export async function prepareChangedQuestions(
     const original = originalSection?.questions.find(
       (q) => q.index === updated.index
     );
+
     const isChanged =
       !original || JSON.stringify(original) !== JSON.stringify(updated);
     if (!isChanged) continue;
 
-    // ✅ 본문 이미지 업로드
+    // ✅ 본문 이미지 업로드 or 유지
     const questionImageKey = `q${updated.index}`;
-    const images: { id: string; url: string }[] = [];
+    let images = updated.images ?? [];
     if (uploadedMap.has(questionImageKey)) {
       const file = uploadedMap.get(questionImageKey)!;
       const { imageUrl, imageId } = await uploadImage(file);
-      images.push({ id: imageId, url: imageUrl });
+      images = [{ id: imageId, url: imageUrl }];
     }
 
-    // ✅ 선택지 이미지 업로드
+    // ✅ 선택지 이미지 업로드 or 유지
     const updatedChoices = await Promise.all(
       updated.choices.map(async (choice, i) => {
         const choiceKey = `q${updated.index}-choice-${i}`;
@@ -72,7 +73,11 @@ export async function prepareChangedQuestions(
             images: [{ id: imageId, url: imageUrl }],
           };
         }
-        return choice;
+        // 기존 choice 이미지 유지
+        return {
+          ...choice,
+          images: choice.images ?? [],
+        };
       })
     );
 

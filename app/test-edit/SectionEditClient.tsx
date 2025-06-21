@@ -12,7 +12,7 @@ import type {
   ChoiceData,
   TableData,
 } from "types/question";
-import { saveQuestion } from "./actions";
+import { saveQuestion, saveQuestionV2 } from "./actions";
 import { prepareChangedQuestions } from "./utils/question";
 
 export default function SectionEditClient({
@@ -29,7 +29,7 @@ export default function SectionEditClient({
   fallbackSections: SectionWithQuestions[];
 }) {
   const router = useRouter();
-  const uploadedMap = useRef<Map<string, File>>(new Map()); // ✅ string key로 변경
+  const uploadedMap = useRef<Map<string, File>>(new Map());
   const generatedId = useMemo(() => uuidv4(), []);
   const [questions, setQuestions] = useState<QuestionWithRelations[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -43,11 +43,10 @@ export default function SectionEditClient({
       images: [],
     }));
 
-  // 기본 빈 테이블 생성 함수
   const createEmptyTable = (): TableData => ({
     id: "",
     title: "",
-    data: [["", ""]], // string[][] 타입
+    data: [["", ""]],
   });
 
   const handleSaveAndExit = async () => {
@@ -63,7 +62,6 @@ export default function SectionEditClient({
 
     try {
       const updatedSections = JSON.parse(raw) as SectionWithQuestions[];
-
       const allChangedQuestions: QuestionWithRelations[] = [];
 
       for (const updatedSection of updatedSections) {
@@ -89,9 +87,8 @@ export default function SectionEditClient({
       const formData = new FormData();
       formData.append("payload", JSON.stringify(allChangedQuestions));
 
-      await saveQuestion(formData);
+      await saveQuestionV2(formData);
 
-      // ✅ 저장 성공 시 localStorage 초기화
       const clearedSections = updatedSections.map((section) => ({
         ...section,
         questions: [],
@@ -123,13 +120,17 @@ export default function SectionEditClient({
             (c) => Array.isArray(c.images) && c.images.length > 0
           );
 
-          // 빈 테이블, 빈 선택지, isImageChoice 초기화
           const table = question.table?.data
             ? question.table
             : createEmptyTable();
           const choices =
             question.choices && question.choices.length > 0
-              ? question.choices
+              ? question.choices.map((c, i) => ({
+                  id: c.id,
+                  order: i,
+                  text: c.text,
+                  images: c.images ?? [],
+                }))
               : createEmptyChoices(4);
 
           setQuestions([
@@ -137,6 +138,7 @@ export default function SectionEditClient({
               ...question,
               table,
               choices,
+              images: question.images ?? [],
               isImageChoice: anyChoiceHasImage,
             },
           ]);
@@ -147,7 +149,6 @@ export default function SectionEditClient({
       }
     }
 
-    // fallbackSections 초기화 로딩
     const section = fallbackSections.find(
       (s) => s.sectionNumber === sectionNumber
     );
@@ -163,7 +164,12 @@ export default function SectionEditClient({
         : createEmptyTable();
       const choices =
         fallbackQuestion.choices && fallbackQuestion.choices.length > 0
-          ? fallbackQuestion.choices
+          ? fallbackQuestion.choices.map((c, i) => ({
+              id: c.id,
+              order: i,
+              text: c.text,
+              images: c.images ?? [],
+            }))
           : createEmptyChoices(4);
 
       setQuestions([
@@ -172,13 +178,13 @@ export default function SectionEditClient({
           id: fallbackQuestion.id ?? generatedId,
           table,
           choices,
+          images: fallbackQuestion.images ?? [],
           isImageChoice: anyChoiceHasImage,
         },
       ]);
     }
   }, [testId, sectionNumber, questionIndex, fallbackSections, generatedId]);
 
-  // 로컬스토리지에 questions 상태 저장 (questions[0] 기준)
   useEffect(() => {
     const current = questions[0];
     if (!current) return;
