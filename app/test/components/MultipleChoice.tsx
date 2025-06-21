@@ -1,4 +1,5 @@
 "use client";
+import { renderInline } from "@/components/common/renderPassage";
 
 export type Choice = {
   id: string;
@@ -30,13 +31,13 @@ export default function MultipleChoice({
             `}
           >
             <div
-              className={`flex items-center justify-center w-6 h-6 border-2 rounded-full text-sm
+              className={`flex mr-2 items-center justify-center w-6 h-6 border-2 rounded-full text-sm
                 ${isSelected ? "border-blue-500 text-blue-600 font-bold" : ""}
               `}
             >
               {String.fromCharCode(65 + idx)} {/* A, B, C, D */}
             </div>
-            <div className="pl-2">{choice.text}</div>
+            <div className="text-sm">{renderInline(choice.text)}</div>{" "}
           </div>
         );
       })}

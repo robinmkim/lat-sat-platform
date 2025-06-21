@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import BookmarkToggle from "@/components/BookmarkToggle";
-import MultipleChoice from "@/components/MultipleChoice";
+import MultipleChoice from "@/test/components/MultipleChoice";
 import FractionInput from "@/components/FractionInput";
 import { isEmptyTable, renderPassage } from "@/components/common/renderPassage";
 import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
@@ -10,6 +10,7 @@ import Image from "next/image";
 import { ImageData } from "types/question";
 import ImageChoice from "@/test/components/ImageChoice";
 import { QuestionWithRelations } from "types/question";
+import { renderInline } from "@/components/common/renderPassage";
 
 export type Choice = {
   id: string;
@@ -22,7 +23,7 @@ type Props = {
   sectionId: number;
   totalQuestions: number;
   currentIndex: number;
-  questions: QuestionWithRelations[]; // ✅ 여기
+  questions: QuestionWithRelations[];
 };
 
 export default function TestSolveClient({
@@ -31,7 +32,6 @@ export default function TestSolveClient({
   currentIndex,
   questions,
 }: Props) {
-  // 훅은 무조건 최상단에서 호출
   const [bookmarks, setBookmarks] = useState<Record<number, boolean>>({});
   const [answers, setAnswers] = useState<
     Record<string, Record<number, string>>
@@ -65,7 +65,6 @@ export default function TestSolveClient({
   }, [answerKey]);
 
   if (!question) {
-    // question이 없으면 로딩 메시지 출력
     return <div className="p-4">문제를 불러오는 중입니다...</div>;
   }
 
@@ -94,7 +93,8 @@ export default function TestSolveClient({
     });
   };
 
-  const isMathSection = sectionId % 2 === 0;
+  // ✅ 수정된 RW/RW/M/M 기준
+  const isMathSection = sectionId >= 3;
   const isMathMultiple = question.type === "MULTIPLE" && isMathSection;
   const isMathShort = question.type === "SHORT" && isMathSection;
 
@@ -107,7 +107,7 @@ export default function TestSolveClient({
         question.images?.[0]?.url.trim()));
 
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
-  console.log(question);
+
   return (
     <div className="flex flex-col flex-grow min-h-0 w-full">
       <div className="flex flex-grow min-h-0 w-full overflow-hidden">
@@ -183,7 +183,7 @@ export default function TestSolveClient({
           </div>
 
           <div className="mt-4 mb-2 whitespace-pre-wrap">
-            {question.question}
+            {renderInline(question.question)}
           </div>
 
           {question.type === "MULTIPLE" &&

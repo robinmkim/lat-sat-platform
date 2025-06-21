@@ -21,7 +21,21 @@ export default function HomeClient({ tests }: { tests: Test[] }) {
 
     const url = `/test/intro/${selected}`;
 
-    // 새 창 열기 (주소창/툴바 최소화)
+    window.open(
+      url,
+      "_blank",
+      "width=1200,height=800,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no"
+    );
+  };
+
+  const handleLesson = () => {
+    if (!selected) {
+      alert("시험을 선택해주세요.");
+      return;
+    }
+
+    const url = `/test-lesson/${selected}/section/1/question/1`;
+
     window.open(
       url,
       "_blank",
@@ -60,12 +74,21 @@ export default function HomeClient({ tests }: { tests: Test[] }) {
           </strong>
         </p>
 
-        <button
-          onClick={handleStart}
-          className="border rounded-xl px-4 py-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
-        >
-          Start Test
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={handleStart}
+            className="border rounded-xl px-4 py-2 bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
+          >
+            Start Test
+          </button>
+
+          <button
+            onClick={handleLesson}
+            className="border rounded-xl px-4 py-2 bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+          >
+            Start Lesson
+          </button>
+        </div>
       </div>
     </div>
   );
