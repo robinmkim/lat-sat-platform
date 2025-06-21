@@ -1,4 +1,11 @@
+"use client";
+
+import { useState } from "react";
+import { saveQuestion } from "../actions"; // ✅ 경로 확인 필요
+import { getLocalQuestion } from "../utils/getLocalQuestion";
+
 export default function QuestionFooter({
+  testId,
   sectionNumber,
   questionIndex,
   onNavigate,
@@ -8,7 +15,8 @@ export default function QuestionFooter({
   questionIndex: number;
   onNavigate: (section: number, index: number) => void;
 }) {
-  // ✅ 섹션별 문제 수 정의
+  const [isSaving, setIsSaving] = useState(false);
+
   const totalQuestionsBySection: Record<number, number> = {
     1: 27,
     2: 27,
@@ -24,7 +32,6 @@ export default function QuestionFooter({
   const hasPrev = questionIndex > 1 || !isFirstSection;
   const hasNext = !isLastQuestion;
 
-  // ✅ 이전 문제 계산
   let prev: [number, number];
   if (questionIndex > 1) {
     prev = [sectionNumber, questionIndex - 1];
@@ -34,7 +41,6 @@ export default function QuestionFooter({
     prev = [prevSection, prevTotal];
   }
 
-  // ✅ 다음 문제 계산
   let next: [number, number];
   if (questionIndex < totalCurrentSection) {
     next = [sectionNumber, questionIndex + 1];
@@ -43,25 +49,61 @@ export default function QuestionFooter({
     next = [nextSection, 1];
   }
 
+  const handleSaveCurrent = async () => {
+    setIsSaving(true);
+    try {
+      const question = getLocalQuestion(testId, sectionNumber, questionIndex);
+      if (!question) {
+        alert("저장할 문제 데이터를 찾을 수 없습니다.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("payload", JSON.stringify([question]));
+
+      const result = await saveQuestion(formData);
+      if (result.success) {
+        alert("문제가 저장되었습니다.");
+      } else {
+        alert(result.error ?? "저장 실패");
+      }
+    } catch (e) {
+      console.error("❌ 저장 중 오류:", e);
+      alert("저장 중 오류가 발생했습니다.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
-    <div className="relative flex justify-between items-center mt-12 h-16">
-      {hasPrev ? (
+    <div className="relative mt-12 h-16 flex items-center justify-center">
+      {/* ⬅ Back 버튼: 왼쪽에 고정 */}
+      {hasPrev && (
         <button
           type="button"
           onClick={() => onNavigate(...prev)}
-          className="border rounded px-4 py-2 hover:bg-gray-100 transition"
+          className="absolute left-0 border rounded px-4 py-2 hover:bg-gray-100 transition"
         >
           ⬅ Back
         </button>
-      ) : (
-        <div />
       )}
 
+      {/* 💾 저장 버튼: 항상 정중앙 */}
+      <button
+        type="button"
+        onClick={handleSaveCurrent}
+        disabled={isSaving}
+        className="border rounded bg-blue-600 text-white px-6 py-2 hover:bg-blue-700 transition disabled:opacity-50"
+      >
+        {isSaving ? "Saving..." : "💾 저장"}
+      </button>
+
+      {/* ➡ Next or ✅ Finish 버튼: 오른쪽에 고정 */}
       {hasNext ? (
         <button
           type="button"
           onClick={() => onNavigate(...next)}
-          className="border rounded px-4 py-2 hover:bg-gray-100 transition"
+          className="absolute right-0 border rounded px-4 py-2 hover:bg-gray-100 transition"
         >
           Next ➡
         </button>
@@ -69,7 +111,7 @@ export default function QuestionFooter({
         <button
           type="submit"
           form="question-form"
-          className="border rounded bg-green-600 text-white px-6 py-2 hover:bg-green-700 transition"
+          className="absolute right-0 border rounded bg-green-600 text-white px-6 py-2 hover:bg-green-700 transition"
         >
           Finish ✅
         </button>
