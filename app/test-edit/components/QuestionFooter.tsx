@@ -1,19 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { saveQuestion } from "../actions"; // ✅ 경로 확인 필요
-import { getLocalQuestion } from "../utils/getLocalQuestion";
 
 export default function QuestionFooter({
-  testId,
   sectionNumber,
   questionIndex,
   onNavigate,
+  onSingleSave, // ✅ 새로 추가
 }: {
   testId: string;
   sectionNumber: number;
   questionIndex: number;
   onNavigate: (section: number, index: number) => void;
+  onSingleSave: () => Promise<void>; // ✅ 새로 추가
 }) {
   const [isSaving, setIsSaving] = useState(false);
 
@@ -52,21 +51,7 @@ export default function QuestionFooter({
   const handleSaveCurrent = async () => {
     setIsSaving(true);
     try {
-      const question = getLocalQuestion(testId, sectionNumber, questionIndex);
-      if (!question) {
-        alert("저장할 문제 데이터를 찾을 수 없습니다.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("payload", JSON.stringify([question]));
-
-      const result = await saveQuestion(formData);
-      if (result.success) {
-        alert("문제가 저장되었습니다.");
-      } else {
-        alert(result.error ?? "저장 실패");
-      }
+      await onSingleSave(); // ✅ 핵심: 외부에서 전달받은 저장 함수 실행
     } catch (e) {
       console.error("❌ 저장 중 오류:", e);
       alert("저장 중 오류가 발생했습니다.");
@@ -77,7 +62,6 @@ export default function QuestionFooter({
 
   return (
     <div className="relative mt-12 h-16 flex items-center justify-center">
-      {/* ⬅ Back 버튼: 왼쪽에 고정 */}
       {hasPrev && (
         <button
           type="button"
@@ -88,7 +72,6 @@ export default function QuestionFooter({
         </button>
       )}
 
-      {/* 💾 저장 버튼: 항상 정중앙 */}
       <button
         type="button"
         onClick={handleSaveCurrent}
@@ -98,7 +81,6 @@ export default function QuestionFooter({
         {isSaving ? "Saving..." : "💾 저장"}
       </button>
 
-      {/* ➡ Next or ✅ Finish 버튼: 오른쪽에 고정 */}
       {hasNext ? (
         <button
           type="button"

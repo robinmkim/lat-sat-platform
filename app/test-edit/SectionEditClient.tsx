@@ -12,7 +12,7 @@ import type {
   ChoiceData,
   TableData,
 } from "types/question";
-import { saveQuestion, saveQuestionV2 } from "./actions";
+import { saveQuestionV2 } from "./actions";
 import { prepareChangedQuestions } from "./utils/question";
 
 export default function SectionEditClient({
@@ -101,6 +101,47 @@ export default function SectionEditClient({
       setError("저장 중 오류가 발생했습니다.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSingleSave = async () => {
+    const raw = localStorage.getItem(`edit-${testId}`);
+    if (!raw) return;
+
+    const allSections = JSON.parse(raw) as SectionWithQuestions[];
+    const currentSection = allSections.find(
+      (s) => s.sectionNumber === sectionNumber
+    );
+    const fallbackSection = fallbackSections.find(
+      (s) => s.sectionNumber === sectionNumber
+    );
+    if (!currentSection || !fallbackSection) return;
+
+    const question = currentSection.questions.find(
+      (q) => q.index === questionIndex
+    );
+    if (!question) return;
+
+    const changed = await prepareChangedQuestions(
+      fallbackSection,
+      { ...currentSection, questions: [question] },
+      uploadedMap.current
+    );
+
+    if (changed.length === 0) {
+      alert("변경된 내용이 없습니다.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("payload", JSON.stringify(changed));
+    formData.append("sectionId", sectionId);
+
+    const result = await saveQuestionV2(formData);
+    if (result.success) {
+      alert("문제가 저장되었습니다.");
+    } else {
+      alert(result.error ?? "저장 실패");
     }
   };
 
@@ -248,6 +289,7 @@ export default function SectionEditClient({
         onNavigate={(s, i) =>
           router.push(`/test-edit/${testId}/section/${s}/question/${i}`)
         }
+        onSingleSave={handleSingleSave} // ✅ 여기
       />
 
       {isSaving && (
