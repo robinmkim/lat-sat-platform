@@ -1,7 +1,6 @@
 // app/test/[testId]/layout.tsx
 import { ReactNode } from "react";
 import { MathJaxContext } from "better-react-mathjax";
-import MathLiveFontInit from "@/components/MathLiveFontInit";
 import TestHeader from "../components/TestHeader";
 import TestFooter from "../components/TestFooter";
 
@@ -19,7 +18,7 @@ const config = {
     packages: { "[+]": ["ams"] },
   },
   chtml: {
-    fontURL: "https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/fonts",
+    fontURL: "/fonts/mathlive", // public/fonts/mathlive 폴더에 위치
   },
 };
 
@@ -32,10 +31,7 @@ export default function TestLayout({ children }: Props) {
     <>
       <TestHeader />
       <main className="flex flex-grow w-full h-full overflow-auto">
-        <MathJaxContext config={config}>
-          <MathLiveFontInit />
-          {children}
-        </MathJaxContext>
+        <MathJaxContext config={config}>{children}</MathJaxContext>
       </main>
       <TestFooter />
     </>

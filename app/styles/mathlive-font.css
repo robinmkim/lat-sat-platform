@@ -1,0 +1,215 @@
+@font-face {
+    font-family: 'MathJax_AMS';
+    src: url('/fonts/mathlive/MathJax_AMS-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Calligraphic';
+    src: url('/fonts/mathlive/MathJax_Calligraphic-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Calligraphic-Bold';
+    src: url('/fonts/mathlive/MathJax_Calligraphic-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Fraktur';
+    src: url('/fonts/mathlive/MathJax_Fraktur-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Fraktur-Bold';
+    src: url('/fonts/mathlive/MathJax_Fraktur-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Main';
+    src: url('/fonts/mathlive/MathJax_Main-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Main-Bold';
+    src: url('/fonts/mathlive/MathJax_Main-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Main-Italic';
+    src: url('/fonts/mathlive/MathJax_Main-Italic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Math';
+    src: url('/fonts/mathlive/MathJax_Math-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Math-Italic';
+    src: url('/fonts/mathlive/MathJax_Math-Italic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Math-BoldItalic';
+    src: url('/fonts/mathlive/MathJax_Math-BoldItalic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_SansSerif';
+    src: url('/fonts/mathlive/MathJax_SansSerif-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_SansSerif-Bold';
+    src: url('/fonts/mathlive/MathJax_SansSerif-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_SansSerif-Italic';
+    src: url('/fonts/mathlive/MathJax_SansSerif-Italic.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Script';
+    src: url('/fonts/mathlive/MathJax_Script-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Size1';
+    src: url('/fonts/mathlive/MathJax_Size1-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Size2';
+    src: url('/fonts/mathlive/MathJax_Size2-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Size3';
+    src: url('/fonts/mathlive/MathJax_Size3-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Size4';
+    src: url('/fonts/mathlive/MathJax_Size4-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Typewriter';
+    src: url('/fonts/mathlive/MathJax_Typewriter-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Vector';
+    src: url('/fonts/mathlive/MathJax_Vector-Regular.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Vector-Bold';
+    src: url('/fonts/mathlive/MathJax_Vector-Bold.woff') format('woff');
+}
+
+@font-face {
+    font-family: 'MathJax_Zero';
+    src: url('/fonts/mathlive/MathJax_Zero.woff') format('woff');
+}
+
+/* --- KaTeX Fonts --- */
+@font-face {
+    font-family: 'KaTeX_AMS';
+    src: url('/fonts/mathlive/KaTeX_AMS-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Calligraphic';
+    src: url('/fonts/mathlive/KaTeX_Calligraphic-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Calligraphic-Bold';
+    src: url('/fonts/mathlive/KaTeX_Calligraphic-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Fraktur';
+    src: url('/fonts/mathlive/KaTeX_Fraktur-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Fraktur-Bold';
+    src: url('/fonts/mathlive/KaTeX_Fraktur-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Main';
+    src: url('/fonts/mathlive/KaTeX_Main-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Main-Bold';
+    src: url('/fonts/mathlive/KaTeX_Main-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Main-Italic';
+    src: url('/fonts/mathlive/KaTeX_Main-Italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Main-BoldItalic';
+    src: url('/fonts/mathlive/KaTeX_Main-BoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Math-Italic';
+    src: url('/fonts/mathlive/KaTeX_Math-Italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Math-BoldItalic';
+    src: url('/fonts/mathlive/KaTeX_Math-BoldItalic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_SansSerif';
+    src: url('/fonts/mathlive/KaTeX_SansSerif-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_SansSerif-Italic';
+    src: url('/fonts/mathlive/KaTeX_SansSerif-Italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_SansSerif-Bold';
+    src: url('/fonts/mathlive/KaTeX_SansSerif-Bold.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Script';
+    src: url('/fonts/mathlive/KaTeX_Script-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Size1';
+    src: url('/fonts/mathlive/KaTeX_Size1-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Size2';
+    src: url('/fonts/mathlive/KaTeX_Size2-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Size3';
+    src: url('/fonts/mathlive/KaTeX_Size3-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Size4';
+    src: url('/fonts/mathlive/KaTeX_Size4-Regular.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'KaTeX_Typewriter';
+    src: url('/fonts/mathlive/KaTeX_Typewriter-Regular.woff2') format('woff2');
+}

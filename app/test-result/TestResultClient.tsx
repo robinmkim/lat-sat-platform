@@ -105,8 +105,8 @@ export default function TestResultClient({ test }: { test: Test }) {
 
   if (!result) return <div className="p-6">로딩 중...</div>;
 
-  const rwScore = 800 - result.rwLost;
-  const mathScore = 800 - result.mathLost;
+  const rwScore = Math.max(200, 800 - result.rwLost);
+  const mathScore = Math.max(200, 800 - result.mathLost);
   const totalScore = rwScore + mathScore;
 
   return (
