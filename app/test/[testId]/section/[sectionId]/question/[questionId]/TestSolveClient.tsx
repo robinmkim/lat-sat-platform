@@ -169,6 +169,18 @@ export default function TestSolveClient({
             isMathMultiple ? "w-full" : "w-1/2"
           } p-5 overflow-y-auto min-h-0`}
         >
+          {/* ✅ 여기에 이미지 추가 */}
+          {!showLeftBlock && question.images?.[0]?.url && (
+            <div className="relative w-full h-64 border rounded overflow-hidden mb-4">
+              <Image
+                src={question.images[0].url}
+                alt="문제 이미지"
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+          )}
           <div className="flex w-full border-b-2 border-dashed items-center justify-between">
             <div className="w-8 bg-black text-white text-center py-1">
               {question.index}

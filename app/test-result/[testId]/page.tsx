@@ -23,6 +23,7 @@ export default async function TestResultPage({
             include: {
               choices: {
                 orderBy: { order: "asc" },
+                select: { text: true }, // ✅ choice.text만
               },
             },
           },
@@ -33,7 +34,6 @@ export default async function TestResultPage({
 
   if (!test) return notFound();
 
-  // ✅ 타입에 맞게 정제
   const sanitizedTest: Test = {
     id: test.id,
     sections: test.sections.map(
@@ -43,10 +43,10 @@ export default async function TestResultPage({
         questions: section.questions.map(
           (q): Question => ({
             index: q.index,
-            answer: q.answer ?? "", // 보통 "0", "1" 등으로 저장된 인덱스형 정답
+            answer: q.answer ?? "",
             type: q.type,
             score: q.score ?? 1,
-            choices: q.choices.map((c) => c.text), // text만 추출
+            choices: q.choices.map((c) => c.text),
           })
         ),
       })

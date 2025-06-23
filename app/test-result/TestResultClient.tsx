@@ -18,10 +18,8 @@ type SectionResult = {
 };
 
 type ResultSummary = {
-  correctRW: number;
-  totalRW: number;
-  correctMath: number;
-  totalMath: number;
+  rwLost: number;
+  mathLost: number;
   detailsBySection: Record<number, SectionResult>;
 };
 
@@ -38,10 +36,8 @@ export default function TestResultClient({ test }: { test: Test }) {
       );
       const detailsBySection: Record<number, SectionResult> = {};
 
-      let totalRW = 0;
-      let correctRW = 0;
-      let totalMath = 0;
-      let correctMath = 0;
+      let rwLost = 0;
+      let mathLost = 0;
 
       for (const section of test.sections) {
         const sectionAnswers = userAnswers[`section${section.number}`] ?? {};
@@ -88,21 +84,18 @@ export default function TestResultClient({ test }: { test: Test }) {
             score,
           });
 
-          if (section.type === "READING_WRITING") {
-            totalRW += score;
-            if (isCorrect) correctRW += score;
-          } else {
-            totalMath += score;
-            if (isCorrect) correctMath += score;
+          if (section.type === "READING_WRITING" && !isCorrect) {
+            rwLost += score;
+          }
+          if (section.type === "MATH" && !isCorrect) {
+            mathLost += score;
           }
         }
       }
 
       setResult({
-        correctRW,
-        totalRW,
-        correctMath,
-        totalMath,
+        rwLost,
+        mathLost,
         detailsBySection,
       });
     } catch (e) {
@@ -112,23 +105,18 @@ export default function TestResultClient({ test }: { test: Test }) {
 
   if (!result) return <div className="p-6">로딩 중...</div>;
 
-  const totalScore = result.totalRW + result.totalMath;
-  const userScore = result.correctRW + result.correctMath;
+  const rwScore = 800 - result.rwLost;
+  const mathScore = 800 - result.mathLost;
+  const totalScore = rwScore + mathScore;
 
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-xl font-semibold">시험 결과</h1>
 
       <div className="space-y-1">
-        <p>
-          📘 Reading/Writing: {result.correctRW} / {result.totalRW}
-        </p>
-        <p>
-          🧮 Math: {result.correctMath} / {result.totalMath}
-        </p>
-        <p className="font-semibold">
-          총점: {userScore} / {totalScore}
-        </p>
+        <p>📘 Reading/Writing 점수: {rwScore} / 800</p>
+        <p>🧮 Math 점수: {mathScore} / 800</p>
+        <p className="font-semibold">총점: {totalScore} / 1600</p>
       </div>
 
       {Object.entries(result.detailsBySection).map(([sectionNumber, data]) => (
