@@ -49,8 +49,8 @@ export default function TestFooter() {
   const isLastQuestionInSection =
     (sectionId <= 2 && questionIndex === 27) ||
     (sectionId >= 3 && questionIndex === 22);
-  const isLastSection = sectionId === 4;
-  const isFinalQuestion = isLastSection && isLastQuestionInSection;
+  // const isLastSection = sectionId === 4;
+  // const isFinalQuestion = isLastSection && isLastQuestionInSection;
 
   const autoSaveEmptyAnswer = () => {
     try {
@@ -77,13 +77,17 @@ export default function TestFooter() {
     // ✅ review 페이지인 경우
     if (pathname.endsWith("/review")) {
       if (direction === "next") {
-        const confirmNext = confirm("다음 섹션으로 이동할까요?");
+        const isLastSection = sectionId === 4;
+
+        const confirmNext = isLastSection
+          ? confirm("시험을 종료하시겠습니까? 결과 페이지로 이동합니다.")
+          : confirm("다음 섹션으로 이동할까요?");
+
         if (!confirmNext) {
           setIsLoading(false);
           return;
         }
 
-        // ✅ 현재 섹션의 마지막 index보다 1 큰 값으로 넘겨야 다음 섹션으로 이동함
         const lastIndex = sectionId <= 2 ? 27 : 22;
         const targetIndex = lastIndex + 1;
 
@@ -105,13 +109,9 @@ export default function TestFooter() {
       }
     }
 
-    // ✅ 마지막 문제인 경우 → review 페이지로 이동
+    // ✅ 마지막 문제인 경우 → 리뷰 페이지로 이동 (마지막 섹션 포함)
     if (direction === "next" && isLastQuestionInSection) {
-      if (isFinalQuestion) {
-        router.push(`/test-result/${testId}`);
-      } else {
-        router.push(`/test/${testId}/section/${sectionId}/review`);
-      }
+      router.push(`/test/${testId}/section/${sectionId}/review`);
       setIsLoading(false);
       return;
     }

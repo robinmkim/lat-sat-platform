@@ -181,6 +181,29 @@ export default function TestSolveClient({
               />
             </div>
           )}
+          {!showLeftBlock && question.table?.title && (
+            <h3 className="text-lg font-semibold">{question.table?.title}</h3>
+          )}
+          {!showLeftBlock &&
+            question.table?.data &&
+            !isEmptyTable(question.table.data) && (
+              <table className="w-full table-auto border border-gray-400 bg-white text-sm mb-4">
+                <tbody>
+                  {question.table.data.map((row, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {row.map((cell, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className="border border-gray-400 px-2 py-1 whitespace-pre-wrap"
+                        >
+                          {cell || "⠀"}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           <div className="flex w-full border-b-2 border-dashed items-center justify-between">
             <div className="w-8 bg-black text-white text-center py-1">
               {question.index}
