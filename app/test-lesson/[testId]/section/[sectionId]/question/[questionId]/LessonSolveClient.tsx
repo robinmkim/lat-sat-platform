@@ -4,7 +4,11 @@ import { useState } from "react";
 import MultipleChoice from "@/test/components/MultipleChoice";
 import FractionInput from "@/components/FractionInput";
 import Image from "next/image";
-import { renderPassage, isEmptyTable } from "@/components/common/renderPassage";
+import {
+  renderPassage,
+  isEmptyTable,
+  renderInline,
+} from "@/components/common/renderPassage";
 import type { QuestionWithRelations } from "types/question";
 import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
 import LessonHeader from "@/test-lesson/components/LessonHeader";
@@ -108,7 +112,7 @@ export default function LessonSolveClient({
           </div>
 
           <div className="mt-4 mb-2 whitespace-pre-wrap">
-            {question.question}
+            {renderInline(question.question)}
           </div>
 
           {question.type === "MULTIPLE" && (

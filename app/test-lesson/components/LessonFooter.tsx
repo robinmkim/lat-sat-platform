@@ -6,6 +6,13 @@ import LessonNavigatorModal from "./LessonNavigatorModal";
 
 const FINAL_SECTION = 4;
 
+const sectionStructure = [
+  { sectionId: 1, total: 27 },
+  { sectionId: 2, total: 27 },
+  { sectionId: 3, total: 22 },
+  { sectionId: 4, total: 22 },
+];
+
 type Props = {
   testId: string;
   sectionId: number;
@@ -24,9 +31,21 @@ export default function LessonFooter({
 
   const handleMove = (offset: number) => {
     const nextIndex = currentIndex + offset;
-    const isNextSection = offset > 0 && nextIndex > totalQuestions;
 
-    if (isNextSection) {
+    // 이전 섹션으로 이동
+    if (offset < 0 && nextIndex < 1) {
+      const prevSectionIndex =
+        sectionStructure.findIndex((s) => s.sectionId === sectionId) - 1;
+      if (prevSectionIndex < 0) return;
+      const prev = sectionStructure[prevSectionIndex];
+      router.push(
+        `/test-lesson/${testId}/section/${prev.sectionId}/question/${prev.total}`
+      );
+      return;
+    }
+
+    // 다음 섹션으로 이동
+    if (offset > 0 && nextIndex > totalQuestions) {
       const nextSection = sectionId + 1;
       if (nextSection > FINAL_SECTION) {
         alert("Lesson complete! Returning to home page.");
@@ -37,10 +56,11 @@ export default function LessonFooter({
       return;
     }
 
-    if (nextIndex < 1 || nextIndex > totalQuestions) return;
-    router.push(
-      `/test-lesson/${testId}/section/${sectionId}/question/${nextIndex}`
-    );
+    if (nextIndex >= 1 && nextIndex <= totalQuestions) {
+      router.push(
+        `/test-lesson/${testId}/section/${sectionId}/question/${nextIndex}`
+      );
+    }
   };
 
   return (
@@ -58,8 +78,7 @@ export default function LessonFooter({
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleMove(-1)}
-            disabled={currentIndex === 1}
-            className="px-4 py-1 rounded bg-gray-300 text-sm font-medium disabled:opacity-50"
+            className="px-4 py-1 rounded bg-gray-300 text-sm font-medium"
           >
             Back
           </button>
@@ -75,9 +94,9 @@ export default function LessonFooter({
       {showModal && (
         <LessonNavigatorModal
           testId={testId}
-          sectionId={sectionId}
-          total={totalQuestions}
-          current={currentIndex}
+          currentSection={sectionId}
+          currentIndex={currentIndex}
+          sections={sectionStructure}
           onClose={() => setShowModal(false)}
         />
       )}

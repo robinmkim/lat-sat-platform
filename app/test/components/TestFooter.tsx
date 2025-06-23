@@ -144,7 +144,7 @@ export default function TestFooter() {
   return (
     <>
       <div className="relative flex items-center justify-between w-full h-[50px] shrink-0 bg-blue-100 border-t-2 border-dashed px-5">
-        <div className="text-sm">Minseob Kim</div>
+        <div className="text-sm">Leave a Trace</div>
 
         <button
           onClick={() => setShowModal(true)}
