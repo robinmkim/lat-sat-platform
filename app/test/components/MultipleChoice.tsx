@@ -31,11 +31,15 @@ export default function MultipleChoice({
             `}
           >
             <div
-              className={`flex mr-2 items-center justify-center w-6 h-6 border-2 rounded-full text-sm
-                ${isSelected ? "border-blue-500 text-blue-600 font-bold" : ""}
-              `}
+              className={`flex items-center justify-center w-6 h-6 min-w-[1.5rem] min-h-[1.5rem] mr-2
+    text-center leading-[1.5rem] text-sm font-semibold rounded-full border-2 
+    ${
+      isSelected
+        ? "border-blue-500 text-blue-600"
+        : "border-gray-400 text-gray-700"
+    }`}
             >
-              {String.fromCharCode(65 + idx)} {/* A, B, C, D */}
+              {String.fromCharCode(65 + idx)}
             </div>
             <div className="text-sm">{renderInline(choice.text)}</div>{" "}
           </div>
