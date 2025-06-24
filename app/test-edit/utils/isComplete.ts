@@ -4,18 +4,21 @@ export function isComplete(
   question: Partial<QuestionWithRelations> | null,
   sectionNumber: number
 ): boolean {
-  if (!question) return false;
+  if (!question) {
+    console.log("❌ 누락: question 객체 없음");
+    return false;
+  }
 
   const isMath = sectionNumber >= 3;
+  const isMultiple = question.type === "MULTIPLE";
+  const isShort = question.type === "SHORT";
 
   const hasQuestion = !!question.question?.trim();
-  const hasAnswer =
-    typeof question.answer === "string" && question.answer.trim() !== "";
   const hasPassage = !!question.passage?.trim();
   const hasScore = typeof question.score === "number" && !isNaN(question.score);
 
-  // ✅ choice 타입 명시적으로 지정
   const hasValidChoices =
+    isMultiple &&
     Array.isArray(question.choices) &&
     question.choices.length === 4 &&
     question.choices.every((choice: ChoiceData) => {
@@ -24,15 +27,45 @@ export function isComplete(
       return hasText || hasImage;
     });
 
-  if (!hasScore) return false;
+  if (!hasScore) {
+    console.log(
+      `❌ 누락: score - section ${sectionNumber}, question ${question.index}`
+    );
+    return false;
+  }
 
   if (isMath) {
-    if (question.type === "SHORT") {
-      return hasQuestion && hasAnswer;
+    if (isShort) {
+      if (!hasQuestion) {
+        console.log(`❌ 누락: question (MA SHORT) - index ${question.index}`);
+        return false;
+      }
     } else {
-      return hasQuestion && hasValidChoices && hasAnswer;
+      if (!hasQuestion) {
+        console.log(
+          `❌ 누락: question (MA MULTIPLE) - index ${question.index}`
+        );
+        return false;
+      }
+      if (!hasValidChoices) {
+        console.log(`❌ 누락: choices (MA MULTIPLE) - index ${question.index}`);
+        return false;
+      }
     }
   } else {
-    return hasPassage && hasQuestion && hasValidChoices && hasAnswer;
+    if (!hasPassage) {
+      console.log(`❌ 누락: passage (RW) - index ${question.index}`);
+      return false;
+    }
+    if (!hasQuestion) {
+      console.log(`❌ 누락: question (RW) - index ${question.index}`);
+      return false;
+    }
+    if (!hasValidChoices) {
+      console.log(`❌ 누락: choices (RW) - index ${question.index}`);
+      return false;
+    }
   }
+
+  return true;
 }

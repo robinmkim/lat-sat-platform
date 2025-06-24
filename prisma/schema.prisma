@@ -47,7 +47,7 @@ model Question {
   type      QuestionType @default(MULTIPLE)
   showTable Boolean      @default(false)
   showImage Boolean      @default(false)
-  score     Int?
+  score     Int?         @default(10)
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 

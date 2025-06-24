@@ -43,10 +43,19 @@ export function renderPassage(passage: string) {
 export function renderInline(text: string): React.ReactNode[] {
   const ESCAPE_PREFIX = "<<<ESCAPED_DOLLAR_";
   const ESCAPE_SUFFIX = ">>>";
-  const tokenized = text.replace(
-    /\\\$(\d[\d,]*)/g,
-    (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
-  );
+
+  // 1. \$숫자, 또는 $숫자 쉼표 포함된 금액 → 수식에서 제외
+  const tokenized = text
+    // \$123 → escape
+    .replace(
+      /\\\$(\d[\d,]*)/g,
+      (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
+    )
+    // $123,456 형태의 금액 → escape
+    .replace(
+      /\$(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g,
+      (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
+    );
 
   const parts = tokenized.split(
     /(\${1,2}[^$]+\${1,2}|__.+?__|\*\*.+?\*\*|_.+?_|\(blank\)|<<<ESCAPED_DOLLAR_[^>]+>>>)/g
@@ -58,12 +67,7 @@ export function renderInline(text: string): React.ReactNode[] {
     // ✅ \$ 복원
     const dollarMatch = part.match(/^<<<ESCAPED_DOLLAR_([^>]+)>>>$/);
     if (dollarMatch) {
-      return (
-        <span key={idx}>
-          {"$"}
-          {dollarMatch[1]}
-        </span>
-      );
+      return <span key={idx}>${dollarMatch[1]}</span>;
     }
 
     // ✅ 수식
