@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import type { Test } from "types/test";
+import { QuestionWithRelations, TestWithRelations } from "types/question";
+
+const INDEX_TO_LETTER = ["A", "B", "C", "D"];
 
 type ResultItem = {
   index: number;
@@ -23,7 +24,36 @@ type ResultSummary = {
   detailsBySection: Record<number, SectionResult>;
 };
 
-export default function TestResultClient({ test }: { test: Test }) {
+function isCorrectAnswer(
+  question: QuestionWithRelations,
+  userRaw: string
+): boolean {
+  if (question.type === "MULTIPLE") {
+    const userIndex = parseInt(userRaw);
+    const correctIndex = parseInt(question.answer);
+    return userIndex === correctIndex;
+  }
+
+  if (question.type === "SHORT") {
+    const userInput = userRaw?.trim().toLowerCase() ?? "";
+
+    const correctAnswers =
+      question.answer
+        ?.split(",")
+        .map((a: string) => a.trim().toLowerCase())
+        .filter((a: string) => a.length > 0) ?? [];
+
+    return correctAnswers.includes(userInput);
+  }
+
+  return false;
+}
+
+export default function TestResultClient({
+  test,
+}: {
+  test: TestWithRelations;
+}) {
   const [result, setResult] = useState<ResultSummary | null>(null);
 
   useEffect(() => {
@@ -42,31 +72,31 @@ export default function TestResultClient({ test }: { test: Test }) {
       for (const section of test.sections) {
         const sectionAnswers = userAnswers[`section${section.number}`] ?? {};
 
-        for (const q of section.questions) {
+        for (const q of section.questions as QuestionWithRelations[]) {
           const userRaw = sectionAnswers[q.index];
           const score = typeof q.score === "number" ? q.score : 1;
 
           let user = "-";
           let correct = "(알 수 없음)";
-          let isCorrect = false;
+          const isCorrect = isCorrectAnswer(q, userRaw);
 
           if (q.type === "MULTIPLE") {
             const userIndex = parseInt(userRaw);
             const correctIndex = parseInt(q.answer);
-            const choices = Array.isArray(q.choices) ? q.choices : [];
-
-            user = choices[userIndex] ?? "-";
-            correct = choices[correctIndex] ?? "(알 수 없음)";
-            isCorrect = userIndex === correctIndex;
+            user = isNaN(userIndex) ? "-" : INDEX_TO_LETTER[userIndex];
+            correct = isNaN(correctIndex)
+              ? "(알 수 없음)"
+              : INDEX_TO_LETTER[correctIndex];
           }
 
           if (q.type === "SHORT") {
             const userInput = typeof userRaw === "string" ? userRaw.trim() : "";
-            const correctAnswer = q.answer?.trim() ?? "";
-
             user = userInput || "-";
-            correct = correctAnswer || "(알 수 없음)";
-            isCorrect = userInput === correctAnswer;
+            correct =
+              q.answer
+                ?.split(",")
+                .map((a) => a.trim())
+                .join(" / ") || "(알 수 없음)";
           }
 
           if (!detailsBySection[section.number]) {
@@ -132,7 +162,6 @@ export default function TestResultClient({ test }: { test: Test }) {
                 <th className="border px-2">Your Answer</th>
                 <th className="border px-2">Correct Answer</th>
                 <th className="border px-2">Result</th>
-                <th className="border px-2">점수</th>
               </tr>
             </thead>
             <tbody>
@@ -147,7 +176,6 @@ export default function TestResultClient({ test }: { test: Test }) {
                   <td className="border px-2 font-medium">
                     {r.isCorrect ? "✔" : "✘"}
                   </td>
-                  <td className="border px-2">{r.isCorrect ? r.score : 0}</td>
                 </tr>
               ))}
             </tbody>
@@ -156,12 +184,12 @@ export default function TestResultClient({ test }: { test: Test }) {
       ))}
 
       <div className="pt-8">
-        <Link
-          href="/"
+        <button
+          onClick={() => window.close()}
           className="inline-block bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          홈으로 돌아가기
-        </Link>
+          창 닫기
+        </button>
       </div>
     </div>
   );

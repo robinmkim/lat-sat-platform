@@ -60,6 +60,16 @@ export function parseTableData(rawData: string): string[][] {
     return [[]];
   }
 }
+// types/test.ts 또는 컴포넌트 상단에 정의
+
+export type TestWithRelations = {
+  id: string;
+  sections: {
+    number: number;
+    type: "READING_WRITING" | "MATH";
+    questions: QuestionWithRelations[];
+  }[];
+};
 
 // 앱 내부 객체를 DB 저장용으로 변환 (stringify)
 export function stringifyTableData(table: TableData): TableRawData {

@@ -51,13 +51,13 @@ export default function LessonSolveClient({
           <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
               {!question.isImageChoice && question.images?.[0]?.url && (
-                <div className="relative w-full h-64 border rounded overflow-hidden">
+                <div className="w-full max-w-3xl mx-auto my-4 relative aspect-video">
                   <Image
                     src={question.images[0].url}
                     alt="문제 이미지"
                     fill
-                    className="object-contain"
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    className="object-contain rounded-none"
+                    sizes="100vw"
                   />
                 </div>
               )}
@@ -107,13 +107,13 @@ export default function LessonSolveClient({
         >
           {/* ✅ 여기에 이미지 추가 */}
           {!showLeftBlock && question.images?.[0]?.url && (
-            <div className="relative w-full h-64 border rounded overflow-hidden mb-4">
+            <div className="w-full max-w-3xl mx-auto my-4 relative aspect-video">
               <Image
                 src={question.images[0].url}
                 alt="문제 이미지"
                 fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain rounded-none"
+                sizes="100vw"
               />
             </div>
           )}

@@ -44,77 +44,63 @@ export function renderInline(text: string): React.ReactNode[] {
   const ESCAPE_PREFIX = "<<<ESCAPED_DOLLAR_";
   const ESCAPE_SUFFIX = ">>>";
 
-  // 1. \$숫자, 또는 $숫자 쉼표 포함된 금액 → 수식에서 제외
-  const tokenized = text
-    // \$123 → escape
-    .replace(
-      /\\\$(\d[\d,]*)/g,
-      (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
-    )
-    // $123,456 형태의 금액 → escape
-    .replace(
-      /\$(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/g,
-      (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
-    );
+  // ✅ \$123 → escape 처리
+  const tokenized = text.replace(/\\\$(\d[\d,]*)/g, (_, val) => {
+    return `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`;
+  });
 
-  const parts = tokenized.split(
-    /(\${1,2}[^$]+\${1,2}|__.+?__|\*\*.+?\*\*|_.+?_|\(blank\)|<<<ESCAPED_DOLLAR_[^>]+>>>)/g
-  );
+  const regex =
+    /(\${2}[^$]*\${2})|(\$(?![\d,]+\$)[^$]*\$)|(__.+?__)|(\*\*.+?\*\*)|(_[^_]+_)|(\(blank\))|<<<ESCAPED_DOLLAR_[^>]+>>>/g;
 
-  return parts.map((part, idx) => {
-    if (!part) return null;
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
 
-    // ✅ \$ 복원
-    const dollarMatch = part.match(/^<<<ESCAPED_DOLLAR_([^>]+)>>>$/);
-    if (dollarMatch) {
-      return <span key={idx}>${dollarMatch[1]}</span>;
+  while ((match = regex.exec(tokenized)) !== null) {
+    const index = match.index;
+    const matched = match[0];
+
+    if (index > lastIndex) {
+      parts.push(
+        <span key={lastIndex}>{tokenized.slice(lastIndex, index)}</span>
+      );
     }
 
-    // ✅ 수식
-    if (/^\${1,2}.*\${1,2}$/.test(part)) {
-      const latex = part.replace(/^\${1,2}|\${1,2}$/g, "").trim();
-      return (
-        <MathJax key={idx} inline dynamic>
+    if (matched.startsWith("<<<ESCAPED_DOLLAR_")) {
+      const number = matched.slice(ESCAPE_PREFIX.length, -ESCAPE_SUFFIX.length);
+      parts.push(<span key={index}>${number}</span>);
+    } else if (matched.startsWith("$$") || matched.startsWith("$")) {
+      const latex = matched.replace(/^\${1,2}|\${1,2}$/g, "").trim();
+      parts.push(
+        <MathJax key={index} inline dynamic>
           {"\\(" + latex + "\\)"}
         </MathJax>
       );
-    }
-
-    // ✅ 밑줄 (재귀)
-    if (part.startsWith("__") && part.endsWith("__")) {
-      const inner = part.slice(2, -2);
-      return (
-        <u key={idx} className="font-medium">
+    } else if (matched.startsWith("__") && matched.endsWith("__")) {
+      const inner = matched.slice(2, -2);
+      parts.push(
+        <u key={index} className="font-medium">
           {renderInline(inner)}
         </u>
       );
-    }
-
-    // ✅ 굵게 (재귀)
-    if (part.startsWith("**") && part.endsWith("**")) {
-      const inner = part.slice(2, -2);
-      return (
-        <strong key={idx} className="font-bold">
+    } else if (matched.startsWith("**") && matched.endsWith("**")) {
+      const inner = matched.slice(2, -2);
+      parts.push(
+        <strong key={index} className="font-bold">
           {renderInline(inner)}
         </strong>
       );
-    }
-
-    // ✅ 기울임 (재귀)
-    if (part.startsWith("_") && part.endsWith("_")) {
-      const inner = part.slice(1, -1);
-      return (
-        <em key={idx} className="italic">
+    } else if (matched.startsWith("_") && matched.endsWith("_")) {
+      const inner = matched.slice(1, -1);
+      parts.push(
+        <em key={index} className="italic">
           {renderInline(inner)}
         </em>
       );
-    }
-
-    // ✅ 빈칸
-    if (part === "(blank)") {
-      return (
+    } else if (matched === "(blank)") {
+      parts.push(
         <span
-          key={idx}
+          key={index}
           className="inline-block w-24 border-b border-black align-baseline"
         >
           &nbsp;
@@ -122,9 +108,14 @@ export function renderInline(text: string): React.ReactNode[] {
       );
     }
 
-    // ✅ 일반 텍스트
-    return <span key={idx}>{part}</span>;
-  });
+    lastIndex = index + matched.length;
+  }
+
+  if (lastIndex < tokenized.length) {
+    parts.push(<span key={lastIndex}>{tokenized.slice(lastIndex)}</span>);
+  }
+
+  return parts;
 }
 
 export function isEmptyTable(tableData?: string[][]): boolean {
@@ -138,4 +129,18 @@ export function isEmptyTable(tableData?: string[][]): boolean {
   )
     return true;
   return false;
+}
+export function renderMultilineWithMath(text: string): React.ReactNode {
+  const lines = text.split("\n");
+
+  return (
+    <>
+      {lines.map((line, idx) => (
+        <div key={idx} className="whitespace-pre-wrap">
+          {/* ✅ 항상 span으로 감싸고, 빈 줄도 처리 */}
+          <span>{renderInline(line)}</span>
+        </div>
+      ))}
+    </>
+  );
 }
