@@ -13,9 +13,8 @@ export default function TableInput({
   onChange,
   onTitleChange,
 }: TableInputProps) {
-  // data가 배열이 아니거나 빈 배열이면 기본 1x2 배열로 초기화
   const safeData: string[][] =
-    Array.isArray(data) && data.length > 0 ? data : [["", ""]]; // 기본 1행 2열
+    Array.isArray(data) && data.length > 0 ? data : [["", ""]];
 
   const updateCell = (row: number, col: number, val: string) => {
     const updated = safeData.map((r, i) =>
@@ -29,8 +28,19 @@ export default function TableInput({
     onChange([...safeData, newRow]);
   };
 
+  const removeRow = () => {
+    if (safeData.length <= 1) return;
+    onChange(safeData.slice(0, -1));
+  };
+
   const addColumn = () => {
     const updated = safeData.map((row) => [...row, ""]);
+    onChange(updated);
+  };
+
+  const removeColumn = () => {
+    if ((safeData[0]?.length || 0) <= 1) return;
+    const updated = safeData.map((row) => row.slice(0, -1));
     onChange(updated);
   };
 
@@ -70,20 +80,34 @@ export default function TableInput({
         </tbody>
       </table>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <button
           type="button"
           onClick={addRow}
-          className="border px-2 py-1 rounded text-sm"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
         >
           행 추가
         </button>
         <button
           type="button"
+          onClick={removeRow}
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+        >
+          행 제거
+        </button>
+        <button
+          type="button"
           onClick={addColumn}
-          className="border px-2 py-1 rounded text-sm"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
         >
           열 추가
+        </button>
+        <button
+          type="button"
+          onClick={removeColumn}
+          className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
+        >
+          열 제거
         </button>
       </div>
     </div>
