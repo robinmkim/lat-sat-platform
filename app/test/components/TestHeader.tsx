@@ -112,13 +112,17 @@ export default function TestHeader() {
     sessionStorage.removeItem(storageKey);
     sessionStorage.removeItem(flagKey);
 
+    setShowTimeoutModal(false); // ✅ 모달 닫기 추가
+
     if (!route) {
-      alert("There are no more sections. Returning to home.");
-      router.push("/");
+      setShowTimeoutModal(false); // 모달 닫기
+      router.push(`/test-result/${testId}`); // ✅ 결과 페이지로 이동
     } else {
+      setShowTimeoutModal(false);
       router.push(route);
     }
   };
+
   return (
     <>
       <div className="flex items-center justify-between w-full h-[80px] shrink-0 bg-blue-100 border-b-2 border-dashed px-5 pt-1">

@@ -16,7 +16,6 @@ export function renderPassage(passage: string) {
         }
 
         if (trimmed.startsWith("&")) {
-          // bullet list
           return (
             <div key={idx} className="flex items-start gap-2">
               <div className="mt-1">•</div>
@@ -25,16 +24,7 @@ export function renderPassage(passage: string) {
           );
         }
 
-        // ✅ 들여쓰기 확인: 탭 or 2칸 이상 공백
-        const indentMatch = line.match(/^(\s+)/);
-        const indentLevel = indentMatch ? indentMatch[1].length : 0;
-        const marginLeft = indentLevel * 8; // 1칸당 8px
-
-        return (
-          <div key={idx} style={{ marginLeft }}>
-            {renderInline(line.trim())}
-          </div>
-        );
+        return <div key={idx}>{renderInline(line)}</div>;
       })}
     </div>
   );
@@ -44,63 +34,65 @@ export function renderInline(text: string): React.ReactNode[] {
   const ESCAPE_PREFIX = "<<<ESCAPED_DOLLAR_";
   const ESCAPE_SUFFIX = ">>>";
 
-  // ✅ \$123 → escape 처리
-  const tokenized = text.replace(/\\\$(\d[\d,]*)/g, (_, val) => {
-    return `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`;
-  });
+  const tokenized = text.replace(
+    /\\\$(\d[\d,]*)/g,
+    (_, val) => `${ESCAPE_PREFIX}${val}${ESCAPE_SUFFIX}`
+  );
 
-  const regex =
-    /(\${2}[^$]*\${2})|(\$(?![\d,]+\$)[^$]*\$)|(__.+?__)|(\*\*.+?\*\*)|(_[^_]+_)|(\(blank\))|<<<ESCAPED_DOLLAR_[^>]+>>>/g;
+  const parts = tokenized.split(
+    /(\${1,2}[^$]*?\${1,2}|__.+?__|\*\*.+?\*\*|_.+?_|\(blank\)|<<<ESCAPED_DOLLAR_[^>]+>>>)/g
+  );
 
-  const parts: React.ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  return parts.map((part, idx) => {
+    if (!part) return null;
 
-  while ((match = regex.exec(tokenized)) !== null) {
-    const index = match.index;
-    const matched = match[0];
-
-    if (index > lastIndex) {
-      parts.push(
-        <span key={lastIndex}>{tokenized.slice(lastIndex, index)}</span>
+    const dollarMatch = part.match(/^<<<ESCAPED_DOLLAR_([^>]+)>>>$/);
+    if (dollarMatch) {
+      return (
+        <span key={idx}>
+          {"$"}
+          {dollarMatch[1]}
+        </span>
       );
     }
 
-    if (matched.startsWith("<<<ESCAPED_DOLLAR_")) {
-      const number = matched.slice(ESCAPE_PREFIX.length, -ESCAPE_SUFFIX.length);
-      parts.push(<span key={index}>${number}</span>);
-    } else if (matched.startsWith("$$") || matched.startsWith("$")) {
-      const latex = matched.replace(/^\${1,2}|\${1,2}$/g, "").trim();
-      parts.push(
-        <MathJax key={index} inline dynamic>
+    if (/^\${1,2}[^$]*\${1,2}$/.test(part)) {
+      const latex = part.replace(/^\${1,2}|\${1,2}$/g, "").trim();
+      return (
+        <MathJax key={idx} inline dynamic>
           {"\\(" + latex + "\\)"}
         </MathJax>
       );
-    } else if (matched.startsWith("__") && matched.endsWith("__")) {
-      const inner = matched.slice(2, -2);
-      parts.push(
-        <u key={index} className="font-medium">
-          {renderInline(inner)}
+    }
+
+    if (part.startsWith("__") && part.endsWith("__")) {
+      return (
+        <u key={idx} className="font-medium">
+          {renderInline(part.slice(2, -2))}
         </u>
       );
-    } else if (matched.startsWith("**") && matched.endsWith("**")) {
-      const inner = matched.slice(2, -2);
-      parts.push(
-        <strong key={index} className="font-bold">
-          {renderInline(inner)}
+    }
+
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={idx} className="font-bold">
+          {renderInline(part.slice(2, -2))}
         </strong>
       );
-    } else if (matched.startsWith("_") && matched.endsWith("_")) {
-      const inner = matched.slice(1, -1);
-      parts.push(
-        <em key={index} className="italic">
-          {renderInline(inner)}
+    }
+
+    if (part.startsWith("_") && part.endsWith("_")) {
+      return (
+        <em key={idx} className="italic">
+          {renderInline(part.slice(1, -1))}
         </em>
       );
-    } else if (matched === "(blank)") {
-      parts.push(
+    }
+
+    if (part === "(blank)") {
+      return (
         <span
-          key={index}
+          key={idx}
           className="inline-block w-24 border-b border-black align-baseline"
         >
           &nbsp;
@@ -108,14 +100,8 @@ export function renderInline(text: string): React.ReactNode[] {
       );
     }
 
-    lastIndex = index + matched.length;
-  }
-
-  if (lastIndex < tokenized.length) {
-    parts.push(<span key={lastIndex}>{tokenized.slice(lastIndex)}</span>);
-  }
-
-  return parts;
+    return <span key={idx}>{part}</span>;
+  });
 }
 
 export function isEmptyTable(tableData?: string[][]): boolean {
