@@ -23,8 +23,16 @@ export function renderPassage(passage: string) {
             </div>
           );
         }
+        // ✅ 들여쓰기 복구
+        const indentMatch = line.match(/^(\s+)/);
+        const indentLevel = indentMatch ? indentMatch[1].length : 0;
+        const marginLeft = indentLevel * 8; // 1 공백당 8px
 
-        return <div key={idx}>{renderInline(line)}</div>;
+        return (
+          <div key={idx} style={{ marginLeft }}>
+            {renderInline(trimmed)}
+          </div>
+        );
       })}
     </div>
   );

@@ -42,18 +42,19 @@ export default function SectionEditHeader({
         {/* ✅ 저장하지 않고 종료 버튼 */}
         <button
           onClick={handleExitWithoutSaving}
-          className="bg-gray-300 text-gray-800 px-4 py-2 rounded shadow hover:bg-gray-400 transition"
+          className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-gray-400 transition"
         >
-          저장 없이 종료
+          나가기
         </button>
 
         {/* ✅ 저장 후 종료 버튼 */}
-        <button
+        {/* <button
           onClick={onSaveAndExit}
+          disabled={true}
           className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition"
         >
           저장 후 종료
-        </button>
+        </button> */}
       </div>
 
       {showModal && (
