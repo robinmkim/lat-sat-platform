@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getNextQuestionRoute } from "@/action";
+import Image from "next/image";
 
 const getInitialSeconds = (sectionNumber: number): number => {
   return [1, 2].includes(sectionNumber) ? 32 * 60 : 35 * 60;
@@ -25,11 +26,14 @@ export default function TestHeader() {
   const sectionNumber = Number(pathSegments[4]);
   const questionIndex = Number(pathSegments[6] || "1");
 
+  const isMathSection = sectionNumber === 3 || sectionNumber === 4;
+
   const storageKey = `timeLeft-${testId}-section-${sectionNumber}`;
   const flagKey = `${storageKey}-initialized`;
 
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
+  const [showReference, setShowReference] = useState(false); // ✅
 
   useEffect(() => {
     const initial = getInitialSeconds(sectionNumber);
@@ -112,13 +116,11 @@ export default function TestHeader() {
     sessionStorage.removeItem(storageKey);
     sessionStorage.removeItem(flagKey);
 
-    setShowTimeoutModal(false); // ✅ 모달 닫기 추가
+    setShowTimeoutModal(false);
 
     if (!route) {
-      setShowTimeoutModal(false); // 모달 닫기
-      router.push(`/test-result/${testId}`); // ✅ 결과 페이지로 이동
+      router.push(`/test-result/${testId}`);
     } else {
-      setShowTimeoutModal(false);
       router.push(route);
     }
   };
@@ -132,27 +134,75 @@ export default function TestHeader() {
           {timeLeft !== null && formatTime(timeLeft)}
         </div>
 
-        <button
-          onClick={handleExit}
-          className="flex items-center justify-center w-fit h-fit bg-red-600 rounded-md px-3 py-1 text-sm text-white font-medium hover:bg-red-700 transition"
-        >
-          Exit
-        </button>
+        <div className="flex items-center gap-2">
+          {isMathSection && (
+            <button
+              onClick={() => setShowReference(true)}
+              className="bg-yellow-100 border border-yellow-300 rounded px-3 py-1 text-sm hover:bg-yellow-200 transition"
+            >
+              📄 Reference
+            </button>
+          )}
+
+          <button
+            onClick={handleExit}
+            className="flex items-center justify-center w-fit h-fit bg-red-600 rounded-md px-3 py-1 text-sm text-white font-medium hover:bg-red-700 transition"
+          >
+            Exit
+          </button>
+        </div>
       </div>
 
-      {showTimeoutModal && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="flex flex-col items-center w-fit h-fit bg-white rounded-lg shadow-md p-6 gap-4">
-            <div className="text-xl font-semibold">Time's up!</div>
-            <div className="text-sm text-gray-600 text-center">
-              You will now be moved to the first question of the next section.
+      {/* ✅ Reference 모달 */}
+      {showReference && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="relative w-[90%] max-w-4xl bg-white rounded-lg shadow-lg p-4">
+            <div className="flex justify-between items-center mb-2 border-b pb-2">
+              <h2 className="text-lg font-semibold">Reference Sheet</h2>
+              <button
+                onClick={() => setShowReference(false)}
+                className="text-gray-500 hover:text-black transition"
+              >
+                ✕
+              </button>
             </div>
-            <button
-              onClick={handleNextSection}
-              className="flex items-center justify-center w-fit h-fit bg-blue-700 rounded-md px-4 py-2 text-white font-medium hover:bg-blue-800 transition"
-            >
-              Next Section
-            </button>
+            <Image
+              src="/reference/reference-sheet.png"
+              alt="Reference Sheet"
+              width={960}
+              height={720}
+              className="w-full h-auto rounded"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ✅ 타임아웃 모달 */}
+      {showReference && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          onClick={() => setShowReference(false)} // ✅ 바깥 영역 클릭 시 닫기
+        >
+          <div
+            className="relative w-[90%] max-w-4xl bg-white rounded-lg shadow-lg p-4"
+            onClick={(e) => e.stopPropagation()} // ✅ 내부 클릭 시 이벤트 전파 차단
+          >
+            <div className="flex justify-between items-center mb-2 border-b pb-2">
+              <h2 className="text-lg font-semibold">Reference Sheet</h2>
+              <button
+                onClick={() => setShowReference(false)}
+                className="text-gray-500 hover:text-black transition"
+              >
+                ✕
+              </button>
+            </div>
+            <Image
+              src="/reference/reference-sheet.png"
+              alt="Reference Sheet"
+              width={960}
+              height={720}
+              className="w-full h-auto rounded"
+            />
           </div>
         </div>
       )}

@@ -136,15 +136,28 @@ export default function TestSolveClient({
 
               {!isMathShort &&
                 question.table?.data &&
+                question.table.data.length > 0 &&
                 !isEmptyTable(question.table.data) && (
-                  <table className="w-full table-auto border border-gray-400 bg-white text-sm">
+                  <table className="table-auto border-2 border-gray-600 bg-white text-sm max-w-md mx-auto text-center">
+                    <thead>
+                      <tr>
+                        {question.table.data[0].map((cell, idx) => (
+                          <th
+                            key={`head-${idx}`}
+                            className="border-2 border-gray-600 px-3 py-2 font-bold"
+                          >
+                            {cell || "⠀"}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
                     <tbody>
-                      {question.table.data.map((row, rowIdx) => (
+                      {question.table.data.slice(1).map((row, rowIdx) => (
                         <tr key={rowIdx}>
                           {row.map((cell, colIdx) => (
                             <td
                               key={colIdx}
-                              className="border border-gray-400 px-2 py-1 whitespace-pre-wrap"
+                              className="border-2 border-gray-600 px-3 py-2 text-center"
                             >
                               {cell || "⠀"}
                             </td>
@@ -187,14 +200,26 @@ export default function TestSolveClient({
           {!showLeftBlock &&
             question.table?.data &&
             !isEmptyTable(question.table.data) && (
-              <table className="w-full table-auto border border-gray-400 bg-white text-sm mb-4">
+              <table className="table-auto border-2 border-gray-600 bg-white text-sm max-w-md mx-auto text-center">
+                <thead>
+                  <tr>
+                    {question.table.data[0].map((cell, idx) => (
+                      <th
+                        key={`head-${idx}`}
+                        className="border-2 border-gray-600 px-3 py-2 font-bold"
+                      >
+                        {cell || "⠀"}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
                 <tbody>
-                  {question.table.data.map((row, rowIdx) => (
+                  {question.table.data.slice(1).map((row, rowIdx) => (
                     <tr key={rowIdx}>
                       {row.map((cell, colIdx) => (
                         <td
                           key={colIdx}
-                          className="border border-gray-400 px-2 py-1 whitespace-pre-wrap"
+                          className="border-2 border-gray-600 px-3 py-2 text-center"
                         >
                           {cell || "⠀"}
                         </td>
@@ -204,6 +229,7 @@ export default function TestSolveClient({
                 </tbody>
               </table>
             )}
+
           <div className="flex w-full border-b-2 border-dashed items-center justify-between">
             <div className="w-8 bg-black text-white text-center py-1">
               {question.index}
