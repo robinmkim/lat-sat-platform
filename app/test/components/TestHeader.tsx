@@ -23,19 +23,24 @@ export default function TestHeader() {
   const pathSegments = pathname.split("/");
 
   const testId = pathSegments[2];
-  const sectionNumber = Number(pathSegments[4]);
-  const questionIndex = Number(pathSegments[6] || "1");
+  const isBreakPage = pathname.includes("/break");
+  const sectionNumber = isBreakPage ? null : Number(pathSegments[4]);
+  const questionIndex = isBreakPage ? null : Number(pathSegments[6] || "1");
 
   const isMathSection = sectionNumber === 3 || sectionNumber === 4;
 
-  const storageKey = `timeLeft-${testId}-section-${sectionNumber}`;
-  const flagKey = `${storageKey}-initialized`;
+  const storageKey = sectionNumber
+    ? `timeLeft-${testId}-section-${sectionNumber}`
+    : "";
+  const flagKey = storageKey ? `${storageKey}-initialized` : "";
 
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
-  const [showReference, setShowReference] = useState(false); // ✅
+  const [showReference, setShowReference] = useState(false);
 
   useEffect(() => {
+    if (isBreakPage || sectionNumber === null || questionIndex === null) return;
+
     const initial = getInitialSeconds(sectionNumber);
     const alreadyInitialized = sessionStorage.getItem(flagKey) === "true";
 
@@ -53,10 +58,10 @@ export default function TestHeader() {
         }
       }
     }
-  }, [storageKey, flagKey, sectionNumber, questionIndex]);
+  }, [isBreakPage, storageKey, flagKey, sectionNumber, questionIndex]);
 
   useEffect(() => {
-    if (timeLeft === null) return;
+    if (isBreakPage || timeLeft === null) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -73,7 +78,7 @@ export default function TestHeader() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, storageKey]);
+  }, [isBreakPage, timeLeft, storageKey]);
 
   const handleExit = () => {
     const confirmed = confirm(
@@ -81,8 +86,8 @@ export default function TestHeader() {
     );
     if (!confirmed) return;
 
-    sessionStorage.removeItem(storageKey);
-    sessionStorage.removeItem(flagKey);
+    if (storageKey) sessionStorage.removeItem(storageKey);
+    if (flagKey) sessionStorage.removeItem(flagKey);
 
     Object.keys(sessionStorage).forEach((key) => {
       if (
@@ -105,7 +110,7 @@ export default function TestHeader() {
   };
 
   const handleNextSection = async () => {
-    const nextSectionNumber = sectionNumber + 1;
+    const nextSectionNumber = sectionNumber ? sectionNumber + 1 : 3;
     const route = await getNextQuestionRoute(
       testId,
       nextSectionNumber,
@@ -113,8 +118,8 @@ export default function TestHeader() {
       "next"
     );
 
-    sessionStorage.removeItem(storageKey);
-    sessionStorage.removeItem(flagKey);
+    if (storageKey) sessionStorage.removeItem(storageKey);
+    if (flagKey) sessionStorage.removeItem(flagKey);
 
     setShowTimeoutModal(false);
 
@@ -128,14 +133,18 @@ export default function TestHeader() {
   return (
     <>
       <div className="flex items-center justify-between w-full h-[80px] shrink-0 bg-blue-100 border-b-2 border-dashed px-5 pt-1">
-        <div className="text-lg font-medium">Section {sectionNumber}</div>
-
-        <div className="absolute left-1/2 -translate-x-1/2 text-lg font-mono">
-          {timeLeft !== null && formatTime(timeLeft)}
+        <div className="text-lg font-medium">
+          {isBreakPage ? "Break" : `Section ${sectionNumber}`}
         </div>
 
+        {!isBreakPage && (
+          <div className="absolute left-1/2 -translate-x-1/2 text-lg font-mono">
+            {timeLeft !== null && formatTime(timeLeft)}
+          </div>
+        )}
+
         <div className="flex items-center gap-2">
-          {isMathSection && (
+          {isMathSection && !isBreakPage && (
             <button
               onClick={() => setShowReference(true)}
               className="bg-yellow-100 border border-yellow-300 rounded px-3 py-1 text-sm hover:bg-yellow-200 transition"
@@ -153,40 +162,9 @@ export default function TestHeader() {
         </div>
       </div>
 
-      {/* ✅ Reference 모달 */}
       {showReference && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="relative w-[90%] max-w-4xl bg-white rounded-lg shadow-lg p-4">
-            <div className="flex justify-between items-center mb-2 border-b pb-2">
-              <h2 className="text-lg font-semibold">Reference Sheet</h2>
-              <button
-                onClick={() => setShowReference(false)}
-                className="text-gray-500 hover:text-black transition"
-              >
-                ✕
-              </button>
-            </div>
-            <Image
-              src="/reference/reference-sheet.png"
-              alt="Reference Sheet"
-              width={960}
-              height={720}
-              className="w-full h-auto rounded"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* ✅ 타임아웃 모달 */}
-      {showReference && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          onClick={() => setShowReference(false)} // ✅ 바깥 영역 클릭 시 닫기
-        >
-          <div
-            className="relative w-[90%] max-w-4xl bg-white rounded-lg shadow-lg p-4"
-            onClick={(e) => e.stopPropagation()} // ✅ 내부 클릭 시 이벤트 전파 차단
-          >
             <div className="flex justify-between items-center mb-2 border-b pb-2">
               <h2 className="text-lg font-semibold">Reference Sheet</h2>
               <button
