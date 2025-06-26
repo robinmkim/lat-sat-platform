@@ -17,6 +17,8 @@ export default function TestFooter() {
   const [isLoading, setIsLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
+  const isBreakPage = pathname.includes("/break");
+
   useEffect(() => {
     const match = pathname.match(
       /\/test\/(.+?)\/section\/(\d+)(?:\/question\/(\d+))?/
@@ -32,7 +34,6 @@ export default function TestFooter() {
       setSectionId(sectionNum);
       setTotalQuestions(total);
 
-      // ✅ review 페이지에서는 항상 마지막 문제 index로 설정
       if (pathname.endsWith("/review")) {
         setQuestionIndex(total);
       } else if (questionNum != null) {
@@ -49,8 +50,6 @@ export default function TestFooter() {
   const isLastQuestionInSection =
     (sectionId <= 2 && questionIndex === 27) ||
     (sectionId >= 3 && questionIndex === 22);
-  // const isLastSection = sectionId === 4;
-  // const isFinalQuestion = isLastSection && isLastQuestionInSection;
 
   const autoSaveEmptyAnswer = () => {
     try {
@@ -74,7 +73,12 @@ export default function TestFooter() {
     autoSaveEmptyAnswer();
     setIsLoading(true);
 
-    // ✅ review 페이지인 경우
+    if (isBreakPage && direction === "next") {
+      router.push(`/test/${testId}/section/3/question/1`);
+      setIsLoading(false);
+      return;
+    }
+
     if (pathname.endsWith("/review")) {
       if (direction === "next") {
         const isLastSection = sectionId === 4;
@@ -84,6 +88,12 @@ export default function TestFooter() {
           : confirm("다음 섹션으로 이동할까요?");
 
         if (!confirmNext) {
+          setIsLoading(false);
+          return;
+        }
+
+        if (sectionId === 2) {
+          router.push(`/test/${testId}/break`);
           setIsLoading(false);
           return;
         }
@@ -109,14 +119,12 @@ export default function TestFooter() {
       }
     }
 
-    // ✅ 마지막 문제인 경우 → 리뷰 페이지로 이동 (마지막 섹션 포함)
     if (direction === "next" && isLastQuestionInSection) {
       router.push(`/test/${testId}/section/${sectionId}/review`);
       setIsLoading(false);
       return;
     }
 
-    // ✅ 일반적인 prev/next 이동
     const offset = direction === "next" ? 1 : -1;
     const targetIndex = questionIndex + offset;
 
@@ -147,8 +155,9 @@ export default function TestFooter() {
         <div className="text-sm">Leave a Trace</div>
 
         <button
-          onClick={() => setShowModal(true)}
-          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center w-fit h-fit bg-gray-900 rounded-md px-3 py-1 text-sm text-white font-medium hover:bg-gray-800 transition"
+          onClick={() => !isBreakPage && setShowModal(true)}
+          disabled={isBreakPage}
+          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center w-fit h-fit bg-gray-900 rounded-md px-3 py-1 text-sm text-white font-medium hover:bg-gray-800 transition disabled:opacity-50"
         >
           Question {questionIndex} of {totalQuestions} ⌄
         </button>
@@ -157,7 +166,9 @@ export default function TestFooter() {
           <button
             onClick={() => handleNavigate("prev")}
             disabled={
-              isLoading || (isFirstQuestion && !pathname.endsWith("/review"))
+              isBreakPage ||
+              isLoading ||
+              (isFirstQuestion && !pathname.endsWith("/review"))
             }
             className="flex items-center justify-center w-fit h-fit bg-gray-300 rounded-xl px-3 py-1 text-sm text-gray-800 font-medium hover:bg-gray-400 transition disabled:opacity-50"
           >
@@ -173,7 +184,7 @@ export default function TestFooter() {
         </div>
       </div>
 
-      {showModal && (
+      {showModal && !isBreakPage && (
         <QuestionNavigatorModal
           testId={testId}
           sectionId={sectionId}

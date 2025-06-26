@@ -54,7 +54,9 @@ export default function TestSolveClient({
   }, [bookmarkKey]);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem(answerKey);
+    const stored =
+      sessionStorage.getItem(answerKey) ??
+      localStorage.getItem(`answers-backup-${testId}`);
     if (stored) {
       try {
         setAnswers(JSON.parse(stored));
@@ -62,7 +64,11 @@ export default function TestSolveClient({
         setAnswers({});
       }
     }
-  }, [answerKey]);
+  }, [answerKey, testId]);
+
+  useEffect(() => {
+    localStorage.setItem(`answers-backup-${testId}`, JSON.stringify(answers));
+  }, [answers, testId]);
 
   if (!question) {
     return <div className="p-4">문제를 불러오는 중입니다...</div>;
@@ -93,7 +99,6 @@ export default function TestSolveClient({
     });
   };
 
-  // ✅ 수정된 RW/RW/M/M 기준
   const isMathSection = sectionId >= 3;
   const isMathMultiple = question.type === "MULTIPLE" && isMathSection;
   const isMathShort = question.type === "SHORT" && isMathSection;
@@ -107,7 +112,6 @@ export default function TestSolveClient({
         question.images?.[0]?.url.trim()));
 
   const currentAnswer = answers[`section${sectionId}`]?.[question.index] ?? "";
-
   return (
     <div className="flex flex-col flex-grow min-h-0 w-full">
       <div className="flex flex-grow min-h-0 w-full overflow-hidden">
