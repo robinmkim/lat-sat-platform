@@ -43,7 +43,7 @@ model Question {
   index     Int
   question  String       @db.Text
   passage   String?      @db.Text
-  answer    String?
+  answer    String       @default("0")
   type      QuestionType @default(MULTIPLE)
   showTable Boolean      @default(false)
   showImage Boolean      @default(false)
