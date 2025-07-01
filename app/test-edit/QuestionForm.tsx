@@ -62,8 +62,31 @@ export default function QuestionForm({
       current.isImageChoice && current.type === "MULTIPLE"
         ? `q${questionIndex}-choice-${choiceIndex}`
         : `q${questionIndex}`;
+
+    // ✅ 부모에서 받은 콜백으로 uploadedMap 등록
     onSelectImageFile?.(key, file);
+
+    const previewUrl = URL.createObjectURL(file);
+
+    if (key === `q${questionIndex}`) {
+      // ✅ 본문 이미지일 경우: questions[].images에 반영
+      updateQuestion(current.id, {
+        images: [{ id: "", url: previewUrl }],
+      });
+    } else {
+      // ✅ 선택지 이미지일 경우: 해당 choice.images에 반영
+      const updatedChoices = current.choices.map((choice, i) =>
+        i === choiceIndex
+          ? {
+              ...choice,
+              images: [{ id: "", url: previewUrl }],
+            }
+          : choice
+      );
+      updateQuestion(current.id, { choices: updatedChoices });
+    }
   };
+
   useEffect(() => {
     // ✅ table 초기화
     if (!current.table) {

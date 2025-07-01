@@ -47,12 +47,19 @@ export default function ImageUploadInput({
     onSelectFile(file);
   };
 
-  // ✅ unmount 시 메모리 정리
+  // ✅ unmount 시 프리뷰 해제
   useEffect(() => {
     return () => {
       if (localPreview) URL.revokeObjectURL(localPreview);
     };
   }, [localPreview]);
+
+  // ✅ 외부 previewUrl이 바뀌면 동기화
+  useEffect(() => {
+    if (previewUrl) {
+      setLocalPreview(previewUrl);
+    }
+  }, [previewUrl]);
 
   if (!visible) {
     return (
@@ -74,10 +81,10 @@ export default function ImageUploadInput({
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
       {/* ✅ 이미지 미리보기 */}
-      {(localPreview || previewUrl) && (
+      {localPreview && (
         <div className="relative w-48 h-auto">
           <Image
-            src={localPreview ?? previewUrl!}
+            src={localPreview}
             alt="preview"
             width={192}
             height={0} // h-auto 적용을 위해 height 0 + className 필요

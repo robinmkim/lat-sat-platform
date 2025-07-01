@@ -92,6 +92,10 @@ export async function prepareChangedQuestions(
       choices: updatedChoices,
     });
   }
+  console.log(
+    "📦 prepareChangedQuestions",
+    JSON.stringify(changedQuestions, null, 2)
+  );
 
   return changedQuestions;
 }
