@@ -127,14 +127,29 @@ export default function QuestionRenderer({
       )}
 
       {/* ✅ 본문 이미지 업로드 (선택) */}
-      {showImage && (
+      {showImage ? (
         <ImageUploadInput
           previewUrl={images?.[0]?.url}
           onSelectFile={(file) => {
-            onSelectImageFile?.(0, file); // choiceIndex 0 = 본문용 (구분 필요시 분리)
+            onSelectImageFile?.(0, file);
           }}
           visible={true}
-          onToggleVisibility={() => {}}
+          onToggleVisibility={() =>
+            onUpdate({
+              showImage: false,
+              images: [],
+            })
+          }
+        />
+      ) : (
+        <ImageUploadInput
+          visible={false}
+          onToggleVisibility={() =>
+            onUpdate({
+              showImage: true,
+            })
+          }
+          onSelectFile={() => {}} // placeholder
         />
       )}
 

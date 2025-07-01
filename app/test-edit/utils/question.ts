@@ -61,6 +61,11 @@ export async function prepareChangedQuestions(
       images = [{ id: imageId, url: imageUrl }];
     }
 
+    // ✅ 본문 이미지 제거 처리
+    if (!updated.showImage || updated.images.length === 0) {
+      images = [];
+    }
+
     // ✅ 선택지 이미지 업로드 or 유지
     const updatedChoices = await Promise.all(
       updated.choices.map(async (choice, i) => {

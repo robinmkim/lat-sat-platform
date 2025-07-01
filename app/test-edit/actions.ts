@@ -164,28 +164,6 @@ export async function saveQuestionV2(
                 score: q.score ?? 1,
               },
             });
-
-            const oldChoices = await tx.choice.findMany({
-              where: { questionId: savedQuestion.id },
-              select: { id: true },
-            });
-
-            await tx.image.deleteMany({
-              where: {
-                OR: [
-                  { questionId: savedQuestion.id },
-                  { choiceId: { in: oldChoices.map((c) => c.id) } },
-                ],
-              },
-            });
-
-            await tx.choice.deleteMany({
-              where: { questionId: savedQuestion.id },
-            });
-
-            await tx.table.deleteMany({
-              where: { questionId: savedQuestion.id },
-            });
           } else {
             savedQuestion = await tx.question.create({
               data: {
@@ -204,7 +182,40 @@ export async function saveQuestionV2(
 
           const questionId = savedQuestion.id;
 
-          // 2. choices → createMany
+          // 2. 기존 이미지 제거 (조건부 삭제)
+          const questionImageRemoved = !q.showImage || q.images.length === 0;
+          const choiceImagesRemoved = q.choices.every(
+            (c) => (c.images?.length ?? 0) === 0
+          );
+
+          if (questionImageRemoved || choiceImagesRemoved) {
+            const oldChoices = await tx.choice.findMany({
+              where: { questionId },
+              select: { id: true },
+            });
+
+            await tx.image.deleteMany({
+              where: {
+                OR: [
+                  questionImageRemoved ? { questionId } : undefined,
+                  choiceImagesRemoved
+                    ? { choiceId: { in: oldChoices.map((c) => c.id) } }
+                    : undefined,
+                ].filter(Boolean) as any,
+              },
+            });
+          }
+
+          // 3. 기존 choice, table 제거
+          await tx.choice.deleteMany({
+            where: { questionId },
+          });
+
+          await tx.table.deleteMany({
+            where: { questionId },
+          });
+
+          // 4. choices → createMany
           const choiceData = q.choices.map((choice, i) => ({
             questionId,
             order: i,
@@ -216,13 +227,13 @@ export async function saveQuestionV2(
             skipDuplicates: true,
           });
 
-          // 3. inserted choices 다시 조회
+          // 5. inserted choices 다시 조회
           const insertedChoices = await tx.choice.findMany({
             where: { questionId },
-            orderBy: { order: "asc" }, // ✅ order 보장
+            orderBy: { order: "asc" },
           });
 
-          // 4. 이미지 데이터 구성
+          // 6. 이미지 삽입 (조건부)
           const imageInserts: {
             url: string;
             externalId: string;
@@ -230,6 +241,7 @@ export async function saveQuestionV2(
             questionId?: string;
           }[] = [];
 
+          // 선택지 이미지
           insertedChoices.forEach((choice, i) => {
             const images = q.choices[i]?.images ?? [];
             for (const img of images) {
@@ -241,7 +253,8 @@ export async function saveQuestionV2(
             }
           });
 
-          if (q.images?.length) {
+          // 본문 이미지 (showImage가 true일 때만)
+          if (q.showImage && q.images?.length) {
             for (const img of q.images) {
               imageInserts.push({
                 questionId,
@@ -258,7 +271,7 @@ export async function saveQuestionV2(
             });
           }
 
-          // 5. 테이블 삽입
+          // 7. 테이블 삽입
           if (q.table && q.showTable) {
             await tx.table.create({
               data: {
@@ -270,7 +283,7 @@ export async function saveQuestionV2(
           }
         },
         { timeout: 10000 }
-      ); // 넉넉한 트랜잭션 타임아웃 설정
+      );
     }
 
     revalidatePath("/test-list");
