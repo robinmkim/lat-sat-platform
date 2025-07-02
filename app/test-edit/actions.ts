@@ -194,26 +194,29 @@ export async function saveQuestionV2(
               select: { id: true },
             });
 
+            const imageDeleteConditions = [
+              questionImageRemoved ? { questionId } : null,
+              choiceImagesRemoved
+                ? { choiceId: { in: oldChoices.map((c) => c.id) } }
+                : null,
+            ].filter(
+              (
+                cond
+              ): cond is
+                | { questionId: string }
+                | { choiceId: { in: string[] } } => cond !== null
+            );
+
             await tx.image.deleteMany({
               where: {
-                OR: [
-                  questionImageRemoved ? { questionId } : undefined,
-                  choiceImagesRemoved
-                    ? { choiceId: { in: oldChoices.map((c) => c.id) } }
-                    : undefined,
-                ].filter(Boolean) as any,
+                OR: imageDeleteConditions,
               },
             });
           }
 
           // 3. 기존 choice, table 제거
-          await tx.choice.deleteMany({
-            where: { questionId },
-          });
-
-          await tx.table.deleteMany({
-            where: { questionId },
-          });
+          await tx.choice.deleteMany({ where: { questionId } });
+          await tx.table.deleteMany({ where: { questionId } });
 
           // 4. choices → createMany
           const choiceData = q.choices.map((choice, i) => ({
@@ -233,7 +236,7 @@ export async function saveQuestionV2(
             orderBy: { order: "asc" },
           });
 
-          // 6. 이미지 삽입 (조건부)
+          // 6. 이미지 삽입
           const imageInserts: {
             url: string;
             externalId: string;
@@ -245,6 +248,7 @@ export async function saveQuestionV2(
           insertedChoices.forEach((choice, i) => {
             const images = q.choices[i]?.images ?? [];
             for (const img of images) {
+              if (!img.url) continue;
               imageInserts.push({
                 choiceId: choice.id,
                 url: img.url,
@@ -253,9 +257,10 @@ export async function saveQuestionV2(
             }
           });
 
-          // 본문 이미지 (showImage가 true일 때만)
+          // 본문 이미지
           if (q.showImage && q.images?.length) {
-            for (const img of q.images) {
+            for (const img of q.images ?? []) {
+              if (!img.url) continue;
               imageInserts.push({
                 questionId,
                 url: img.url,

@@ -8,6 +8,7 @@ interface Props {
   onSelectFile: (file: File) => void;
   visible: boolean;
   onToggleVisibility: () => void;
+  onClearImage?: () => void; // ✅ 추가
 }
 
 export default function ImageUploadInput({
@@ -15,6 +16,7 @@ export default function ImageUploadInput({
   onSelectFile,
   visible,
   onToggleVisibility,
+  onClearImage,
 }: Props) {
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +38,6 @@ export default function ImageUploadInput({
       return;
     }
 
-    // ✅ 기존 프리뷰 URL 해제
     if (localPreview) {
       URL.revokeObjectURL(localPreview);
     }
@@ -54,7 +55,7 @@ export default function ImageUploadInput({
     };
   }, [localPreview]);
 
-  // ✅ 외부 previewUrl이 바뀌면 동기화
+  // ✅ 외부 previewUrl이 바뀌면 프리뷰 동기화
   useEffect(() => {
     if (previewUrl) {
       setLocalPreview(previewUrl);
@@ -77,19 +78,32 @@ export default function ImageUploadInput({
     <div className="flex flex-col gap-2">
       <input type="file" accept="image/*" onChange={handleFileChange} />
 
-      {/* ✅ 오류 메시지 */}
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
-      {/* ✅ 이미지 미리보기 */}
-      {localPreview && (
+      {(localPreview || previewUrl) && (
         <div className="relative w-48 h-auto">
           <Image
-            src={localPreview}
+            src={localPreview ?? previewUrl!}
             alt="preview"
             width={192}
-            height={0} // h-auto 적용을 위해 height 0 + className 필요
+            height={0}
             className="w-full h-auto rounded border"
           />
+          {onClearImage && (
+            <button
+              type="button"
+              onClick={() => {
+                if (localPreview) {
+                  URL.revokeObjectURL(localPreview);
+                  setLocalPreview(null);
+                }
+                onClearImage(); // ✅ 외부 상태도 제거
+              }}
+              className="mt-2 text-red-600 text-sm underline"
+            >
+              이미지 제거
+            </button>
+          )}
         </div>
       )}
 

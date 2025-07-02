@@ -31,7 +31,7 @@ interface QuestionFormProps {
   questions: Question[];
   setQuestions: React.Dispatch<React.SetStateAction<QuestionWithRelations[]>>;
   initialQuestion?: Question | null;
-  onSelectImageFile?: (key: string, file: File) => void;
+  onSelectImageFile?: (index: number | null, file: File) => void; // ✅ 수정됨
 }
 
 export default function QuestionForm({
@@ -57,24 +57,18 @@ export default function QuestionForm({
   };
 
   // ✅ 전달용 래핑 함수: index → string key 변환
-  const handleSelectImageFile = (choiceIndex: number, file: File) => {
-    const key =
-      current.isImageChoice && current.type === "MULTIPLE"
-        ? `q${questionIndex}-choice-${choiceIndex}`
-        : `q${questionIndex}`;
-
-    // ✅ 부모에서 받은 콜백으로 uploadedMap 등록
-    onSelectImageFile?.(key, file);
+  const handleSelectImageFile = (choiceIndex: number | null, file: File) => {
+    onSelectImageFile?.(choiceIndex, file); // ✅ index만 넘김 (key는 SectionEditClient에서 생성)
 
     const previewUrl = URL.createObjectURL(file);
 
-    if (key === `q${questionIndex}`) {
-      // ✅ 본문 이미지일 경우: questions[].images에 반영
+    if (choiceIndex === null) {
+      // ✅ 본문 이미지
       updateQuestion(current.id, {
         images: [{ id: "", url: previewUrl }],
       });
     } else {
-      // ✅ 선택지 이미지일 경우: 해당 choice.images에 반영
+      // ✅ 선택지 이미지
       const updatedChoices = current.choices.map((choice, i) =>
         i === choiceIndex
           ? {

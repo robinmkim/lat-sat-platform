@@ -96,6 +96,7 @@ export async function prepareChangedQuestions(
     "📦 prepareChangedQuestions",
     JSON.stringify(changedQuestions, null, 2)
   );
+  console.log("🧭 uploadedMap keys:", Array.from(uploadedMap.keys()));
 
   return changedQuestions;
 }

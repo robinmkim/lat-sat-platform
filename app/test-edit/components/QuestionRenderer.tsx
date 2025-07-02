@@ -16,7 +16,7 @@ interface QuestionRendererProps extends Question {
   sectionNumber: number;
   isImageChoice?: boolean;
   onUpdate: (data: Partial<Question>) => void;
-  onSelectImageFile?: (choiceIndex: number, file: File) => void; // ✅ 여기!
+  onSelectImageFile?: (choiceIndex: number | null, file: File) => void; // ✅ 수정됨
 }
 
 export default function QuestionRenderer({
@@ -51,7 +51,7 @@ export default function QuestionRenderer({
             onUpdate({
               table: {
                 ...table,
-                data: updated, // 저장 시 JSON 문자열로 변환
+                data: updated,
               },
             });
           }}
@@ -59,7 +59,7 @@ export default function QuestionRenderer({
         />
       )}
 
-      {/* ✅ 지문 입력 (RW 섹션만) */}
+      {/* ✅ 지문 입력 */}
       {isReadingWriting && (
         <PassageInput
           value={passage ?? ""}
@@ -78,7 +78,7 @@ export default function QuestionRenderer({
         passage={isReadingWriting ? passage ?? "" : question ?? ""}
       />
 
-      {/* ✅ 수식 미리보기 (Math 섹션 전용) */}
+      {/* ✅ 수식 미리보기 */}
       {!isReadingWriting && (
         <div className="bg-gray-50 border rounded p-3">
           <p className="text-sm font-medium text-gray-600 mb-2">
@@ -99,7 +99,13 @@ export default function QuestionRenderer({
             correctIndex={Number(answer) || 0}
             onSelectCorrect={(i) => onUpdate({ answer: i.toString() })}
             onSelectImageFile={(i, file) => {
-              onSelectImageFile?.(i, file);
+              onSelectImageFile?.(i, file); // ✅ 선택지 이미지 등록
+            }}
+            onClearImage={(i) => {
+              const clearedChoices = safeChoices.map((c, idx) =>
+                idx === i ? { ...c, images: [] } : c
+              );
+              onUpdate({ choices: clearedChoices });
             }}
           />
         ) : (
@@ -126,12 +132,12 @@ export default function QuestionRenderer({
         />
       )}
 
-      {/* ✅ 본문 이미지 업로드 (선택) */}
+      {/* ✅ 본문 이미지 업로드 */}
       {showImage ? (
         <ImageUploadInput
           previewUrl={images?.[0]?.url}
           onSelectFile={(file) => {
-            onSelectImageFile?.(0, file);
+            onSelectImageFile?.(null, file); // ✅ 본문 이미지 등록
           }}
           visible={true}
           onToggleVisibility={() =>
@@ -140,6 +146,7 @@ export default function QuestionRenderer({
               images: [],
             })
           }
+          onClearImage={() => onUpdate({ images: [] })}
         />
       ) : (
         <ImageUploadInput
@@ -149,7 +156,7 @@ export default function QuestionRenderer({
               showImage: true,
             })
           }
-          onSelectFile={() => {}} // placeholder
+          onSelectFile={() => {}} // 미사용
         />
       )}
 

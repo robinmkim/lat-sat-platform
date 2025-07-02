@@ -13,6 +13,7 @@ import type { QuestionWithRelations } from "types/question";
 import ShortAnswerInstruction from "@/test-edit/components/ShortAnswerInstruction";
 import LessonHeader from "@/test-lesson/components/LessonHeader";
 import LessonFooter from "@/test-lesson/components/LessonFooter";
+import ImageChoice from "@/test/components/ImageChoice";
 
 export default function LessonSolveClient({
   questions,
@@ -50,7 +51,7 @@ export default function LessonSolveClient({
         {showLeftBlock && (
           <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
-              {!question.isImageChoice && question.images?.[0]?.url && (
+              {question.showImage && question.images?.[0]?.url && (
                 <div className="w-full max-w-3xl mx-auto my-4 relative aspect-video">
                   <Image
                     src={question.images[0].url}
@@ -105,41 +106,20 @@ export default function LessonSolveClient({
             isMathMultiple ? "w-full" : "w-1/2"
           } p-5 overflow-y-auto min-h-0`}
         >
-          {/* ✅ 여기에 이미지 추가 */}
-          {!showLeftBlock && question.images?.[0]?.url && (
-            <div className="w-full max-w-3xl mx-auto my-4 relative aspect-video">
-              <Image
-                src={question.images[0].url}
-                alt="문제 이미지"
-                fill
-                className="object-contain rounded-none"
-                sizes="100vw"
-              />
-            </div>
-          )}
-          {!showLeftBlock && question.table?.title && (
-            <h3 className="text-lg font-semibold">{question.table?.title}</h3>
-          )}
           {!showLeftBlock &&
-            question.table?.data &&
-            !isEmptyTable(question.table.data) && (
-              <table className="w-full table-auto border border-gray-400 bg-white text-sm mb-2">
-                <tbody>
-                  {question.table.data.map((row, rowIdx) => (
-                    <tr key={rowIdx}>
-                      {row.map((cell, colIdx) => (
-                        <td
-                          key={colIdx}
-                          className="border border-gray-400 px-2 py-1 whitespace-pre-wrap"
-                        >
-                          {cell || "⠀"}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            question.showImage &&
+            question.images?.[0]?.url && (
+              <div className="w-full max-w-3xl mx-auto my-4 relative aspect-video">
+                <Image
+                  src={question.images[0].url}
+                  alt="문제 이미지"
+                  fill
+                  className="object-contain rounded-none"
+                  sizes="100vw"
+                />
+              </div>
             )}
+
           <div className="flex w-full border-b-2 border-dashed items-center justify-between">
             <div className="w-8 bg-black text-white text-center py-1">
               {question.index}
@@ -150,13 +130,24 @@ export default function LessonSolveClient({
             {renderInline(question.question)}
           </div>
 
-          {question.type === "MULTIPLE" && (
-            <MultipleChoice
-              choices={question.choices}
-              selectedIndex={answer !== "" ? parseInt(answer) : null}
-              onAnswer={(index) => setAnswer(index.toString())}
-            />
-          )}
+          {question.type === "MULTIPLE" &&
+            (question.isImageChoice ? (
+              <ImageChoice
+                choices={question.choices.map((c) => ({
+                  id: c.id,
+                  text: c.text,
+                  imageUrl: c.images?.[0]?.url ?? "",
+                }))}
+                selectedIndex={answer !== "" ? parseInt(answer) : null}
+                onAnswer={(index) => setAnswer(index.toString())}
+              />
+            ) : (
+              <MultipleChoice
+                choices={question.choices}
+                selectedIndex={answer !== "" ? parseInt(answer) : null}
+                onAnswer={(index) => setAnswer(index.toString())}
+              />
+            ))}
 
           {question.type === "SHORT" && (
             <FractionInput value={answer} onAnswer={setAnswer} />

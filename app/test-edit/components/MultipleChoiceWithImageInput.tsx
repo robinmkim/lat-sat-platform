@@ -1,5 +1,3 @@
-"use client";
-
 import ImageUploadInput from "./ImageUploadInput";
 
 interface Props {
@@ -7,6 +5,7 @@ interface Props {
   correctIndex: number;
   onSelectCorrect: (index: number) => void;
   onSelectImageFile: (index: number, file: File) => void;
+  onClearImage?: (index: number) => void; // ✅ 추가
 }
 
 export default function MultipleChoiceWithImageInput({
@@ -14,6 +13,7 @@ export default function MultipleChoiceWithImageInput({
   correctIndex,
   onSelectCorrect,
   onSelectImageFile,
+  onClearImage,
 }: Props) {
   return (
     <div className="flex flex-col gap-4">
@@ -37,8 +37,9 @@ export default function MultipleChoiceWithImageInput({
           <ImageUploadInput
             previewUrl={url}
             onSelectFile={(file) => onSelectImageFile(i, file)}
-            visible={true} // 항상 표시
-            onToggleVisibility={() => {}} // 토글 없음
+            onToggleVisibility={() => {}}
+            visible={true}
+            onClearImage={() => onClearImage?.(i)} // ✅ 전달
           />
         </div>
       ))}

@@ -118,7 +118,7 @@ export default function TestSolveClient({
         {showLeftBlock && (
           <div className="flex justify-center w-1/2 h-full p-5 overflow-hidden">
             <div className="flex flex-col w-full gap-4 overflow-y-auto max-h-full">
-              {!question.isImageChoice && question.images?.[0]?.url && (
+              {question.images?.[0]?.url && (
                 <div className="w-full max-w-3xl mx-auto my-4 relative aspect-video">
                   <Image
                     src={question.images[0].url}

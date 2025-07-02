@@ -278,7 +278,14 @@ export default function SectionEditClient({
           questionIndex={questionIndex}
           questions={questions}
           setQuestions={setQuestions}
-          onSelectImageFile={(key, file) => uploadedMap.current.set(key, file)}
+          onSelectImageFile={(index, file) => {
+            const key =
+              index === null
+                ? `q${questionIndex}` // ✅ 본문
+                : `q${questionIndex}-choice-${index}`; // ✅ 선택지
+            uploadedMap.current.set(key, file);
+            console.log("🗂️ uploadedMap 등록:", key, file.name);
+          }}
         />
       </div>
 
