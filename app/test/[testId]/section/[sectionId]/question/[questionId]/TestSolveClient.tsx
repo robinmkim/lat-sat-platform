@@ -215,12 +215,12 @@ export default function TestSolveClient({
               />
             </div>
           )}
-          {isMathShort && question.table?.title && (
+          {isMathSection && question.table?.title && (
             <h3 className="text-lg font-semibold mb-2">
               {question.table?.title}
             </h3>
           )}
-          {isMathShort &&
+          {isMathSection &&
             question.table?.data &&
             !isEmptyTable(question.table.data) && (
               <table className="table-auto border-2 border-gray-600 bg-white text-sm max-w-md mx-auto text-center mb-4">

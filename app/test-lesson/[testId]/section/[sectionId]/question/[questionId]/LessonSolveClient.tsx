@@ -126,6 +126,31 @@ export default function LessonSolveClient({
             </div>
           </div>
 
+          {isMathSection && question.table?.title && (
+            <h3 className="text-lg font-semibold">{question.table?.title}</h3>
+          )}
+
+          {isMathSection &&
+            question.table?.data &&
+            !isEmptyTable(question.table.data) && (
+              <table className="w-full table-auto border border-gray-400 bg-white text-sm">
+                <tbody>
+                  {question.table.data.map((row, rowIdx) => (
+                    <tr key={rowIdx}>
+                      {row.map((cell, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className="border border-gray-400 px-2 py-1 whitespace-pre-wrap"
+                        >
+                          {cell || "⠀"}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
           <div className="mt-4 mb-2 whitespace-pre-wrap">
             {renderInline(question.question)}
           </div>
