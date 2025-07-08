@@ -54,9 +54,7 @@ export default function TestSolveClient({
   }, [bookmarkKey]);
 
   useEffect(() => {
-    const stored =
-      sessionStorage.getItem(answerKey) ??
-      localStorage.getItem(`answers-backup-${testId}`);
+    const stored = sessionStorage.getItem(answerKey);
     if (stored) {
       try {
         setAnswers(JSON.parse(stored));
@@ -65,10 +63,6 @@ export default function TestSolveClient({
       }
     }
   }, [answerKey, testId]);
-
-  useEffect(() => {
-    localStorage.setItem(`answers-backup-${testId}`, JSON.stringify(answers));
-  }, [answers, testId]);
 
   if (!question) {
     return <div className="p-4">문제를 불러오는 중입니다...</div>;

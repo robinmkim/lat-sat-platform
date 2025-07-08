@@ -12,50 +12,76 @@ type Test = {
 export default function HomeClient({ tests }: { tests: Test[] }) {
   const [selected, setSelected] = useState(tests[0]?.id ?? "");
   const router = useRouter();
+
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [modePasswordType, setModePasswordType] = useState<
+    "exam" | "lesson" | "admin" | null
+  >(null);
 
   const handlePasswordConfirm = () => {
-    const CORRECT_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "";
-    if (passwordInput === CORRECT_PASSWORD) {
+    const EXAM_PASSWORD = process.env.NEXT_PUBLIC_EXAM_PASSWORD ?? "";
+    const LESSON_PASSWORD = process.env.NEXT_PUBLIC_LESSON_PASSWORD ?? "";
+    const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? "";
+
+    const isCorrect =
+      modePasswordType === "exam"
+        ? passwordInput === EXAM_PASSWORD
+        : modePasswordType === "lesson"
+        ? passwordInput === LESSON_PASSWORD
+        : passwordInput === ADMIN_PASSWORD;
+
+    if (isCorrect) {
       setShowPasswordModal(false);
-      router.push("/test-list");
+      pendingAction?.();
+      setPendingAction(null);
+      setModePasswordType(null);
     } else {
       alert("비밀번호가 틀렸습니다.");
     }
   };
 
-  const handleStart = () => {
-    if (!selected) {
+  const withPassword = (
+    action: () => void,
+    type: "exam" | "lesson" | "admin"
+  ) => {
+    if ((type === "exam" || type === "lesson") && !selected) {
       alert("시험을 선택해주세요.");
       return;
     }
+    setPendingAction(() => action);
+    setPasswordInput("");
+    setModePasswordType(type);
+    setShowPasswordModal(true);
+  };
 
-    const url = `/test/intro/${selected}`;
-    window.open(
-      url,
-      "_blank",
-      "width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,resizable=no"
-    );
+  const handleStart = () => {
+    withPassword(() => {
+      const url = `/test/intro/${selected}`;
+      window.open(
+        url,
+        "_blank",
+        "width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,resizable=no"
+      );
+    }, "exam");
   };
 
   const handleLesson = () => {
-    if (!selected) {
-      alert("시험을 선택해주세요.");
-      return;
-    }
-
-    const url = `/test-lesson/${selected}/section/1/question/1`;
-    window.open(
-      url,
-      "_blank",
-      "width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,resizable=no"
-    );
+    withPassword(() => {
+      const url = `/test-lesson/${selected}/section/1/question/1`;
+      window.open(
+        url,
+        "_blank",
+        "width=1200,height=800,menubar=no,toolbar=no,location=no,status=no,resizable=no"
+      );
+    }, "lesson");
   };
 
   const handleIconClick = () => {
-    setPasswordInput("");
-    setShowPasswordModal(true);
+    withPassword(() => {
+      router.push("/test-list");
+    }, "admin");
   };
 
   return (
