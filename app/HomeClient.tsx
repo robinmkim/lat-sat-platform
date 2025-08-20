@@ -38,7 +38,7 @@ export default function HomeClient({ tests }: { tests: Test[] }) {
       setPendingAction(null);
       setModePasswordType(null);
     } else {
-      alert("비밀번호가 틀렸습니다.");
+      alert("비밀번호가 틀렸습니다");
     }
   };
 
